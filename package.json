@@ -5,10 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "pnpm workspace react dev"
+    "dev:react": "pnpm --filter react dev",
+    "dev:server": "pnpm --filter server dev",
+    "dev": "run-pty % pnpm dev:server % pnpm dev:react"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
-  
+  "license": "ISC",
+  "devDependencies": {
+    "run-pty": "^5.0.0"
+  }
 }
