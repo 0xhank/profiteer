@@ -20,7 +20,6 @@ import {
   ATA_PROGRAM_PUBLIC_KEY,
   MAX_CHAIN_COMPUTE_UNITS,
   TOKEN_PROGRAM_PUBLIC_KEY,
-  USDC_MAINNET_PUBLIC_KEY,
 } from "../constants/tokens";
 
 import { SubmitSignedTransactionResponse, TransactionRegistryData, TransactionRegistryEntry } from "@/types";

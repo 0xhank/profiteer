@@ -8,7 +8,7 @@ cd $(dirname $(dirname $(dirname ${SCRIPT_DIR})))
 rm -rf $OUTPUT
 
 if [ -z ${PROGRAMS+x} ]; then
-    PROGRAMS="$(cat .github/.env | grep "PROGRAMS" | cut -d '=' -f 2)"
+    PROGRAMS="$(cat .env | grep "PROGRAMS" | cut -d '=' -f 2)"
 fi
 
 PROGRAMS=$(echo ${PROGRAMS} | jq -c '.[]' | sed 's/"//g')

@@ -2,6 +2,7 @@ import { initTRPC } from "@trpc/server";
 import { Token } from "shared/src/types/token";
 import { z } from "zod";
 import supabase from "./sbClient";
+import { initialize } from "programs";
 
 export type AppContext = {
   jwtToken: string;
@@ -75,7 +76,7 @@ export function createAppRouter() {
      * @returns Object containing a success message
      */
     initialize: t.procedure.mutation(() => {
-      return { message: "Initialization successful" };
+
     }),
   });
 }

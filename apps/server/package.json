@@ -23,6 +23,7 @@
     "bs58": "^6.0.0",
     "dotenv": "^16.4.7",
     "fastify": "^4.21.0",
+    "programs": "workspace:*",
     "zod": "^3.24.1"
   },
   "devDependencies": {

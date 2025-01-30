@@ -11,4 +11,4 @@ ARGS=$*
 # js client tests folder
 cd ${WORKING_DIR}/clients/js
 
-yarn install && yarn build && yarn test ${ARGS}
+yarn test ${ARGS}

@@ -8,7 +8,7 @@ source ${SCRIPT_DIR}/dump.sh ${OUTPUT}
 cd $(dirname $(dirname $(dirname ${SCRIPT_DIR})))
 
 if [ -z ${PROGRAMS+x} ]; then
-    PROGRAMS="$(cat .github/.env | grep "PROGRAMS" | cut -d '=' -f 2)"
+    PROGRAMS="$(cat .env | grep "PROGRAMS" | cut -d '=' -f 2)"
 fi
 
 # default to input from the command-line

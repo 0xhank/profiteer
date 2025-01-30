@@ -11,7 +11,7 @@ use instructions::{
 };
 use state::bonding_curve::CreateBondingCurveParams;
 use state::global::*;
-declare_id!("EtZR9gh25YUM6LkL2o2yYV1KzyuDdftHvYk3wsb2Ypkj");
+declare_id!("EjamzaR4XFnrUnuQAJDD5Eq92Fky9R7Ej4y52YZZgJ9z");
 
 #[program]
 pub mod pump_science {
