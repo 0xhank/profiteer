@@ -3,6 +3,8 @@ import { z, ZodError, ZodIntersection, ZodTypeAny } from "zod";
 const commonSchema = z.object({
   SERVER_HOST: z.string().default("0.0.0.0"),
   SERVER_PORT: z.coerce.number().positive().default(8888),
+
+  QUICKNODE_RPC_URL: z.string()
 });
 
 export function parseEnv<TSchema extends ZodTypeAny | undefined = undefined>(
@@ -10,6 +12,7 @@ export function parseEnv<TSchema extends ZodTypeAny | undefined = undefined>(
 ): z.infer<TSchema extends ZodTypeAny ? ZodIntersection<typeof commonSchema, TSchema> : typeof commonSchema> {
   const envSchema = schema !== undefined ? z.intersection(commonSchema, schema) : commonSchema;
   try {
+    console.log(process.env);
     return envSchema.parse(process.env);
   } catch (error) {
     if (error instanceof ZodError) {
