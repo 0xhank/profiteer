@@ -71,7 +71,7 @@ export async function safeFetchAllGlobal(
 }
 
 export function getGlobalGpaBuilder(context: Pick<Context, 'rpc' | 'programs'>) {
-  const programId = context.programs.getPublicKey('pumpScience', 'EtZR9gh25YUM6LkL2o2yYV1KzyuDdftHvYk3wsb2Ypkj');
+  const programId = context.programs.getPublicKey('pumpScience', 'EjamzaR4XFnrUnuQAJDD5Eq92Fky9R7Ej4y52YZZgJ9z');
   return gpaBuilder(context, programId)
     .registerFields<{ 'discriminator': Array<number>, 'initialized': boolean, 'globalAuthority': PublicKey, 'migrationAuthority': PublicKey, 'migrateFeeAmount': number | bigint, 'migrationTokenAllocation': number | bigint, 'feeReceiver': PublicKey, 'initialVirtualTokenReserves': number | bigint, 'initialVirtualSolReserves': number | bigint, 'initialRealTokenReserves': number | bigint, 'tokenTotalSupply': number | bigint, 'mintDecimals': number, 'meteoraConfig': PublicKey, 'whitelistEnabled': boolean, 'lastUpdatedSlot': number | bigint }>({ 'discriminator': [0, array(u8(), { size: 8 })], 'initialized': [8, bool()], 'globalAuthority': [9, publicKeySerializer()], 'migrationAuthority': [41, publicKeySerializer()], 'migrateFeeAmount': [73, u64()], 'migrationTokenAllocation': [81, u64()], 'feeReceiver': [89, publicKeySerializer()], 'initialVirtualTokenReserves': [121, u64()], 'initialVirtualSolReserves': [129, u64()], 'initialRealTokenReserves': [137, u64()], 'tokenTotalSupply': [145, u64()], 'mintDecimals': [153, u8()], 'meteoraConfig': [154, publicKeySerializer()], 'whitelistEnabled': [186, bool()], 'lastUpdatedSlot': [187, u64()] })
     .deserializeUsing<Global>((account) => deserializeGlobal(account))      .whereField('discriminator', [167, 232, 232, 177, 200, 108, 114, 127])
@@ -85,7 +85,7 @@ export function getGlobalSize(): number {
 export function findGlobalPda(
   context: Pick<Context, 'eddsa' | 'programs'>,
   ): Pda {
-  const programId = context.programs.getPublicKey('pumpScience', 'EtZR9gh25YUM6LkL2o2yYV1KzyuDdftHvYk3wsb2Ypkj');
+  const programId = context.programs.getPublicKey('pumpScience', 'EjamzaR4XFnrUnuQAJDD5Eq92Fky9R7Ej4y52YZZgJ9z');
   return context.eddsa.findPda(programId, [
                   string({ size: 'variable' }).serialize("global"),
             ]);

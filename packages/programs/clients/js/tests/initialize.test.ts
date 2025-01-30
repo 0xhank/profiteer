@@ -112,6 +112,9 @@ describe('initialize', () => {
         sdk = new PumpScienceSDK(umi);
         const tx = await connection.requestAirdrop(web3jsKp.publicKey, 100 * LAMPORTS_PER_SOL);
         await confirmTransaction(connection, tx);
+        console.log("Airdropped SOL to master keypair");
+        const adminBalance = await connection.getBalance(web3jsKp.publicKey, "confirmed");
+        console.log(`Admin balance: ${adminBalance}`);
     });
 
 
