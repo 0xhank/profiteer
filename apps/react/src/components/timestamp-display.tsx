@@ -7,14 +7,14 @@ const TimestampDisplay = () => {
   const server = useServer();
 
   const fetchTimestamp = async () => {
-      try {
-        const response = await server.getMostRecentTimestamp.query();
-        setTimestamp(response.recent_time);
-      } catch (err) {
-        console.error("Error fetching timestamp:", err);
-        setError("Failed to fetch timestamp");
-      }
-    };
+    try {
+      const response = await server.getMostRecentTimestamp.query();
+      setTimestamp(response.recent_time);
+    } catch (err) {
+      console.error("Error fetching timestamp:", err);
+      setError("Failed to fetch timestamp");
+    }
+  };
   useEffect(() => {
     fetchTimestamp();
   }, []);

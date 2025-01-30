@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { PageLayout } from "../components/page-layout";
 import { useTokenData } from "../hooks/use-token-data";
 import TokenCard from "../components/token-card";
+import { TokenTradeForm } from "../components/token/token-trade-form";
 
 export default function Token() {
   const params = useParams();
@@ -44,18 +45,7 @@ function TokenContent({mint}: {mint: string}) {
             />
           </div>
 
-        {/* Add TokenBalance component */}
-        {/* {tokenData.priceUsd && (
-            <TokenBalance
-            token = {tokenData}
-              tokenPrice={tokenData.priceUsd}
-            />
-        )}
-
-        <div className="grid grid-cols-2 gap-4">
-          <BuyTokenButton {...tokenData} />
-          <SellTokenButton {...tokenData} />
-        </div> */}
+          <TokenTradeForm {...tokenData} />
       </div>
     </PageLayout>
   );
