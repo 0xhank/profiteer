@@ -8,6 +8,7 @@ import { TokenListProvider } from "./contexts/TokenListContext";
 import Home from "./pages/home";
 import Token from "./pages/token";
 import { ServerProvider } from "./providers/server-provider";
+import TimestampDisplay from "./components/timestamp-display";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
     </ServerProvider>
   );
 }
+
 function _App() {
   return (
     <Router>
@@ -33,6 +35,7 @@ function _App() {
         </Routes>
         <Disclaimer />
         <ServerStatus />
+        <TimestampDisplay />
       </div>
     </Router>
   );

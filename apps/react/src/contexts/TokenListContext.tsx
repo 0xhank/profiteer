@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, ReactNode, useCallback, useEffect, useState } from "react";
-import { Token } from "server/src/types/token";
+import { Token } from "shared/src/types/token";
 import { useServer } from "../hooks/use-server";
 
 

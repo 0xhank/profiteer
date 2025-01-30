@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:react": "pnpm --filter react dev",
     "dev:server": "pnpm --filter server dev",
-    "dev": "run-pty % pnpm dev:server % pnpm dev:react",
+    "dev:indexer": "pnpm --filter indexer dev",
+    "dev": "run-pty % pnpm dev:server % pnpm dev:react % pnpm dev:indexer",
     "gen:db-types": "supabase gen types typescript --project-id bkpqenquwivuilvrihip > database.types.ts"
   },
   "keywords": [],

@@ -1,20 +1,17 @@
 #!/usr/bin/env node
 import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
-import { config } from "dotenv";
 import fastify from "fastify";
 import { AppRouter, createAppRouter } from "../src/createAppRouter";
-import { parseEnv } from "../src/util/parseEnv";
-
-config({ path: "../../.env" });
-
-export const env = parseEnv();
+import { config } from "dotenv";
+import { parseEnv } from "./env";
 
 // @see https://fastify.dev/docs/latest/
 export const server = fastify({
   maxParamLength: 5000,
   logger: true,
 });
-
+config({ path: "../../.env" });
+export const env = parseEnv();
 // k8s healthchecks
 server.get("/healthz", (_, res) => res.code(200).send());
 server.get("/readyz", (_, res) => res.code(200).send());
@@ -34,7 +31,6 @@ export const start = async () => {
   try {
     await server.register(import("@fastify/compress"));
     await server.register(import("@fastify/cors"));
-
 
     // @see https://trpc.io/docs/server/adapters/fastify
     server.register(fastifyTRPCPlugin<AppRouter>, {

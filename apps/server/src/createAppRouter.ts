@@ -1,9 +1,12 @@
 import { initTRPC } from "@trpc/server";
-import { Token } from "./types/token";
+import { Token } from "shared/src/types/token";
+import supabase from "./sbClient";
 
 export type AppContext = {
   jwtToken: string;
 };
+
+// Initialize Supabase client
 
 /**
  * Creates and configures the main tRPC router with all API endpoints.
@@ -25,18 +28,41 @@ export function createAppRouter() {
      * @returns Array of user objects
      */
     getTokens: t.procedure.query(async (): Promise<Token[]> => {
-      console.log("getTokens");
-      return [{
-        id: 1,
-        created_at: "2024-01-01",
-        solana_address: "0x123",
-        twitter_username: "test",
-        token_address: "0x123",
-        token_name: "test",
-        token_symbol: "test",
-        token_image: "test",
-        price_usd: 100,
-      }];
+      return [
+        {
+          id: 1,
+          created_at: "2024-01-01",
+          solana_address: "0x123",
+          twitter_username: "test",
+          token_address: "0x123",
+          token_name: "test",
+          token_symbol: "test",
+          token_image: "test",
+          price_usd: 100,
+        },
+      ];
+    }),
+
+    getTime: t.procedure.query(() => {
+      return { time: new Date().toISOString() };
+    }),
+
+    getMostRecentTimestamp: t.procedure.query(async () => {
+      const { data, error } = await supabase
+        .from("test_timestamp")
+        .select("recent_time")
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (error) {
+        throw new Error(`Failed to fetch timestamp: ${error.message}`);
+      }
+
+      if (data.length === 0) {
+        return { recent_time: null };
+      }
+
+      return { recent_time: data[0]!.recent_time };
     }),
   });
 }

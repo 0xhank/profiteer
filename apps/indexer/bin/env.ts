@@ -1,5 +1,8 @@
+#!/usr/bin/env node
+
 import { z, ZodError, ZodIntersection, ZodTypeAny } from "zod";
 import { config } from "dotenv";
+import path from "path";
 
 const commonSchema = z.object({
   SERVER_HOST: z.string().default("0.0.0.0"),
@@ -31,8 +34,6 @@ function parseEnv<TSchema extends ZodTypeAny | undefined = undefined>(
   }
 }
 
-
-config();
-
+config({ path: "../../.env" });
 export const env = parseEnv();
 

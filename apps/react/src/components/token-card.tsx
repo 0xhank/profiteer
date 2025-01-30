@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Token } from "server/src/types/token";
+import { Token } from "shared/src/types/token";
 import { cn } from "../utils/cn";
 
 export default function TokenCard({

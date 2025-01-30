@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { env } from "./util/env";
+import { env } from "../bin/env";
 import { Database } from "../../../database.types";
 
 // Create a single supabase client for interacting with your database
