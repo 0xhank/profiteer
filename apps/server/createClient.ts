@@ -5,7 +5,6 @@ import type { AppRouter } from "./createAppRouter";
 
 type CreateClientOptions = {
   httpUrl: string;
-  wsUrl: string;
   httpHeaders: HTTPBatchLinkOptions["headers"]
 };
 
@@ -15,23 +14,13 @@ type CreateClientOptions = {
  * @param {CreateClientOptions} options See `CreateClientOptions`.
  * @returns {CreateTRPCProxyClient<AppRouter>} A typed tRPC client.
  */
-export function createClient({ httpUrl, wsUrl, httpHeaders }: CreateClientOptions): CreateTRPCProxyClient<AppRouter> {
-  const wsClient = createWSClient({
-    url: wsUrl,
-  });
-
+export function createClient({ httpUrl, httpHeaders }: CreateClientOptions): CreateTRPCProxyClient<AppRouter> {
   return createTRPCProxyClient<AppRouter>({
     links: [
-      splitLink({
-        condition: (op) => op.type === 'subscription',
-        true: wsLink({
-          client: wsClient,
-        }),
-        false: httpBatchLink({
+        httpBatchLink({
           url: httpUrl,
           headers: httpHeaders
         }),
-      }),
     ],
   });
 }
