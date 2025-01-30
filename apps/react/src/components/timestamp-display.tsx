@@ -29,7 +29,7 @@ const TimestampDisplay = () => {
   }
 
   return (
-    <div className="p-4 bg-gray-100 rounded shadow">
+    <div className="absolute bottom-2 left-2 p-4 bg-white/50 rounded shadow">
       <h2 className="text-lg font-bold">Most Recent Timestamp</h2>
       <p>{timestamp ? new Date(timestamp).toLocaleString() : "Loading..."}</p>
       <button
