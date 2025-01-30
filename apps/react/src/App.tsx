@@ -15,7 +15,6 @@ function App() {
       <div className="relative flex flex-col h-screen w-screen absolute top-0 left-0 right-0 z-50">
     <ServerProvider>
         <TokenListProvider>
-
           {/* <WalletBalanceProvider> */}
           <_App />
           {/* </WalletBalanceProvider> */}

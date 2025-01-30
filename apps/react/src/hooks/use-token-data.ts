@@ -8,7 +8,6 @@ export const useTokenData = ({mint}: {mint: string}) => {
 
   const [isLoading, setIsLoading] = useState(true);
   const fetchToken = async () => {
-    setIsLoading(true);
         try {
           const token = await getTokenByMint.query({ tokenMint: mint });
           setTokenData(token || null);

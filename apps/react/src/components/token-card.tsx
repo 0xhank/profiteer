@@ -26,7 +26,7 @@ export default function TokenCard({
   return (
     <Link
       key={token.id}
-      to={`/token/${token.token_address}`}
+      to={`/token/${token.tokenAddress}`}
       className={cn(
         `block transform`,
         clickable ? "hover:scale-105" : "cursor-default"
@@ -43,24 +43,24 @@ export default function TokenCard({
         <div className="flex items-center justify-between space-x-2 transform skew-x-[12deg] relative z-10">
           <div className="flex items-center space-x-3 min-w-0">
             <img
-              src={token.token_image}
-              alt={token.token_name}
+              src={token.tokenImage}
+              alt={token.tokenName}
               width={40}
               height={40}
               className="rounded-full flex-shrink-0 sm:w-12 sm:h-12"
             />
             <div className="min-w-0">
               <h3 className="text-2xl font-bold text-gray-900 truncate">
-                {token.token_name}
+                {token.tokenName}
               </h3>
               <p className="text-xl text-semibold text-gray-500 truncate">
-                ${token.token_symbol}
+                ${token.tokenSymbol}
               </p>
             </div>
           </div>
           <div className="text-right flex-shrink-0">
             <p className="text-lg sm:text-2xl font-bold text-gray-900">
-              ${formatPrice(token.price_usd)}
+              ${formatPrice(token.priceUsd)}
             </p>
           </div>
         </div>

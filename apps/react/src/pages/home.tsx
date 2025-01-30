@@ -1,6 +1,6 @@
 "use client";
 
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 // import { usePrivy } from "@privy-io/react-auth";
 // import { useSolanaWallets } from "@privy-io/react-auth/solana";
 import { PageLayout } from "../components/page-layout";

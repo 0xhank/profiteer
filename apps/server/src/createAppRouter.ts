@@ -13,6 +13,19 @@ export type AppContext = {
  * Creates and configures the main tRPC router with all API endpoints.
  * @returns A configured tRPC router with all procedures
  */
+const dummyToken: Token = {
+  id: 1,
+  createdAt: "2024-01-01",
+  solanaAddress: "0x123",
+  twitterUsername: "test",
+  tokenAddress: "0x123",
+  tokenName: "test",
+  tokenSymbol: "test",
+  tokenImage: "test",
+  priceUsd: 100,
+  mint: "test",
+};
+
 export function createAppRouter() {
   const t = initTRPC.context<AppContext>().create();
   return t.router({
@@ -30,18 +43,7 @@ export function createAppRouter() {
      */
     getTokens: t.procedure.query(async (): Promise<Token[]> => {
       return [
-        {
-          id: 1,
-          created_at: "2024-01-01",
-          solana_address: "0x123",
-          twitter_username: "test",
-          token_address: "0x123",
-          token_name: "test",
-          token_symbol: "test",
-          token_image: "test",
-          price_usd: 100,
-          mint: "test",
-        },
+        dummyToken,
       ];
     }),
 
@@ -70,7 +72,7 @@ export function createAppRouter() {
     getTokenByMint: t.procedure
       .input(z.object({ tokenMint: z.string() }))
       .query(async ({ input }): Promise<Token | null> => {
-        return null;
+        return dummyToken;
       }),
   });
 }
