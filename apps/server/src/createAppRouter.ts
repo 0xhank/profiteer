@@ -1,7 +1,7 @@
 import { initTRPC } from "@trpc/server";
 import { Token } from "shared/src/types/token";
-import supabase from "./sbClient";
 import { z } from "zod";
+import supabase from "./sbClient";
 
 export type AppContext = {
   jwtToken: string;
@@ -39,9 +39,7 @@ export function createAppRouter() {
      * @returns Array of user objects
      */
     getTokens: t.procedure.query(async (): Promise<Token[]> => {
-      return [
-        dummyToken,
-      ];
+      return [dummyToken];
     }),
 
     getTime: t.procedure.query(() => {
@@ -71,6 +69,14 @@ export function createAppRouter() {
       .query(async ({ input }): Promise<Token | null> => {
         return dummyToken;
       }),
+
+    /**
+     * Initialization endpoint
+     * @returns Object containing a success message
+     */
+    initialize: t.procedure.mutation(() => {
+      return { message: "Initialization successful" };
+    }),
   });
 }
 

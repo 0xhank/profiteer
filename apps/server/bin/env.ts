@@ -33,4 +33,12 @@ export function parseEnv<TSchema extends ZodTypeAny | undefined = undefined>(
   }
 }
 
+let env: z.infer<typeof commonSchema>;
+if (typeof window === "undefined") {
+  config({ path: "../../.env" });
+  env =  parseEnv();
+} else {
+  env = {} as any
+}
 
+export default env;

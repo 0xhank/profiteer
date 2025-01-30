@@ -26,6 +26,15 @@ export default function ServerStatus() {
     setServerStatus({ status: status.status, color });
   };
 
+  const initializeServer = async () => {
+    try {
+      const response = await server.initialize.mutate();
+      alert(response.message); // Show the success message
+    } catch (error) {
+      console.error("Initialization failed", error);
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -33,6 +42,12 @@ export default function ServerStatus() {
       )}
     >
       Server {serverStatus.status}
+      <button
+        onClick={initializeServer}
+        className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded"
+      >
+        Initialize
+      </button>
     </div>
   );
 }

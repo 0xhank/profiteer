@@ -3,15 +3,14 @@ import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
 import fastify from "fastify";
 import { AppRouter, createAppRouter } from "../src/createAppRouter";
 import { config } from "dotenv";
-import { parseEnv } from "./env";
+import env, { parseEnv } from "./env";
 
 // @see https://fastify.dev/docs/latest/
 export const server = fastify({
   maxParamLength: 5000,
   logger: true,
 });
-config({ path: "../../.env" });
-export const env = parseEnv();
+
 // k8s healthchecks
 server.get("/healthz", (_, res) => res.code(200).send());
 server.get("/readyz", (_, res) => res.code(200).send());
