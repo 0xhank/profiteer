@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useState, useEffect } from 'react';
 
 
 interface SolanaPriceContextType {
@@ -7,13 +7,13 @@ interface SolanaPriceContextType {
   error: string | null;
 }
 
-const SolanaPriceContext = createContext<SolanaPriceContextType>({
+export const SolPriceContext = createContext<SolanaPriceContextType>({
   priceUSD: 0, // Default fallback value
   isLoading: true,
   error: null,
 });
 
-export const SolanaPriceProvider = ({ children }: { children: React.ReactNode }) => {
+export const SolPriceProvider = ({ children }: { children: React.ReactNode }) => {
   const [priceUSD, setPriceUSD] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,16 +40,9 @@ export const SolanaPriceProvider = ({ children }: { children: React.ReactNode })
   }, []);
 
   return (
-    <SolanaPriceContext.Provider value={{ priceUSD, isLoading, error }}>
+    <SolPriceContext.Provider value={{ priceUSD, isLoading, error }}>
       {children}
-    </SolanaPriceContext.Provider>
+    </SolPriceContext.Provider>
   );
 };
 
-export const useSolanaPrice = () => {
-  const context = useContext(SolanaPriceContext);
-  if (!context) {
-    throw new Error('useSolanaPrice must be used within a SolanaPriceProvider');
-  }
-  return context;
-}; 

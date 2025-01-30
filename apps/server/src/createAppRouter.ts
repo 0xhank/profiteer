@@ -1,6 +1,7 @@
 import { initTRPC } from "@trpc/server";
 import { Token } from "shared/src/types/token";
 import supabase from "./sbClient";
+import { z } from "zod";
 
 export type AppContext = {
   jwtToken: string;
@@ -39,6 +40,7 @@ export function createAppRouter() {
           token_symbol: "test",
           token_image: "test",
           price_usd: 100,
+          mint: "test",
         },
       ];
     }),
@@ -64,6 +66,12 @@ export function createAppRouter() {
 
       return { recent_time: data[0]!.recent_time };
     }),
+
+    getTokenByMint: t.procedure
+      .input(z.object({ tokenMint: z.string() }))
+      .query(async ({ input }): Promise<Token | null> => {
+        return null;
+      }),
   });
 }
 

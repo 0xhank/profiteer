@@ -1,5 +1,6 @@
 export interface Token {
   id: number;
+  mint: string;
   created_at: string;
   solana_address: string;
   twitter_username: string;

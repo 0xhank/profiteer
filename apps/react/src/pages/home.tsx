@@ -1,5 +1,6 @@
 "use client";
 
+import { Link, useNavigate } from "react-router-dom";
 // import { usePrivy } from "@privy-io/react-auth";
 // import { useSolanaWallets } from "@privy-io/react-auth/solana";
 import { PageLayout } from "../components/page-layout";
@@ -50,6 +51,8 @@ export default function Home() {
   //   }
   // };
 
+  const navigate = useNavigate();
+
   return (
     <PageLayout>
       <div className="flex flex-col text-left mt-24 animate-fade-in">
@@ -77,7 +80,14 @@ export default function Home() {
               Meme the news
             </p>
           </div>
-          <div className="space-y-4 flex flex-col items-center"></div>
+          <div className="space-y-4 flex flex-col items-center">
+            <button
+              className="bg-blue-500 text-white px-4 py-2 rounded-md z-50"
+              onClick={() => navigate("/create")}
+            >
+              Create Token
+            </button>
+          </div>
         </div>
       </div>
       <TokenList />
