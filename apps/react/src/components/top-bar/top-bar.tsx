@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "../../utils/cn";
 import { WalletBalance } from "./wallet-balance";
-import { trpc } from "../../utils/trpc";
 import { useServer } from "../../hooks/use-server";
 
 export default function TopBar({ className }: { className?: string }) {

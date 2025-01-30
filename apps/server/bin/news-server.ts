@@ -2,10 +2,8 @@
 import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
 import { config } from "dotenv";
 import fastify from "fastify";
+import { AppRouter, createAppRouter } from "../src/createAppRouter";
 import { parseEnv } from "./parseEnv";
-import { NewsService } from "../services/NewsService";
-import { createAppRouter } from "../createAppRouter";
-import { AppRouter } from "../createAppRouter";
 
 config({ path: "../../.env" });
 
@@ -37,7 +35,6 @@ export const start = async () => {
     await server.register(import("@fastify/compress"));
     await server.register(import("@fastify/cors"));
 
-    const newsService = new NewsService();
 
     // @see https://trpc.io/docs/server/adapters/fastify
     server.register(fastifyTRPCPlugin<AppRouter>, {
@@ -45,7 +42,6 @@ export const start = async () => {
       trpcOptions: {
         router: createAppRouter(),
         createContext: async (opt) => ({
-          newsService,
           jwtToken: getBearerToken(opt.req) ?? "",
         }),
       },

@@ -3,6 +3,7 @@
 // import { usePrivy } from "@privy-io/react-auth";
 // import { useSolanaWallets } from "@privy-io/react-auth/solana";
 import { PageLayout } from "../components/page-layout";
+import { TokenList } from "../components/token-list";
 
 export default function Home() {
   // const { login, ready, authenticated, user } = usePrivy();
@@ -79,7 +80,7 @@ export default function Home() {
           <div className="space-y-4 flex flex-col items-center"></div>
         </div>
       </div>
-      {/* <TokenList /> */}
+      <TokenList />
     </PageLayout>
   );
 }

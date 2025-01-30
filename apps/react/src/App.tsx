@@ -4,22 +4,22 @@ import Token from "./pages/token";
 import Home from "./pages/home";
 import TopBar from "./components/top-bar/top-bar";
 import { Disclaimer } from "./components/disclaimer";
-import { PrivyClientProvider } from "./providers/privy-client-provider";
 import { SolanaPriceProvider } from "./contexts/SolanaPriceContext";
 import { ServerProvider } from "./providers/server-provider";
+import { TokenListProvider } from "./contexts/TokenListContext";
 
 
 function App() {
 
   return (
     <ServerProvider>
-        <PrivyClientProvider>
           <SolanaPriceProvider>
-            {/* <WalletBalanceProvider> */}
-            <_App />
-            {/* </WalletBalanceProvider> */}
+            <TokenListProvider> 
+              {/* <WalletBalanceProvider> */}
+              <_App />
+              {/* </WalletBalanceProvider> */}
+            </TokenListProvider>
           </SolanaPriceProvider>
-        </PrivyClientProvider>
     </ServerProvider>
   );
 }
