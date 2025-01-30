@@ -4,7 +4,8 @@ const commonSchema = z.object({
   SERVER_HOST: z.string().default("0.0.0.0"),
   SERVER_PORT: z.coerce.number().positive().default(8888),
 
-  QUICKNODE_RPC_URL: z.string()
+  QUICKNODE_RPC_URL: z.string(),
+  SB_CONNECTION: z.string(),
 });
 
 export function parseEnv<TSchema extends ZodTypeAny | undefined = undefined>(

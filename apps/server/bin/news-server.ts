@@ -3,7 +3,7 @@ import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
 import { config } from "dotenv";
 import fastify from "fastify";
 import { AppRouter, createAppRouter } from "../src/createAppRouter";
-import { parseEnv } from "./parseEnv";
+import { parseEnv } from "../src/util/parseEnv";
 
 config({ path: "../../.env" });
 

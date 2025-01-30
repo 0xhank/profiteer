@@ -10,6 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "nodemon": "^3.1.7"
+    "@supabase/supabase-js": "^2.48.1",
+    "dotenv": "^16.4.7",
+    "nodemon": "^3.1.7",
+    "zod": "^3.24.1"
   }
 }
