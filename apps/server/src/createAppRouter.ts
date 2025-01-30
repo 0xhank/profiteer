@@ -16,14 +16,11 @@ export type AppContext = {
 const dummyToken: Token = {
   id: 1,
   createdAt: "2024-01-01",
-  solanaAddress: "0x123",
-  twitterUsername: "test",
-  tokenAddress: "0x123",
-  tokenName: "test",
-  tokenSymbol: "test",
-  tokenImage: "test",
+  tokenName: "Fartcoin",
+  tokenSymbol: "FART",
+  tokenImage: "https://i.imgur.com/1234567890.png",
   priceUsd: 100,
-  mint: "test",
+  mint: "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump",
 };
 
 export function createAppRouter() {

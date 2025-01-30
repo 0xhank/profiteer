@@ -26,7 +26,7 @@ export default function TokenCard({
   return (
     <Link
       key={token.id}
-      to={`/token/${token.tokenAddress}`}
+      to={`/token/${token.mint}`}
       className={cn(
         `block transform`,
         clickable ? "hover:scale-105" : "cursor-default"

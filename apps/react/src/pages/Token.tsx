@@ -37,7 +37,7 @@ function TokenContent({mint}: {mint: string}) {
             style={{ height: "400px", minWidth: "600px" }}
           >
             <iframe
-              src={`https://dexscreener.com/solana/${tokenData.tokenAddress}?embed=1&theme=dark&trades=0&info=0`}
+              src={`https://dexscreener.com/solana/${tokenData.mint}?embed=1&theme=dark&trades=0&info=0`}
               height="100%"
               width="100%"
               className="bg-black/20"
