@@ -2,9 +2,11 @@ import { initTRPC } from "@trpc/server";
 import { Token } from "shared/src/types/token";
 import { z } from "zod";
 import supabase from "./sbClient";
-import { initialize } from "programs";
+import { PumpService } from "./services/PumpService";
+import { createBondingCurveInputSchema } from "./types";
 
 export type AppContext = {
+  pumpService: PumpService;
   jwtToken: string;
 };
 
@@ -71,13 +73,11 @@ export function createAppRouter() {
         return dummyToken;
       }),
 
-    /**
-     * Initialization endpoint
-     * @returns Object containing a success message
-     */
-    initialize: t.procedure.mutation(() => {
-
-    }),
+    createBondingCurve: t.procedure
+      .input(createBondingCurveInputSchema)
+      .mutation(async ({ input, ctx }) => {
+        return ctx.pumpService.createBondingCurve(input);
+      }),
   });
 }
 

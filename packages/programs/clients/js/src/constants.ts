@@ -4,7 +4,7 @@ import {
 import { none, publicKey } from "@metaplex-foundation/umi";
 import { CreateBondingCurveInstructionArgs } from "./generated";
 
-export const FEE_RECEIVER = publicKey("3bM4hewuZFZgNXvLWwaktXMa8YHgxsnnhaRfzxJV944P");
+export const FEE_RECIPIENT = publicKey("G2MxbSK844rQSzEsNxN7adrBZdtbzyMx7wb5KntfiYhJ");
 export const METEORA_CONFIG = publicKey("FiENCCbPi3rFh5pW2AJ59HC53yM32eLaCjMKxRqanKFJ");
 
 export const TOKEN_DECIMALS = 6; // 6 decimals
@@ -25,7 +25,7 @@ export const INIT_DEFAULTS = {
     mintDecimals: TOKEN_DECIMALS,
     migrateFeeAmount: 500,
     migrationTokenAllocation: 50_000_000_000_000,
-    feeReceiver: FEE_RECEIVER,
+    feeReceiver: FEE_RECIPIENT,
     whitelistEnabled: false,
     meteoraConfig: METEORA_CONFIG
 }

@@ -3,7 +3,7 @@ import { findAssociatedTokenPda, SPL_ASSOCIATED_TOKEN_PROGRAM_ID } from "@metapl
 import { publicKey as publicKeySerializer, string } from '@metaplex-foundation/umi/serializers';
 import { fromWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
 import { SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
-import { FEE_RECEIVER, tokenMetadataProgramId } from "../constants";
+import { FEE_RECIPIENT, tokenMetadataProgramId } from "../constants";
 import {
     createBondingCurve,
     CreateBondingCurveInstructionDataArgs,
@@ -46,7 +46,7 @@ export class CurveSDK {
             bondingCurveTokenAccount: this.bondingCurveTokenAccount[0],
             bondingCurveSolEscrow: this.bondingCurveSolEscrow[0],
             userTokenAccount: this.userTokenAccount[0],
-            feeReceiver: FEE_RECEIVER,
+            feeReceiver: FEE_RECIPIENT,
             clock: fromWeb3JsPublicKey(SYSVAR_CLOCK_PUBKEY),
             associatedTokenProgram: SPL_ASSOCIATED_TOKEN_PROGRAM_ID,
             ...this.PumpScience.evtAuthAccs,

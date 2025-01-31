@@ -4,6 +4,7 @@ import fastify from "fastify";
 import { AppRouter, createAppRouter } from "../src/createAppRouter";
 import { config } from "dotenv";
 import env, { parseEnv } from "./env";
+import { createPumpService } from "@/services/PumpService";
 
 // @see https://fastify.dev/docs/latest/
 export const server = fastify({
@@ -37,6 +38,7 @@ export const start = async () => {
       trpcOptions: {
         router: createAppRouter(),
         createContext: async (opt) => ({
+          pumpService: createPumpService(),
           jwtToken: getBearerToken(opt.req) ?? "",
         }),
       },

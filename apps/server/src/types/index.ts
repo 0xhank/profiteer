@@ -1,4 +1,13 @@
-import { MessageV0, PublicKey } from "@solana/web3.js";
+import { MessageV0 } from "@solana/web3.js";
+import { z } from "zod";
+
+export const createBondingCurveInputSchema = z.object({
+  name: z.string(),
+  symbol: z.string(),
+  uri: z.string(),
+});
+
+export type CreateBondingCurveInput = z.infer<typeof createBondingCurveInputSchema>;
 
 export type TransactionRegistryData = {
   timestamp: number;
