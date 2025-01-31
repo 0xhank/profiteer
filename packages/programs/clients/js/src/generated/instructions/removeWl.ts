@@ -37,7 +37,7 @@ export function removeWl(
                         input: RemoveWlInstructionAccounts,
       ): TransactionBuilder {
   // Program ID.
-  const programId = context.programs.getPublicKey('pumpScience', 'EjamzaR4XFnrUnuQAJDD5Eq92Fky9R7Ej4y52YZZgJ9z');
+  const programId = context.programs.getPublicKey('pumpScience', '3f8czWoabRYKVvqeGfM1uKNj5rC7Dudpi8R3TkP1fGQQ');
 
   // Accounts.
   const resolvedAccounts = {

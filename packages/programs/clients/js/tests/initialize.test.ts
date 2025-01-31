@@ -1,10 +1,10 @@
-import { Keypair, keypairIdentity, transactionBuilder, TransactionBuilder, Umi } from "@metaplex-foundation/umi";
+import { Keypair, keypairIdentity, TransactionBuilder, transactionBuilder, Umi } from "@metaplex-foundation/umi";
 
 import * as anchor from "@coral-xyz/anchor";
 import { setComputeUnitLimit } from "@metaplex-foundation/mpl-toolbox";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { fromWeb3JsKeypair } from "@metaplex-foundation/umi-web3js-adapters";
-import { LAMPORTS_PER_SOL, Keypair as Web3JsKeypair } from "@solana/web3.js";
+import { Connection, LAMPORTS_PER_SOL, Keypair as Web3JsKeypair } from "@solana/web3.js";
 import path from 'path';
 import { INIT_DEFAULTS, PumpScienceSDK } from "../src";
 import { confirmTransaction } from "../src/confirmTx";
@@ -16,7 +16,7 @@ const loadProviders = () => {
         const masterKp = fromWeb3JsKeypair(
             web3jsKp
         ); 
-        // process.env.ANCHOR_WALLET  = privateKey
+
   process.env.ANCHOR_WALLET = privateKeyUrl;
 
   let rpcUrl = "http://127.0.0.1:8899";
@@ -88,13 +88,15 @@ describe('initialize', () => {
     let umi: Umi;
     let sdk : PumpScienceSDK;
     let masterKp: Keypair;
+    let web3jsKp: Web3JsKeypair;
+    let connection: Connection;
 
     async function processTransaction(txBuilder: TransactionBuilder) {
     let txWithBudget = transactionBuilder().add(
         setComputeUnitLimit(umi, { units: 600_000 })
     );
     const fullBuilder = txBuilder.prepend(txWithBudget);
-    return await fullBuilder.sendAndConfirm(umi, {
+    await fullBuilder.sendAndConfirm(umi, {
         confirm: {
             commitment: "confirmed"
         }
@@ -102,29 +104,40 @@ describe('initialize', () => {
     }
 
     beforeAll(async () => {
-        const web3jsKp = Web3JsKeypair.fromSecretKey(Uint8Array.from(require(privateKeyUrl)))
+        web3jsKp = Web3JsKeypair.fromSecretKey(Uint8Array.from(require(privateKeyUrl)))
         masterKp = fromWeb3JsKeypair(
             web3jsKp
         );  
-       const {umi: preumi, connection } = loadProviders();
+       const {umi: preumi, connection: preConnection } = loadProviders();
 
+
+        connection = preConnection;
         umi = preumi.use(keypairIdentity(masterKp));
         sdk = new PumpScienceSDK(umi);
-        const tx = await connection.requestAirdrop(web3jsKp.publicKey, 100 * LAMPORTS_PER_SOL);
-        await confirmTransaction(connection, tx);
+        const tx = await preConnection.requestAirdrop(web3jsKp.publicKey, 100 * LAMPORTS_PER_SOL);
+        await confirmTransaction(preConnection, tx);
         console.log("Airdropped SOL to master keypair");
-        const adminBalance = await connection.getBalance(web3jsKp.publicKey, "confirmed");
+        const adminBalance = await preConnection.getBalance(web3jsKp.publicKey, "confirmed");
         console.log(`Admin balance: ${adminBalance}`);
     });
 
 
     it("is initialized", async () => {
+        const adminBalance = await connection.getBalance(web3jsKp.publicKey, "confirmed");
+        console.log({adminBalance});
         const adminSdk = sdk.getAdminSDK();
-        const txBuilder = adminSdk.initialize(INIT_DEFAULTS);
 
-        await processTransaction(txBuilder);
+        let global;
+        try {
+            global = await adminSdk.PumpScience.fetchGlobalData();
+            console.log("Contract already initialized:", global);
+        } catch (error) {
+            console.log("Contract not initialized, proceeding with initialization.");
+            const txBuilder = adminSdk.initialize(INIT_DEFAULTS);
+            await processTransaction(txBuilder);
+            global = await adminSdk.PumpScience.fetchGlobalData();
+        }
 
-        const global = await adminSdk.PumpScience.fetchGlobalData();
         console.log(global);
     });
         
