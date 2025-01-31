@@ -21,7 +21,7 @@ import {
 import { toWeb3JsPublicKey } from '@metaplex-foundation/umi-web3js-adapters';
 import { METAPLEX_PROGRAM, SEEDS } from "@mercurial-finance/dynamic-amm-sdk/dist/cjs/src/amm/constants";
 
-let programId = toWeb3JsPublicKey(PUMP_SCIENCE_PROGRAM_ID);
+export const programId = toWeb3JsPublicKey(PUMP_SCIENCE_PROGRAM_ID);
 
 export const getPDA = async (
   seeds: Array<Buffer | Uint8Array>,

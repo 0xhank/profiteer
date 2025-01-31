@@ -118,6 +118,8 @@ impl Swap<'_> {
 
         require!(exact_in_amount > &0, ContractError::MinSwap);
 
+        msg!("fee_receiver: {}", self.fee_receiver.key());
+        msg!("global.fee_receiver: {}", self.global.fee_receiver);
         require!(
             self.fee_receiver.key() == self.global.fee_receiver,
             ContractError::InvalidFeeReceiver

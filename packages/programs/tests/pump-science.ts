@@ -290,10 +290,10 @@ describe("pump-science", () => {
 
     const amm = AMM.fromBondingCurve(bondingCurveData);
     let sellTokenAmount = 100_000_000_000n;
-    let solAmount = amm.getSellPrice(sellTokenAmount);
+    let solAmount = amm.getSolForSellTokens(sellTokenAmount);
 
     // should use actual fee set on global when live
-    let fee = calculateFee(solAmount, INIT_DEFAULTS.tradeFeeBps);
+    let fee = calculateFee(solAmount, INIT_DEFAULTS);
     const solAmountAfterFee = solAmount - fee;
     console.log("solAmount", solAmount);
     console.log("fee", fee);

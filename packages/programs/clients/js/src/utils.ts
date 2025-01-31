@@ -1,4 +1,4 @@
-import { Context, Pda, RpcConfirmTransactionResult, TransactionSignature, PublicKey } from '@metaplex-foundation/umi';
+import { Context, Pda, RpcConfirmTransactionResult, TransactionSignature, PublicKey, Umi, Commitment } from '@metaplex-foundation/umi';
 import { publicKey as publicKeySerializer, string } from '@metaplex-foundation/umi/serializers';
 import * as anchor from "@coral-xyz/anchor";
 import { Connection, PublicKey as pubkey } from '@solana/web3.js';
@@ -11,6 +11,7 @@ import { BN } from '@coral-xyz/anchor';
 import { WL_SEED } from './constants';
 import { PumpScience } from './idls/pump_science';
 import { PUMP_SCIENCE_PROGRAM_ID } from './generated/programs/pumpScience';
+import { fetchToken } from '@metaplex-foundation/mpl-toolbox';
 
 
 const EVENT_AUTHORITY_PDA_SEED = "__event_authority";
@@ -151,3 +152,11 @@ export const getTxDetails = async (connection: anchor.web3.Connection, sig: stri
     commitment: "confirmed",
   });
 };
+
+export const getTknAmount = async (umi: Umi, pubkey: PublicKey, commitment: Commitment  ) => {
+  const tkn = await fetchToken(umi, pubkey, {
+    commitment,
+  });
+  return tkn.amount;
+};
+

@@ -1,4 +1,4 @@
-import { createSignerFromKeypair, Keypair, Pda, PublicKey, TransactionBuilder, Umi } from "@metaplex-foundation/umi";
+import { createSignerFromKeypair, Keypair, Pda, PublicKey, RpcGetAccountOptions, TransactionBuilder, Umi } from "@metaplex-foundation/umi";
 import { findAssociatedTokenPda, SPL_ASSOCIATED_TOKEN_PROGRAM_ID } from "@metaplex-foundation/mpl-toolbox";
 import { publicKey as publicKeySerializer, string } from '@metaplex-foundation/umi/serializers';
 import { fromWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
@@ -21,20 +21,20 @@ export class CurveSDK {
     umi: Umi;
 
     mint: PublicKey;
-    userTokenAccount: Pda;
     bondingCurvePda: Pda;
     bondingCurveTokenAccount: Pda;
     bondingCurveSolEscrow: Pda;
     whitelistPda: Pda;
     mintMetaPda: Pda;
 
-    fetchData() {
-        return fetchBondingCurve(this.umi, this.bondingCurvePda[0]);
+    fetchData(options?: RpcGetAccountOptions) {
+        return fetchBondingCurve(this.umi, this.bondingCurvePda[0], options);
     }
 
     swap(params: {
         direction: "buy" | "sell",
     } & Pick<SwapInstructionArgs, "exactInAmount" | "minOutAmount">) {
+        const userTokenAccount = this.getUserTokenAccount(this.umi.identity.publicKey);
         return swap(this.umi, {
             global: this.PumpScience.globalPda[0],
             user: this.umi.identity,
@@ -45,7 +45,7 @@ export class CurveSDK {
             bondingCurve: this.bondingCurvePda[0],
             bondingCurveTokenAccount: this.bondingCurveTokenAccount[0],
             bondingCurveSolEscrow: this.bondingCurveSolEscrow[0],
-            userTokenAccount: this.userTokenAccount[0],
+            userTokenAccount: userTokenAccount[0],
             feeReceiver: FEE_RECIPIENT,
             clock: fromWeb3JsPublicKey(SYSVAR_CLOCK_PUBKEY),
             associatedTokenProgram: SPL_ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -85,15 +85,17 @@ export class CurveSDK {
             .add(createBondingCurveIx);
     }
 
+    getUserTokenAccount(user: PublicKey) {
+        return findAssociatedTokenPda(this.umi, {
+            mint: this.mint,
+            owner: user,
+        });
+    }
+
     constructor(sdk: PumpScienceSDK, mint: PublicKey) {
         this.PumpScience = sdk;
         this.umi = sdk.umi;
         this.mint = mint;
-        this.userTokenAccount = findAssociatedTokenPda(this.umi, {
-            mint: this.mint,
-            owner: this.umi.identity.publicKey,
-        });
-
 
         this.bondingCurvePda = findBondingCurvePda(this.umi, {
             mint: this.mint,

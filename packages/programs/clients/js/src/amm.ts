@@ -27,8 +27,8 @@ export class AMM {
         );
     }
 
-    getTokensForBuySol(solAmount: bigint): bigint | null {
-        if (solAmount === 0n) return null;
+    getTokensForBuySol(solAmount: bigint): bigint {
+        if (solAmount === 0n) throw new Error("Cannot trade 0 tokens");
 
         // Convert to common decimal basis (using 9 decimals as base)
         const currentSol = this.virtualSolReserves;
@@ -43,8 +43,8 @@ export class AMM {
         return (tokensOut * 1_000_000n) / 1_000_000_000n;
     }
 
-    getSolForSellTokens(tokenAmount: bigint): bigint | null {
-        if (tokenAmount === 0n) return null;
+    getSolForSellTokens(tokenAmount: bigint): bigint {
+        if ( tokenAmount == 0n ) throw new Error("Cannot trade 0 tokens") 
 
         // Convert to common decimal basis (using 9 decimals as base)
         const currentSol = this.virtualSolReserves;
@@ -57,9 +57,8 @@ export class AMM {
         return currentSol - newSol;
     }
 
-    applyBuy(solAmount: bigint): BuyResult | null {
+    applyBuy(solAmount: bigint): BuyResult {
         let tokenAmount = this.getTokensForBuySol(solAmount);
-        if (!tokenAmount) return null;
 
         if (tokenAmount >= this.realTokenReserves) {
             // Last Buy

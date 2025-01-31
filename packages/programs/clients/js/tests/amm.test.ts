@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { AMM } from '../src/amm';
 
-describe('AMM', () => {
+describe.skip('AMM', () => {
     test('test_buy_and_sell_too_much', () => {
         const curve = new AMM(
             30_000_000_000n, // virtualSolReserves

@@ -5,8 +5,7 @@ import { Keypair as Web3JsKeypair } from "@solana/web3.js";
 import { confirmTransaction, processTransaction } from "programs";
 
 export const createPumpService = () => {
-  console.log("hello");
-  const { umi, connection, rpcUrl, masterKp, sdk } = initProviders();
+  const { umi, sdk } = initProviders();
 
   const createBondingCurve = async (input: CreateBondingCurveInput) => {
     const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
@@ -25,6 +24,7 @@ export const createPumpService = () => {
       throw error;
     }
   };
+
   return {
     createBondingCurve,
   };
