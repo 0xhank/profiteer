@@ -1,13 +1,10 @@
 import {
   Keypair,
   keypairIdentity,
-  TransactionBuilder,
-  transactionBuilder,
   Umi,
+
 } from "@metaplex-foundation/umi";
 
-import * as anchor from "@coral-xyz/anchor";
-import { setComputeUnitLimit } from "@metaplex-foundation/mpl-toolbox";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { fromWeb3JsKeypair } from "@metaplex-foundation/umi-web3js-adapters";
 import {
@@ -22,27 +19,22 @@ import {
   SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
 } from "../src";
 import { confirmTransaction, processTransaction } from "../src/confirmTx";
+import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 
 const privateKeyUrl = path.resolve(__dirname, "../../../pump_test.json");
 const loadProviders = () => {
   const privateKey = Uint8Array.from(require(privateKeyUrl));
+  // convert the private key to a string
+  const privateKeyString = bs58.encode(privateKey);
+  console.log({privateKeyString});
   const web3jsKp = Web3JsKeypair.fromSecretKey(privateKey);
   const masterKp = fromWeb3JsKeypair(web3jsKp);
 
-  process.env.ANCHOR_WALLET = privateKeyUrl;
-
   let rpcUrl = "http://127.0.0.1:8899";
-  if (process.env.ANCHOR_PROVIDER_URL) {
-    rpcUrl = process.env.ANCHOR_PROVIDER_URL;
-  } else {
-    process.env.ANCHOR_PROVIDER_URL = rpcUrl;
-  }
 
-  const provider = anchor.AnchorProvider.env();
-  const connection = provider.connection;
-  anchor.setProvider(provider);
+  const connection = new Connection(rpcUrl, "confirmed");
   const umi = createUmi(rpcUrl);
-  return { umi, connection, provider, rpcUrl, masterKp };
+  return { umi, connection, rpcUrl, masterKp };
 };
 // const amman = Amman.instance({
 //   ammanClientOpts: { autoUnref: false, ack: true },
@@ -102,8 +94,6 @@ describe("pump tests", () => {
   let masterKp: Keypair;
   let web3jsKp: Web3JsKeypair;
   let connection: Connection;
-
-
 
   beforeAll(async () => {
     web3jsKp = Web3JsKeypair.fromSecretKey(

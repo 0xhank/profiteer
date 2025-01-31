@@ -15,9 +15,7 @@ const commonSchema = z.object({
   SB_SERVICE_KEY: z.string(),
 
   PAYER_PRIVATE_KEY: z.string(),
-  ANCHOR_WALLET: z.string(),
   RPC_URL: z.string(),
-  ANCHOR_PROVIDER_URL: z.string(),
 
 });
 
@@ -26,7 +24,6 @@ export function parseEnv<TSchema extends ZodTypeAny | undefined = undefined>(
 ): z.infer<TSchema extends ZodTypeAny ? ZodIntersection<typeof commonSchema, TSchema> : typeof commonSchema> {
   const envSchema = schema !== undefined ? z.intersection(commonSchema, schema) : commonSchema;
   try {
-    console.log(process.env);
     return envSchema.parse(process.env);
   } catch (error) {
     if (error instanceof ZodError) {

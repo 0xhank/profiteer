@@ -5,10 +5,10 @@ import { Keypair as Web3JsKeypair } from "@solana/web3.js";
 import { confirmTransaction, processTransaction } from "programs";
 
 export const createPumpService = () => {
-  const { umi, connection, provider, rpcUrl, masterKp, sdk } = initProviders();
+  console.log("hello");
+  const { umi, connection, rpcUrl, masterKp, sdk } = initProviders();
 
-  return {
-    createBondingCurve: async (input: CreateBondingCurveInput) => {
+    const createBondingCurve= async (input: CreateBondingCurveInput) => {
       const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
       const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
   
@@ -18,9 +18,11 @@ export const createPumpService = () => {
         false
       );
 
-      return await processTransaction(umi, txBuilder);
-    },
-  };
+  return await processTransaction(umi, txBuilder);
+    }
+    return {
+      createBondingCurve
+    }
 };
 
 export type PumpService = ReturnType<typeof createPumpService>;
