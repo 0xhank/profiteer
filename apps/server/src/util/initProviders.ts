@@ -5,7 +5,7 @@ import { fromWeb3JsKeypair } from "@metaplex-foundation/umi-web3js-adapters";
 import {
   Keypair as Web3JsKeypair,
 } from "@solana/web3.js";
-import { PumpScienceSDK } from "programs/clients/js/src";
+import { PumpScienceSDK } from "programs";
 
 export const initProviders = () => {
   const pKey = Uint8Array.from(require(env.PAYER_PRIVATE_KEY));

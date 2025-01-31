@@ -21,7 +21,7 @@ import {
   PumpScienceSDK,
   SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
 } from "../src";
-import { confirmTransaction } from "../src/confirmTx";
+import { confirmTransaction, processTransaction } from "../src/confirmTx";
 
 const privateKeyUrl = path.resolve(__dirname, "../../../pump_test.json");
 const loadProviders = () => {
@@ -103,17 +103,7 @@ describe("pump tests", () => {
   let web3jsKp: Web3JsKeypair;
   let connection: Connection;
 
-  async function processTransaction(txBuilder: TransactionBuilder) {
-    let txWithBudget = transactionBuilder().add(
-      setComputeUnitLimit(umi, { units: 600_000 })
-    );
-    const fullBuilder = txBuilder.prepend(txWithBudget);
-    await fullBuilder.sendAndConfirm(umi, {
-      confirm: {
-        commitment: "confirmed",
-      },
-    });
-  }
+
 
   beforeAll(async () => {
     web3jsKp = Web3JsKeypair.fromSecretKey(
@@ -150,7 +140,8 @@ describe("pump tests", () => {
           "Contract not initialized, proceeding with initialization."
         );
         const txBuilder = adminSdk.initialize(INIT_DEFAULTS);
-        await processTransaction(txBuilder);
+        await processTransaction(umi, txBuilder);
+
         global = await adminSdk.PumpScience.fetchGlobalData();
       }
     });
@@ -167,7 +158,7 @@ describe("pump tests", () => {
         false
       );
 
-      await processTransaction(txBuilder);
+      await processTransaction(umi, txBuilder);
     });
   });
 });

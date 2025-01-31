@@ -1,9 +1,23 @@
+import { setComputeUnitLimit } from "@metaplex-foundation/mpl-toolbox";
+import { TransactionBuilder, transactionBuilder, Umi } from "@metaplex-foundation/umi";
 import {
   Connection,
   RpcResponseAndContext,
   SignatureStatus,
   TransactionConfirmationStatus,
 } from "@solana/web3.js";
+
+export async function processTransaction(umi: Umi, txBuilder: TransactionBuilder) {
+  let txWithBudget = transactionBuilder().add(
+    setComputeUnitLimit(umi, { units: 600_000 })
+    );
+    const fullBuilder = txBuilder.prepend(txWithBudget);
+    await fullBuilder.sendAndConfirm(umi, {
+      confirm: {
+        commitment: "confirmed",
+      },
+    });
+  }
 
 export async function confirmTransaction(
   connection: Connection,
