@@ -12,12 +12,13 @@ export async function processTransaction(umi: Umi, txBuilder: TransactionBuilder
     setComputeUnitLimit(umi, { units: 600_000 })
     );
     const fullBuilder = txBuilder.prepend(txWithBudget);
-    await fullBuilder.sendAndConfirm(umi, {
-      confirm: {
-        commitment: "confirmed",
-      },
-    });
-  }
+    const tx = await fullBuilder.sendAndConfirm(umi, {
+    confirm: {
+      commitment: "confirmed",
+    },
+  });
+  return tx;
+}
 
 export async function confirmTransaction(
   connection: Connection,

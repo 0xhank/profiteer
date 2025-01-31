@@ -69,7 +69,7 @@ export function createAppRouter() {
 
     getTokenByMint: t.procedure
       .input(z.object({ tokenMint: z.string() }))
-      .query(async ({ input }): Promise<Token | null> => {
+      .query(async (): Promise<Token | null> => {
         return dummyToken;
       }),
 

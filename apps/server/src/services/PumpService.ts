@@ -8,21 +8,26 @@ export const createPumpService = () => {
   console.log("hello");
   const { umi, connection, rpcUrl, masterKp, sdk } = initProviders();
 
-    const createBondingCurve= async (input: CreateBondingCurveInput) => {
-      const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
-      const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
-  
-      const txBuilder = curveSdk.createBondingCurve(
-        {...input, startSlot: null},
-        mintKp,
-        false
-      );
+  const createBondingCurve = async (input: CreateBondingCurveInput) => {
+    const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
+    const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
+    const txBuilder = curveSdk.createBondingCurve(
+      { ...input, startSlot: null },
+      mintKp,
+      false
+    );
 
-  return await processTransaction(umi, txBuilder);
+    try {
+      const tx = await processTransaction(umi, txBuilder);
+      return tx;
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
-    return {
-      createBondingCurve
-    }
+  };
+  return {
+    createBondingCurve,
+  };
 };
 
 export type PumpService = ReturnType<typeof createPumpService>;

@@ -1,25 +1,12 @@
-import { useSolPrice } from "../../hooks/use-sol-price";
-import { SendTransactionButton } from "./create-token-button";
-
-interface ReviewStepProps {
-  formData: {
-    name: string;
-    symbol: string;
-    twitter: string;
-    image: string;
-    username: string;
-    amount: string;
-  };
-  onBack: () => void;
-  onSuccess: (mintAddress: string) => void;
-  onError: (error: Error) => void;
-}
+import { useFormData } from "../../contexts/FormDataContext";
+import { useServer } from "../../hooks/use-server";
 
 export const ReviewStep = ({
-  formData,
   onBack,
-}: ReviewStepProps) => {
-  const { priceUSD } = useSolPrice();
+}: {
+  onBack: () => void;
+}) => {
+  const { formData } = useFormData();
   return (
     <div className="space-y-8">
       <div className="text-center mb-8">
@@ -57,23 +44,6 @@ export const ReviewStep = ({
                 ${formData.symbol}
               </p>
             </div>
-            <div>
-              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                Creator
-              </p>
-              <p className="text-sm sm:text-md font-medium text-gray-800 dark:text-gray-200">
-                <span className="inline-flex items-center">
-                  <svg
-                    className="w-4 h-4 mr-1 text-gray-900 dark:text-white"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                  </svg>
-                  @{formData.twitter}
-                </span>
-              </p>
-            </div>
           </div>
         </div>
       </div>
@@ -85,12 +55,6 @@ export const ReviewStep = ({
         </h3>
         <div className="space-y-3 sm:space-y-4">
           <div className="flex justify-between items-center py-1 sm:py-2">
-            <span className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-              Initial Buy Amount
-            </span>
-            <span className="font-bold text-base sm:text-lg text-gray-900 dark:text-white">
-              ${(parseFloat(formData.amount) * priceUSD).toFixed(2)}
-            </span>
           </div>
 
           <div className="flex justify-between items-center py-1">
@@ -124,9 +88,6 @@ export const ReviewStep = ({
 
           <div className="flex justify-between items-center py-1">
             <div className="flex items-center">
-              <span className="text-gray-600 dark:text-gray-400 mr-2 text-sm">
-                Provider Fee
-              </span>
               <div className="group relative">
                 <svg
                   className="w-3 h-3 text-gray-500 cursor-help"
@@ -146,25 +107,6 @@ export const ReviewStep = ({
                 </div>
               </div>
             </div>
-            <span className="font-medium text-gray-900 dark:text-white text-sm">
-              ~ ${(parseFloat(formData.amount) * priceUSD * 0.02).toFixed(2)}
-            </span>
-          </div>
-
-          <div className="border-t-2 border-gray-100 dark:border-gray-700 mt-3 sm:mt-4 pt-3 sm:pt-4">
-            <div className="flex justify-between items-center">
-              <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-                Total
-              </span>
-              <span className="text-lg sm:text-xl font-bold text-blue-600 dark:text-blue-400">
-                $
-                {(
-                  parseFloat(formData.amount) * priceUSD +
-                  6 +
-                  parseFloat(formData.amount) * priceUSD * 0.015
-                ).toFixed(2)}
-              </span>
-            </div>
           </div>
         </div>
       </div>
@@ -176,9 +118,41 @@ export const ReviewStep = ({
         >
           Back
         </button>
-        <SendTransactionButton
+
+        <CreateTokenButton
+          name={formData.name}
+          symbol={formData.symbol}
+          uri={formData.image}
         />
       </div>
     </div>
   );
 };
+
+const CreateTokenButton = (props: {
+  name: string;
+  symbol: string;
+  uri: string;
+}) => {
+  
+  const { createBondingCurve } = useServer();
+
+  const onSendTransaction = async () => {
+    console.log(props);
+    try {
+      const tx = await createBondingCurve.mutate(props);
+      console.log({tx});
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <button
+      onClick={onSendTransaction}
+      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold hover:scale-105 transform transition-all duration-300 shadow-lg"
+    >
+      Create Token
+    </button>
+  );
+}

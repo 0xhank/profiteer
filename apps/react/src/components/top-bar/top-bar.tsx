@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { cn } from "../../../utils/cn";
+import { cn } from "../../utils/cn";
 import { WalletBalance } from "./wallet-balance";
 
 export default function TopBar({ className }: { className?: string }) {
