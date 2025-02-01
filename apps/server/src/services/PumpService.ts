@@ -30,7 +30,7 @@ export const createPumpService = () => {
             if (!createEvent) {
                 throw new Error("CreateEvent not found");
             }
-            const { error } = await supabase.from("token_metadata").insert({
+            const { error: metadataError } = await supabase.from("token_metadata").insert({
                 mint: createEvent.mint.toBase58(),
                 creator: createEvent.creator.toBase58(),
                 name: createEvent.name,
@@ -38,9 +38,24 @@ export const createPumpService = () => {
                 uri: createEvent.uri,
                 start_slot: createEvent.startSlot.toNumber(),
             });
-            if (error) {
+            if (metadataError) {
                 throw new Error(
-                    `Failed to insert token metadata: ${error.message}`
+                    `Failed to insert token metadata: ${metadataError.message}`
+                );
+            }
+
+
+            const { error: curveError } = await supabase.from("curve_data").insert({
+                mint: createEvent.mint.toBase58(),
+                real_sol_reserves: Number(createEvent.virtualSolReserves),
+                real_token_reserves: Number(createEvent.virtualTokenReserves),
+                virtual_sol_reserves: Number(createEvent.virtualSolReserves),
+                virtual_token_reserves: Number(createEvent.virtualTokenReserves),
+            });
+
+            if (curveError) {
+                throw new Error(
+                    `Failed to insert curve data: ${curveError.message}`
                 );
             }
             return tx;

@@ -9,6 +9,44 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      curve_data: {
+        Row: {
+          created_at: string
+          id: number
+          mint: string
+          real_sol_reserves: number
+          real_token_reserves: number
+          virtual_sol_reserves: number
+          virtual_token_reserves: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          mint: string
+          real_sol_reserves: number
+          real_token_reserves: number
+          virtual_sol_reserves: number
+          virtual_token_reserves: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          mint?: string
+          real_sol_reserves?: number
+          real_token_reserves?: number
+          virtual_sol_reserves?: number
+          virtual_token_reserves?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curve_data_mint_fkey"
+            columns: ["mint"]
+            isOneToOne: false
+            referencedRelation: "token_metadata"
+            referencedColumns: ["mint"]
+          },
+        ]
+      }
       sol_price_usd: {
         Row: {
           created_at: string
@@ -24,24 +62,6 @@ export type Database = {
           created_at?: string
           id?: number
           price_usd?: number
-        }
-        Relationships: []
-      }
-      test_timestamp: {
-        Row: {
-          created_at: string
-          id: number
-          recent_time: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          recent_time?: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          recent_time?: string
         }
         Relationships: []
       }

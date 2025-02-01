@@ -2,7 +2,6 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import "./App.css";
 import { Disclaimer } from "./components/disclaimer";
 import ServerStatus from "./components/server-status";
-import TimestampDisplay from "./components/timestamp-display";
 import TopBar from "./components/top-bar/top-bar";
 import { TokenProvider } from "./contexts/TokenProvider";
 import CreateToken from "./pages/create";
@@ -14,15 +13,15 @@ import { SolPriceProvider } from "./contexts/SolPriceContext";
 function App() {
     return (
         <div className="relative flex flex-col h-screen w-screen absolute top-0 left-0 right-0 z-50">
-            <ServerProvider>
-                <TokenProvider>
+            <TokenProvider>
+                <ServerProvider>
                     <SolPriceProvider>
                         {/* <WalletBalanceProvider> */}
                         <_App />
                         {/* </WalletBalanceProvider> */}
                     </SolPriceProvider>
-                </TokenProvider>
-            </ServerProvider>
+                </ServerProvider>
+            </TokenProvider>
         </div>
     );
 }
@@ -38,7 +37,6 @@ function _App() {
             </Routes>
             <Disclaimer />
             <ServerStatus />
-            <TimestampDisplay />
         </Router>
     );
 }

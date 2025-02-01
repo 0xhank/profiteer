@@ -12,19 +12,7 @@ export type AppContext = {
 
 // Initialize Supabase client
 
-/**
- * Creates and configures the main tRPC router with all API endpoints.
- * @returns A configured tRPC router with all procedures
- */
-const dummyToken: Token = {
-  id: 1,
-  createdAt: "2024-01-01",
-  tokenName: "Fartcoin",
-  tokenSymbol: "FART",
-  tokenImage: "https://i.imgur.com/1234567890.png",
-  priceUsd: 100,
-  mint: "9BB6NFEcjBCtnNLFko2FqVQBq8HHM13kCyYcdQbgpump",
-};
+
 
 export function createAppRouter() {
   const t = initTRPC.context<AppContext>().create();
@@ -42,35 +30,49 @@ export function createAppRouter() {
      * @returns Array of user objects
      */
     getTokens: t.procedure.query(async (): Promise<Token[]> => {
-      return [dummyToken];
+      const { data, error } = await supabase
+        .from("token_metadata")
+        .select("*");
+
+      if (error) {
+        throw new Error(`Failed to fetch tokens: ${error.message}`);
+      }
+      if (data.length === 0) {
+        return [];
+      }
+      return data.map((token) => ({
+        ...token,
+        createdAt: token.created_at,
+        imageUri: token.uri,
+        priceUsd: 0,
+      }));
     }),
 
     getTime: t.procedure.query(() => {
       return { time: new Date().toISOString() };
     }),
 
-    getMostRecentTimestamp: t.procedure.query(async () => {
-      const { data, error } = await supabase
-        .from("test_timestamp")
-        .select("recent_time")
-        .order("created_at", { ascending: false })
-        .limit(1);
-
-      if (error) {
-        throw new Error(`Failed to fetch timestamp: ${error.message}`);
-      }
-
-      if (data.length === 0) {
-        return { recent_time: null };
-      }
-
-      return { recent_time: data[0]!.recent_time };
-    }),
-
-    getTokenByMint: t.procedure
+     getTokenByMint: t.procedure
       .input(z.object({ tokenMint: z.string() }))
-      .query(async (): Promise<Token | null> => {
-        return dummyToken;
+      .query(async ({ input }): Promise<Token | null> => {
+        const { data, error } = await supabase
+          .from("token_metadata")
+          .select("*")
+          .eq("mint", input.tokenMint);
+
+        if (error) {
+        return null;
+        }
+        const rawToken = data[0];
+        if (!rawToken) {
+          return null;
+        }
+        return {
+          ...rawToken,
+          createdAt: rawToken.created_at,
+          imageUri: rawToken.uri,
+          priceUsd: 0,
+        };
       }),
 
     createBondingCurve: t.procedure

@@ -35,7 +35,6 @@ export function TokenProvider({ children }: { children: ReactNode }) {
             const { data, error } = await supabase
                 .from("token_metadata")
                 .select("*");
-            console.log("tokensData", data);
             if (error) {
                 throw new Error(error?.message);
             }
