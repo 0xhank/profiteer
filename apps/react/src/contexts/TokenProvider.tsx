@@ -1,17 +1,18 @@
 "use client";
 
+import { RealtimeChannel } from "@supabase/supabase-js";
 import {
     createContext,
     ReactNode,
     useCallback,
-    useState,
     useEffect,
+    useRef,
+    useState,
 } from "react";
 import { Token } from "shared/src/types/token";
 import supabase from "../sbClient";
-import { Database } from "../../../../database.types";
+import { formatToken } from "../utils/formatToken";
 
-type DbToken = Database["public"]["Tables"]["token_metadata"]["Row"];
 interface TokenListContextType {
     tokens: Record<string, Token>;
     isReady: boolean;
@@ -29,6 +30,21 @@ export function TokenProvider({ children }: { children: ReactNode }) {
     const [isReady, setIsReady] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
+    const sub = useRef<RealtimeChannel | null>(null);
+
+    // initialize the tokens
+    useEffect(() => {
+        fetchAllTokens();
+        subscribeToTokenPrices();
+        return () => {
+            if (sub.current) {
+                supabase.removeChannel(sub.current);
+                sub.current = null;
+            }
+        };
+    }, []);
+
+    // fetch tokens
     const fetchAllTokens = useCallback(async () => {
         try {
             // Set users immediately
@@ -47,70 +63,101 @@ export function TokenProvider({ children }: { children: ReactNode }) {
                 return acc;
             }, {} as Record<string, Token>);
             setTokens(newTokens);
+
+            // Fetch the most recent price for the token
+            const { data: priceData, error: priceError } = await supabase.rpc(
+                "get_latest_prices"
+            );
+
+            console.log("priceData", priceData);
+            if (priceError) throw new Error(priceError?.message);
+
+            priceData?.forEach((price) => {
+                const tokens = newTokens;
+                if (!tokens[price.mint]) return;
+                tokens[price.mint].priceUsd = price.price_usd;
+                setTokens(tokens);
+            });
         } catch (error) {
             console.error("Error fetching data:", error);
             setError(error as Error);
         } finally {
             setIsReady(true);
         }
+        return () => {
+            if (sub.current) {
+                supabase.removeChannel(sub.current);
+                sub.current = null;
+            }
+        };
     }, []);
-
-    useEffect(() => {
-        fetchAllTokens();
-        const intervalId = setInterval(fetchAllTokens, 30000);
-
-        return () => clearInterval(intervalId);
-    }, [fetchAllTokens]);
 
     const refreshTokens = () => {
         if (!isReady) return;
         fetchAllTokens();
     };
 
-    const waitUntilReady = async () => {
-        let attempt = 0;
-        while (!isReady) {
-            console.log("waiting for tokens to be ready");
-            await new Promise(resolve => setTimeout(resolve, 100));
-            attempt++;
-            if (attempt > 20) {
-                throw new Error("Failed to fetch tokens");
+    const subscribeToTokenPrices = useCallback(async () => {
+        if (sub.current) {
+            supabase.removeChannel(sub.current);
+            sub.current = null;
+        }
+
+        sub.current = supabase
+            .channel("token_price_usd")
+            .on(
+                "postgres_changes",
+                { event: "INSERT", schema: "public", table: "token_price_usd" },
+                (payload: { new: { mint: string; price_usd: number } }) => {
+                    console.log("token_price_usd", payload);
+                    const newTokens = tokens;
+                    if (!newTokens[payload.new.mint]) return;
+                    newTokens[payload.new.mint].priceUsd =
+                        payload.new.price_usd;
+                    setTokens(newTokens);
+                }
+            )
+            .subscribe();
+    }, [tokens]);
+
+    const getTokenByMint = useCallback(
+        async (mint: string) => {
+            const waitUntilReady = async () => {
+                let attempt = 0;
+                while (!isReady) {
+                    console.log("waiting for tokens to be ready");
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                    attempt++;
+                    if (attempt > 20) {
+                        throw new Error("Failed to fetch tokens");
+                    }
+                }
+            };
+
+            await waitUntilReady();
+            const token = tokens[mint];
+            if (token) return token;
+
+            const { data, error } = await supabase
+                .from("token_metadata")
+                .select("*")
+                .eq("mint", mint);
+
+            if (error) throw new Error(error?.message);
+            if (!data) throw new Error("No data");
+
+            const fetchedToken = data[0] ?? null;
+            if (!fetchedToken) {
+                throw new Error("No token found");
             }
-        }
-    };
+            const newToken = formatToken(fetchedToken);
+            tokens[newToken.mint] = newToken;
 
-    const getTokenByMint = useCallback(async (mint: string) => {
-        await waitUntilReady();
-        const token = tokens[mint];
-        if (token) return token;
-        
+            return newToken;
+        },
+        [tokens, isReady]
+    );
 
-        const { data, error } = await supabase
-            .from("token_metadata")
-            .select("*")
-            .eq("mint", mint);
-
-        if (error) throw new Error(error?.message);
-        if (!data) throw new Error("No data");
-
-        const fetchedToken = data[0] ?? null;
-        if (!fetchedToken) {
-            throw new Error("No token found");
-        }
-        const newToken = formatToken(fetchedToken);
-        tokens[newToken.mint] = newToken;
-
-        return newToken;
-    }, []);
-
-    const formatToken = (token: DbToken) : Token => {
-        return {
-            ...token,
-            createdAt: token.created_at,
-            imageUri: token.uri,
-            priceUsd: 0,
-        };
-    };
     return (
         <TokenListContext.Provider
             value={{ tokens, isReady, refreshTokens, error, getTokenByMint }}

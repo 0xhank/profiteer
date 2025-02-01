@@ -41,10 +41,15 @@ export function createAppRouter() {
         return [];
       }
       return data.map((token) => ({
-        ...token,
+        mint: token.mint,
         createdAt: token.created_at,
-        imageUri: token.uri,
         priceUsd: 0,
+        metadata: {
+          name: token.name,
+          symbol: token.symbol,
+          imageUri: token.uri,
+          startSlot: token.start_slot,
+        },
       }));
     }),
 
@@ -70,8 +75,13 @@ export function createAppRouter() {
         return {
           ...rawToken,
           createdAt: rawToken.created_at,
-          imageUri: rawToken.uri,
           priceUsd: 0,
+          metadata: {
+            name: rawToken.name,
+            symbol: rawToken.symbol,
+            imageUri: rawToken.uri,
+            startSlot: rawToken.start_slot,
+          },
         };
       }),
 

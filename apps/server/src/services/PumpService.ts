@@ -37,6 +37,7 @@ export const createPumpService = () => {
                 symbol: createEvent.symbol,
                 uri: createEvent.uri,
                 start_slot: createEvent.startSlot.toNumber(),
+                supply: 1_000_000_000_000_000
             });
             if (metadataError) {
                 throw new Error(

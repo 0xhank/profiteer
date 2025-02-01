@@ -1,10 +1,13 @@
 export interface Token {
-  id: number;
-  mint: string;
-  createdAt: string;
-  name: string;
-  symbol: string;
-  imageUri: string;
-  priceUsd: number;
-}
+    mint: string;
+    createdAt: string;
+    priceUsd?: number;
 
+    metadata: {
+        name: string;
+        symbol: string;
+        imageUri: string;
+        startSlot: number;
+        supply: number;
+    };
+}

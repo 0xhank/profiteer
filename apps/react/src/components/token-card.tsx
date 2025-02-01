@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Token } from "shared/src/types/token";
 import { cn } from "../utils/cn";
+import { formatNumber, formatPrice } from "../utils/formatPrice";
 
 export default function TokenCard({
   token,
@@ -9,23 +10,11 @@ export default function TokenCard({
   token: Token;
   clickable?: boolean;
 }) {
-  const formatPrice = (price: number | null) => {
-    if (!price) return "0.00";
 
-    if (price < 0.0001) {
-      return price.toFixed(8);
-    } else if (price < 0.01) {
-      return price.toFixed(6);
-    } else if (price < 1) {
-      return price.toFixed(4);
-    } else {
-      return price.toFixed(2);
-    }
-  };
 
   return (
     <Link
-      key={token.id}
+      key={token.mint}
       to={`/token/${token.mint}`}
       className={cn(
         `block transform`,
@@ -43,26 +32,31 @@ export default function TokenCard({
         <div className="flex items-center justify-between space-x-2 transform skew-x-[12deg] relative z-10">
           <div className="flex items-center space-x-3 min-w-0">
             <img
-              src={token.imageUri}
-              alt={token.name}
+              src={token.metadata.imageUri}
+              alt={token.metadata.name}
               width={40}
               height={40}
               className="rounded-full flex-shrink-0 sm:w-12 sm:h-12"
             />
             <div className="min-w-0">
               <h3 className="text-2xl font-bold text-gray-900 truncate">
-                {token.name}
+                {token.metadata.name}
               </h3>
               <p className="text-xl text-semibold text-gray-500 truncate">
-                ${token.symbol}
+                ${token.metadata.symbol}
               </p>
             </div>
           </div>
-          <div className="text-right flex-shrink-0">
-            <p className="text-lg sm:text-2xl font-bold text-gray-900">
-              ${formatPrice(token.priceUsd)}
-            </p>
-          </div>
+          {token.priceUsd && (
+            <div className="text-right flex-shrink-0">
+              <p className="text-lg sm:text-2xl font-bold text-gray-900">
+                ${formatPrice(token.priceUsd)}
+              </p>
+              <p className="text-lg sm:text-2xl font-bold text-gray-900">
+              Mkt cap: {formatNumber(token.priceUsd * token.metadata.supply)}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </Link>

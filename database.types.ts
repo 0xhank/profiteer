@@ -73,6 +73,7 @@ export type Database = {
           mint: string
           name: string
           start_slot: number
+          supply: number
           symbol: string
           uri: string
         }
@@ -83,6 +84,7 @@ export type Database = {
           mint: string
           name: string
           start_slot: number
+          supply: number
           symbol: string
           uri: string
         }
@@ -93,6 +95,7 @@ export type Database = {
           mint?: string
           name?: string
           start_slot?: number
+          supply?: number
           symbol?: string
           uri?: string
         }
@@ -132,7 +135,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_latest_prices: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          mint: string
+          price_usd: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
