@@ -9,6 +9,14 @@ export const createBondingCurveInputSchema = z.object({
 
 export type CreateBondingCurveInput = z.infer<typeof createBondingCurveInputSchema>;
 
+export const swapInputSchema = z.object({
+  mint: z.string(),
+  amount: z.bigint(),
+  minAmountOut: z.bigint(),
+  direction: z.enum(["buy", "sell"]),
+});
+export type SwapInput = z.infer<typeof swapInputSchema>;
+
 export type TransactionRegistryData = {
   timestamp: number;
   autoSlippage: boolean;

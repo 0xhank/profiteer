@@ -69,7 +69,6 @@ export function TokenProvider({ children }: { children: ReactNode }) {
                 "get_latest_prices"
             );
 
-            console.log("priceData", priceData);
             if (priceError) throw new Error(priceError?.message);
 
             priceData?.forEach((price) => {
