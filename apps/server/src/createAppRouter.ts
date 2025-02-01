@@ -49,6 +49,7 @@ export function createAppRouter() {
           symbol: token.symbol,
           imageUri: token.uri,
           startSlot: token.start_slot,
+          supply: token.supply / 1e5,
         },
       }));
     }),
@@ -81,6 +82,7 @@ export function createAppRouter() {
             symbol: rawToken.symbol,
             imageUri: rawToken.uri,
             startSlot: rawToken.start_slot,
+            supply: rawToken.supply / 1e5,
           },
         };
       }),
