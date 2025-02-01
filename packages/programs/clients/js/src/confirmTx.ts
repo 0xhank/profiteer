@@ -1,3 +1,4 @@
+import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { setComputeUnitLimit } from "@metaplex-foundation/mpl-toolbox";
 import { TransactionBuilder, transactionBuilder, Umi } from "@metaplex-foundation/umi";
 import {
@@ -20,7 +21,8 @@ export async function processTransaction(umi: Umi, txBuilder: TransactionBuilder
       commitment: "confirmed",
     },
   });
-  return tx;
+  const signatureBs58 = bs58.encode(tx.signature);
+  return { ...tx, signatureBs58 };
 }
 
 export async function confirmTransaction(

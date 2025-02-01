@@ -78,6 +78,7 @@ const loadProviders = async () => {
   }
 
   const provider = anchor.AnchorProvider.env();
+
   connection = provider.connection;
   anchor.setProvider(provider);
   umi = createUmi(rpcUrl);

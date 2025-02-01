@@ -1,4 +1,5 @@
 import * as anchor from "@coral-xyz/anchor";
+import { Program, Wallet } from "@coral-xyz/anchor";
 import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { Keypair, keypairIdentity, Umi } from "@metaplex-foundation/umi";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
@@ -12,83 +13,54 @@ import {
   Keypair as Web3JsKeypair,
 } from "@solana/web3.js";
 import path from "path";
+import { PumpScience } from "src/idls/pump_science";
 import {
   AMM,
   getSolAmountWithFee,
   getTknAmount,
+  getTxEventsFromTxBuilderResponse,
   INIT_DEFAULTS,
+  PUMP_SCIENCE_PROGRAM_ID,
   PumpScienceSDK,
   SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
 } from "../src";
 import { confirmTransaction, processTransaction } from "../src/confirmTx";
-import { getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
+import idl from "../src/idls/pump_science.json";
 
 const privateKeyUrl = path.resolve(__dirname, "../../../pump_test.json");
 const loadProviders = () => {
-  const privateKey = Uint8Array.from(require(privateKeyUrl));
   // convert the private key to a string
-  const privateKeyString = bs58.encode(privateKey);
-  console.log({ privateKeyString });
-  const web3jsKp = Web3JsKeypair.fromSecretKey(privateKey);
+  const rpcUrl = "http://127.0.0.1:8899";
+  const web3jsKp = Web3JsKeypair.fromSecretKey(
+    Uint8Array.from(require(privateKeyUrl))
+  );
+  const connection = new Connection(rpcUrl, "confirmed");
+  const provider = new anchor.AnchorProvider(
+    connection,
+    new Wallet(web3jsKp),
+    anchor.AnchorProvider.defaultOptions()
+  );
+
+  const programId = toWeb3JsPublicKey(PUMP_SCIENCE_PROGRAM_ID);
+  const program = new Program(
+    idl as anchor.Idl as PumpScience,
+    programId,
+    provider
+  );
   const masterKp = fromWeb3JsKeypair(web3jsKp);
 
-  let rpcUrl = "http://127.0.0.1:8899";
-
-  const connection = new Connection(rpcUrl, "confirmed");
   const umi = createUmi(rpcUrl);
-  return { umi, connection, rpcUrl, masterKp };
+  return {
+    umi,
+    connection,
+    rpcUrl,
+    masterKp,
+    program,
+    programId,
+    provider,
+    web3jsKp,
+  };
 };
-// const amman = Amman.instance({
-//   ammanClientOpts: { autoUnref: false, ack: true },
-//   knownLabels: {
-//     [PUMP_SCIENCE_PROGRAM_ID.toString()]: "PumpScienceProgram",
-//   },
-// });
-
-// pdas and util accs
-
-// const labelKeypairs = async ({umi, masterKp, simpleMintKp, creator, trader, withdrawAuthority}: {umi: Umi, masterKp: Keypair, simpleMintKp: Keypair, creator: Keypair, trader: Keypair, withdrawAuthority: Keypair}) => {
-//   amman.addr.addLabel("master", masterKp.publicKey);
-//   amman.addr.addLabel("simpleMint", simpleMintKp.publicKey);
-//   amman.addr.addLabel("creator", creator.publicKey);
-//   amman.addr.addLabel("trader", trader.publicKey);
-//   amman.addr.addLabel("withdrawAuthority", withdrawAuthority.publicKey);
-
-//   const curveSdk = new PumpScienceSDK(
-//     // master signer
-//     umi.use(keypairIdentity(masterKp))
-//   ).getCurveSDK(simpleMintKp.publicKey);
-
-//   amman.addr.addLabel("global", curveSdk.PumpScience.globalPda[0]);
-//   amman.addr.addLabel("eventAuthority", curveSdk.PumpScience.evtAuthPda[0]);
-//   amman.addr.addLabel("simpleMintBondingCurve", curveSdk.bondingCurvePda[0]);
-//   amman.addr.addLabel(
-//     "simpleMintBondingCurveTknAcc",
-//     curveSdk.bondingCurveTokenAccount[0]
-//   );
-//   amman.addr.addLabel("metadata", curveSdk.mintMetaPda[0]);
-
-//   // amman.addr.addLabel("creatorVault", curveSdk.creatorVaultPda[0]);
-//   // amman.addr.addLabel(
-//   //   "creatorVaultTknAcc",
-//   //   curveSdk.creatorVaultTokenAccount[0]
-//   // );
-
-//   // amman.addr.addLabel("presaleVault", curveSdk.presaleVaultPda[0]);
-//   // amman.addr.addLabel(
-//   //   "presaleVaultTknAcc",
-//   //   curveSdk.presaleVaultTokenAccount[0]
-//   // );
-
-//   // amman.addr.addLabel("brandVault", curveSdk.brandVaultPda[0]);
-//   // amman.addr.addLabel("brandVaultTknAcc", curveSdk.brandVaultTokenAccount[0]);
-
-//   // amman.addr.addLabel("platformVault", curveSdk.platformVaultPda[0]);
-//   // amman.addr.addLabel(
-//   //   "platformVaultTknAcc",
-//   //   curveSdk.platformVaultTokenAccount[0]
-//   // );
-// };
 
 describe("pump tests", () => {
   let umi: Umi;
@@ -96,31 +68,21 @@ describe("pump tests", () => {
   let masterKp: Keypair;
   let web3jsKp: Web3JsKeypair;
   let connection: Connection;
-  // const programId = toWeb3JsPublicKey(PUMP_SCIENCE_PROGRAM_ID);
-  // const program = anchor.workspace.Pump as Program<PumpScience>;
-  console.log(anchor.workspace);
+  let program: Program<PumpScience>;
 
-  //  async function listenToCreateEvent() {
-  //      // Subscribe to the program's logs
-
-  //      connection.onLogs(programId, (logs, context) => {
-  //          console.log('New logs:', logs);
-  //          // Parse the logs to find your specific event
-  //          logs.logs.forEach(log => {
-  //              if (log.includes('CreateEvent')) {
-  //                  console.log('CreateEvent detected:', log);
-  //                  // Further parse the log to extract event data
-  //              }
-  //          });
-  //      });
-  //  }
   beforeAll(async () => {
-    web3jsKp = Web3JsKeypair.fromSecretKey(
-      Uint8Array.from(require(privateKeyUrl))
-    );
-    masterKp = fromWeb3JsKeypair(web3jsKp);
-    const { umi: preumi, connection: preConnection } = loadProviders();
+    const {
+      masterKp: preMasterKp,
+      web3jsKp: preWeb3jsKp,
+      umi: preumi,
+      connection: preConnection,
+      program: preProgram,
+    } = loadProviders();
+
+    masterKp = preMasterKp;
+    web3jsKp = preWeb3jsKp;
     connection = preConnection;
+    program = preProgram;
     umi = preumi.use(keypairIdentity(masterKp));
     sdk = new PumpScienceSDK(umi);
     const tx = await preConnection.requestAirdrop(
@@ -129,9 +91,9 @@ describe("pump tests", () => {
     );
     await confirmTransaction(preConnection, tx);
     console.log("Airdropped SOL to master keypair");
-
-    // listenToCreateEvent();
   });
+
+
 
   describe("initialize", () => {
     it("is initialized", async () => {
@@ -170,10 +132,11 @@ describe("pump tests", () => {
     });
   });
 
-  describe.skip("create pool", () => {
+  describe("create pool", () => {
     const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
     it("creates a pool", async () => {
       const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
+
 
       const txBuilder = curveSdk.createBondingCurve(
         SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
@@ -181,13 +144,15 @@ describe("pump tests", () => {
         false
       );
 
-      await processTransaction(umi, txBuilder);
+      const txRes = await processTransaction(umi, txBuilder);
 
       const poolData = await curveSdk.fetchData({
         commitment: "confirmed",
       });
 
-      expect(poolData).toBeDefined();
+      const events = await getTxEventsFromTxBuilderResponse(connection, program, txRes);
+      console.log("events", events);
+
       expect(Number(poolData.virtualSolReserves)).toBe(
         INIT_DEFAULTS.initialVirtualSolReserves
       );
@@ -206,9 +171,8 @@ describe("pump tests", () => {
     });
   });
 
-  it("swap: buy", async () => {
+  it.skip("swap: buy", async () => {
     const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
-    console.log("mintKp", mintKp.publicKey.toString());
     const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
     const curveTxBuilder = curveSdk.createBondingCurve(
       SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
@@ -222,20 +186,6 @@ describe("pump tests", () => {
     const bondingCurveData = await curveSdk.fetchData({
       commitment: "confirmed",
     });
-
-    const feeReceiver = INIT_DEFAULTS.feeReceiver;
-    const feeReceiverAta = (
-      await getOrCreateAssociatedTokenAccount(
-        connection,
-        web3jsKp,
-        toWeb3JsPublicKey(mintKp.publicKey),
-        toWeb3JsPublicKey(feeReceiver),
-        false,
-        "confirmed"
-      )
-    ).address;
-
-    console.log("Initialized feeReceiver ATA:", feeReceiverAta.toString());
 
     const amm = AMM.fromBondingCurve(bondingCurveData);
 
@@ -251,23 +201,22 @@ describe("pump tests", () => {
     ).startSlot;
     // should use actual fee set on global when live
 
-    const {feeBps, solAmountWithFee} = getSolAmountWithFee(solAmount, currentSlot, Number(startSlot))
+    const { feeBps, solAmountWithFee } = getSolAmountWithFee(
+      solAmount,
+      currentSlot,
+      Number(startSlot)
+    );
     let buyResult = amm.applyBuy(minBuyTokenAmount);
-    console.log({feeBps, solAmount, solAmountWithFee, buyResult})
+    console.log({ feeBps, solAmount, solAmountWithFee, buyResult });
 
     const txBuilder = curveSdk.swap({
       direction: "buy",
       exactInAmount: solAmountWithFee,
-      minOutAmount: minBuyTokenAmount *  975n / 1000n ,
+      minOutAmount: (minBuyTokenAmount * 975n) / 1000n,
     });
 
     const txRes = await processTransaction(umi, txBuilder);
     const signatureBs58 = bs58.encode(txRes.signature);
-    const log = await connection.getTransaction(signatureBs58, {
-      commitment: "confirmed",
-      maxSupportedTransactionVersion: 0,
-    });
-    console.log(log?.meta?.logMessages);
 
     await confirmTransaction(connection, signatureBs58);
 

@@ -27,6 +27,39 @@ export type Database = {
         }
         Relationships: []
       }
+      token_metadata: {
+        Row: {
+          created_at: string
+          creator: string
+          id: number
+          mint: string
+          name: string
+          start_slot: number
+          symbol: string
+          uri: string
+        }
+        Insert: {
+          created_at?: string
+          creator: string
+          id?: number
+          mint: string
+          name: string
+          start_slot: number
+          symbol: string
+          uri: string
+        }
+        Update: {
+          created_at?: string
+          creator?: string
+          id?: number
+          mint?: string
+          name?: string
+          start_slot?: number
+          symbol?: string
+          uri?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
