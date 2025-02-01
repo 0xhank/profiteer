@@ -112,7 +112,7 @@ export class AMM {
         };
     }
 
-    getPrice(): number {
+    getPriceSol(): number {
         // Convert to common decimal basis (using 9 decimals as base)
         const currentSol = Number(this.virtualSolReserves);
         const currentTokens = Number(this.virtualTokenReserves) * 1000000000 / 1000000; // Scale to 9 decimals
@@ -121,9 +121,9 @@ export class AMM {
         return currentSol / currentTokens;
     }
 
-    getMarketCap(): number {
+    getMarketCapSol(): number {
         // MarketCap = Total Supply * Price
-        const price = this.getPrice();
+        const price = this.getPriceSol();
         return 1000000000 * price;
     }
 }

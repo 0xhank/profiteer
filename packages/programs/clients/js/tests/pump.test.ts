@@ -91,8 +91,11 @@ describe("pump tests", () => {
     );
     await confirmTransaction(preConnection, tx);
     console.log("Airdropped SOL to master keypair");
+
+
   });
 
+ 
 
 
   describe("initialize", () => {
@@ -109,7 +112,6 @@ describe("pump tests", () => {
         console.log("initialized");
 
         global = await adminSdk.PumpScience.fetchGlobalData();
-        console.log("global", global);
         expect(global).toBeDefined();
         expect(global.initialVirtualSolReserves.toString()).toBe(
           INIT_DEFAULTS.initialVirtualSolReserves.toString()
@@ -135,7 +137,7 @@ describe("pump tests", () => {
     });
   });
 
-  describe.skip("create pool", () => {
+  describe("create pool", () => {
     const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
     it("creates a pool", async () => {
       const curveSdk = sdk.getCurveSDK(mintKp.publicKey);

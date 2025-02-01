@@ -60,6 +60,35 @@ export type Database = {
         }
         Relationships: []
       }
+      token_price_usd: {
+        Row: {
+          created_at: string
+          id: number
+          mint: string
+          price_usd: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          mint: string
+          price_usd: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          mint?: string
+          price_usd?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_price_usd_mint_fkey"
+            columns: ["mint"]
+            isOneToOne: false
+            referencedRelation: "token_metadata"
+            referencedColumns: ["mint"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
