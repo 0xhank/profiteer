@@ -9,6 +9,24 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      sol_price_usd: {
+        Row: {
+          created_at: string
+          id: number
+          price_usd: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          price_usd: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          price_usd?: number
+        }
+        Relationships: []
+      }
       test_timestamp: {
         Row: {
           created_at: string

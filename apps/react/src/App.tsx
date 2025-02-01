@@ -9,15 +9,18 @@ import CreateToken from "./pages/create";
 import Home from "./pages/home";
 import Token from "./pages/token";
 import { ServerProvider } from "./providers/server-provider";
+import { SolPriceProvider } from "./contexts/SolPriceContext";
 
 function App() {
     return (
         <div className="relative flex flex-col h-screen w-screen absolute top-0 left-0 right-0 z-50">
             <ServerProvider>
                 <TokenProvider>
-                    {/* <WalletBalanceProvider> */}
-                    <_App />
-                    {/* </WalletBalanceProvider> */}
+                    <SolPriceProvider>
+                        {/* <WalletBalanceProvider> */}
+                        <_App />
+                        {/* </WalletBalanceProvider> */}
+                    </SolPriceProvider>
                 </TokenProvider>
             </ServerProvider>
         </div>
