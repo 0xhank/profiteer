@@ -1,4 +1,4 @@
-import { useTokenList } from "../hooks/useTokenList";
+import { useTokens } from "../hooks/useTokens";
 import TokenCard from "./token-card";
 
 export interface TokenPriceData {
@@ -7,7 +7,7 @@ export interface TokenPriceData {
 }
 
 export const TokenList = () => {
-  const { tokens, isReady } = useTokenList();
+  const { tokens, isReady } = useTokens();
 
   if (!isReady) {
     return (
@@ -24,8 +24,8 @@ export const TokenList = () => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {tokens.map((token) => (
-        <TokenCard key={token.id} token={token} />
+      {Object.entries(tokens).map(([key, token]) => (
+        <TokenCard key={key} token={token} />
       ))}
     </div>
   );

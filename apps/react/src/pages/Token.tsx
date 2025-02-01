@@ -1,7 +1,7 @@
 
 import { useParams } from "react-router-dom";
 import { PageLayout } from "../components/page-layout";
-import { useTokenData } from "../hooks/use-token-data";
+import { useTokenData } from "../hooks/useTokenData";
 import TokenCard from "../components/token-card";
 import { TokenTradeForm } from "../components/token/token-trade-form";
 

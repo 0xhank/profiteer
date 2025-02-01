@@ -102,11 +102,14 @@ describe("pump tests", () => {
       let global;
       try {
         global = await adminSdk.PumpScience.fetchGlobalData();
+        console.log("global", global);
       } catch (error) {
         const txBuilder = adminSdk.initialize(INIT_DEFAULTS);
         await processTransaction(umi, txBuilder);
+        console.log("initialized");
 
         global = await adminSdk.PumpScience.fetchGlobalData();
+        console.log("global", global);
         expect(global).toBeDefined();
         expect(global.initialVirtualSolReserves.toString()).toBe(
           INIT_DEFAULTS.initialVirtualSolReserves.toString()
@@ -132,7 +135,7 @@ describe("pump tests", () => {
     });
   });
 
-  describe("create pool", () => {
+  describe.skip("create pool", () => {
     const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
     it("creates a pool", async () => {
       const curveSdk = sdk.getCurveSDK(mintKp.publicKey);

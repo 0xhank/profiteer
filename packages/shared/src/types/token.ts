@@ -2,9 +2,9 @@ export interface Token {
   id: number;
   mint: string;
   createdAt: string;
-  tokenName: string;
-  tokenSymbol: string;
-  tokenImage: string;
+  name: string;
+  symbol: string;
+  imageUri: string;
   priceUsd: number;
 }
 

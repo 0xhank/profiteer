@@ -43,18 +43,18 @@ export default function TokenCard({
         <div className="flex items-center justify-between space-x-2 transform skew-x-[12deg] relative z-10">
           <div className="flex items-center space-x-3 min-w-0">
             <img
-              src={token.tokenImage}
-              alt={token.tokenName}
+              src={token.imageUri}
+              alt={token.name}
               width={40}
               height={40}
               className="rounded-full flex-shrink-0 sm:w-12 sm:h-12"
             />
             <div className="min-w-0">
               <h3 className="text-2xl font-bold text-gray-900 truncate">
-                {token.tokenName}
+                {token.name}
               </h3>
               <p className="text-xl text-semibold text-gray-500 truncate">
-                ${token.tokenSymbol}
+                ${token.symbol}
               </p>
             </div>
           </div>
