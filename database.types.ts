@@ -47,6 +47,42 @@ export type Database = {
           },
         ]
       }
+      mint_article_name: {
+        Row: {
+          article_name: string
+          created_at: string
+          id: number
+          mint: string
+        }
+        Insert: {
+          article_name: string
+          created_at?: string
+          id?: number
+          mint: string
+        }
+        Update: {
+          article_name?: string
+          created_at?: string
+          id?: number
+          mint?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mint_article_name_article_name_fkey"
+            columns: ["article_name"]
+            isOneToOne: false
+            referencedRelation: "token_metadata"
+            referencedColumns: ["name"]
+          },
+          {
+            foreignKeyName: "mint_article_name_mint_fkey"
+            columns: ["mint"]
+            isOneToOne: false
+            referencedRelation: "token_metadata"
+            referencedColumns: ["mint"]
+          },
+        ]
+      }
       sol_price_usd: {
         Row: {
           created_at: string
@@ -69,6 +105,7 @@ export type Database = {
         Row: {
           created_at: string
           creator: string
+          decimals: number
           id: number
           mint: string
           name: string
@@ -80,6 +117,7 @@ export type Database = {
         Insert: {
           created_at?: string
           creator: string
+          decimals: number
           id?: number
           mint: string
           name: string
@@ -91,6 +129,7 @@ export type Database = {
         Update: {
           created_at?: string
           creator?: string
+          decimals?: number
           id?: number
           mint?: string
           name?: string

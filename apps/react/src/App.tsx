@@ -6,11 +6,12 @@ import TopBar from "./components/top-bar/top-bar";
 import { PortfolioProvider } from "./contexts/PortfolioContext";
 import { SolPriceProvider } from "./contexts/SolPriceContext";
 import { TokenProvider } from "./contexts/TokenProvider";
-import CreateToken from "./pages/create";
 import Home from "./pages/home";
 import Token from "./pages/token";
 import { PrivyClientProvider } from "./providers/privy-client-provider";
 import { ServerProvider } from "./providers/server-provider";
+import { Page404 } from "./pages/404";
+
 function App() {
     return (
         <PrivyClientProvider>
@@ -34,8 +35,8 @@ function _App() {
                 <TopBar className="absolute top-0 left-0 right-0 z-50" />
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/token/:tokenId" element={<Token />} />
-                    <Route path="/create" element={<CreateToken />} />
+                    <Route path="/token/:id" element={<Token />} />
+                    <Route path="/*" element={<Page404 />} />
                 </Routes>
                 <Disclaimer />
                 <ServerStatus />

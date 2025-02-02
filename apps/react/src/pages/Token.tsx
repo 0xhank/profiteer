@@ -1,66 +1,109 @@
-import { useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { PageLayout } from "../components/page-layout";
-import TokenCard from "../components/token-card";
-import { CandleChart } from "../components/token/candle-chart";
-import { TokenBalance } from "../components/token/token-balance";
-import { TokenTradeForm } from "../components/token/token-trade-form";
 import WikiArticle from "../components/wiki-article";
-import { useTokenData } from "../hooks/useTokenData";
+import bs58 from "bs58";
+import { useEffect, useState } from "react";
+import { useServer } from "../hooks/useServer";
+import { TokenContent } from "../components/token/token-content";
+import { CreateToken } from "../components/token/create-token";
 
 export default function Token() {
     const params = useParams();
-    if (!params.tokenId) {
-        return <PageLayout>No tokenId</PageLayout>;
+    console.log(params);
+    const [mint, setMint] = useState<string | null>(null);
+    const [articleName, setArticleName] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+    const { getMintFromArticleName, getArticleNameFromMint } = useServer();
+
+    useEffect(() => {
+        setLoading(true);
+        const isBs58 = (id: string) => {
+            try {
+                bs58.decode(id);
+                return true;
+            } catch {
+                return false;
+            }
+        };
+        const setIdAndName = async () => {
+            const id = params.id;
+            console.log(id);
+            if (!id) {
+                navigate("/404");
+                return;
+            }
+            if (!isBs58(id)) {
+                const mint = await getMintFromArticleName.query({
+                    articleName: id,
+                });
+                setArticleName(id);
+                setMint(mint?.mint || null);
+            } else {
+                const articleName = await getArticleNameFromMint.query({
+                    mint: id,
+                });
+                setMint(id);
+                setArticleName(articleName?.article_name || null);
+            }
+            setLoading(false);
+        };
+        setIdAndName();
+    }, [params]);
+
+    console.log(mint, articleName);
+    if (loading) {
+        return <PageLayout>Loading...</PageLayout>;
     }
-    return <TokenContent mint={params.tokenId} />;
+    if (!params.id || !articleName) {
+        return <Navigate to="/404" replace />;
+    }
+    return <PageContent mint={mint} articleName={articleName} />;
 }
 
-const candleTest = [
-    { time: "2019-04-11", open: 80.01, close: 81.0, high: 82.0, low: 79.0 },
-    { time: "2019-04-12", open: 96.63, close: 97.0, high: 98.0, low: 95.0 },
-    { time: "2019-04-13", open: 76.64, close: 77.0, high: 78.0, low: 75.0 },
-    { time: "2019-04-14", open: 81.89, close: 82.0, high: 83.0, low: 80.0 },
-    { time: "2019-04-15", open: 74.43, close: 75.0, high: 76.0, low: 73.0 },
-    { time: "2019-04-16", open: 80.01, close: 81.0, high: 82.0, low: 79.0 },
-    { time: "2019-04-17", open: 96.63, close: 97.0, high: 98.0, low: 95.0 },
-    { time: "2019-04-18", open: 76.64, close: 77.0, high: 78.0, low: 75.0 },
-    { time: "2019-04-19", open: 81.89, close: 82.0, high: 83.0, low: 80.0 },
-    { time: "2019-04-20", open: 74.43, close: 75.0, high: 76.0, low: 73.0 },
-];
+function PageContent({
+    mint,
+    articleName,
+}: {
+    mint: string | null;
+    articleName: string;
+}) {
+    const [article, setArticle] = useState<string | null>(null);
 
-function TokenContent({ mint }: { mint: string }) {
-    const { tokenData } = useTokenData({ mint });
+    useEffect(() => {
+        const fetchArticle = async ({ title }: { title: string }) => {
+            try {
+                const response = await fetch(
+                    `https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&section=0&page=${title}&origin=*`
+                );
+                const data = await response.json();
+                const markup = data.parse.text["*"];
+                const blurb = document.createElement("div");
+                blurb.innerHTML = markup;
+                setArticle(blurb.innerHTML);
+            } catch (error) {
+                console.error("Error fetching the article:", error);
+            }
+        };
 
+        fetchArticle({ title: articleName });
+    }, []);
     // if (!tokenData) {
     //     return <PageLayout>Token not found</PageLayout>;
     // }
-
+    if (!article) {
+        return <PageLayout>Loading...</PageLayout>;
+    }
     return (
         <PageLayout>
             <div className="max-w-[1200px] h-full grid grid-cols-1 md:grid-cols-2 gap-8 items-start mt-12">
                 {/* Wiki Article on the left */}
                 <div className="col-span-1 overflow-y-auto h-full">
-                    <WikiArticle title={mint} />
+                    <WikiArticle articleHtml={article} />
                 </div>
                 {/* Rest of the content */}
-                {tokenData && (
-                    <div className="col-span-1 flex flex-col gap-8 items-center">
-                        {/* Token Header */}
-                        <div className="flex justify-center w-[700px]">
-                            <TokenCard token={tokenData} clickable={false} />
-                    </div>
-
-                    {/* Price Graph */}
-                    <CandleChart
-                        data={candleTest}
-                        colors={{ lineColor: "red" }}
-                        className="w-[700px]"
-                    />
-                    <TokenBalance token={tokenData} />
-
-                        <TokenTradeForm {...tokenData} />
-                    </div>
-                )}
+                {mint && <TokenContent mint={mint} />}
+                {!mint && <CreateToken articleName={articleName} articleContent={article} />}
             </div>
         </PageLayout>
     );

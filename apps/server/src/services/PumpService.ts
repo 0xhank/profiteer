@@ -75,6 +75,7 @@ export const createPumpService = () => {
             if (!createEvent) {
                 throw new Error("CreateEvent not found");
             }
+
             const { error: metadataError } = await supabase
                 .from("token_metadata")
                 .insert({
@@ -85,13 +86,24 @@ export const createPumpService = () => {
                     uri: createEvent.uri,
                     start_slot: createEvent.startSlot.toNumber(),
                     supply: 1_000_000_000_000_000,
+                    decimals: 6,
                 });
             if (metadataError) {
                 throw new Error(
                     `Failed to insert token metadata: ${metadataError.message}`
                 );
             }
-
+            const { error: nameError } = await supabase
+                .from("mint_article_name")
+                .insert({
+                    mint: createEvent.mint.toBase58(),
+                    article_name: input.name,
+                });
+            if (nameError) {
+                throw new Error(
+                    `Failed to insert token name: ${nameError.message}`
+                );
+            }
             const { error: curveError } = await supabase
                 .from("curve_data")
                 .insert({
