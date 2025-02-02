@@ -27,17 +27,37 @@ export function NewsStories() {
                 const formattedDate = `${yesterday.getFullYear()}_${
                     months[yesterday.getMonth()]
                 }_${yesterday.getDate()}`;
-                const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=revisions&titles=Portal%3ACurrent%20events%2F${formattedDate}&formatversion=2&rvprop=content&rvparse=1&origin=*`;
-                // const url = `https://en.wikipedia.org/w/api.php?action=parse&format=json&page=Portal:Current_events/${formattedDate}&prop=text&origin=*`;
-                const newsResponse = await fetch(url);
-                const newsData = await newsResponse.json();
-                const newsMarkup = newsData.query.pages[0].revisions[0].content;
+                const eventsUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=revisions&titles=Portal%3ACurrent%20events%2F${formattedDate}&formatversion=2&rvprop=content&rvparse=1&origin=*`;
+                const newsUrl = `https://en.wikipedia.org/w/api.php?action=parse&format=json&page=Main_Page&prop=text&section=0&origin=*`;
+
+                // Fetch both in parallel
+                const [eventsResponse, newsResponse] = await Promise.all([
+                    fetch(eventsUrl),
+                    fetch(newsUrl),
+                ]);
+
+                const [eventsData, newsData] = await Promise.all([
+                    eventsResponse.json(),
+                    newsResponse.json(),
+                ]);
+
+                const eventsMarkup =
+                    eventsData.query.pages[0].revisions[0].content;
+                const newsMarkup = newsData.parse.text["*"];
+
+                const eventsBlurb = document.createElement("div");
                 const newsBlurb = document.createElement("div");
+
+                eventsBlurb.innerHTML = eventsMarkup;
                 newsBlurb.innerHTML = newsMarkup;
 
-                // Combine both pieces of content
+                const newsSection = newsBlurb.querySelector("#mp-itn");
+
                 setArticle(`
-                        ${newsBlurb.innerHTML}
+                    <h2>In The News</h2>
+                    ${newsSection?.innerHTML || "No news available"}
+                    <h2>Current Events</h2>
+                    ${eventsBlurb.innerHTML}
                 `);
             } catch (error) {
                 console.error("Error fetching content:", error);
