@@ -5,10 +5,12 @@ import supabase from "./sbClient";
 import { PumpService } from "./services/PumpService";
 import { createBondingCurveInputSchema, swapInputSchema } from "./types";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { WikiService } from "./services/WikiService";
 
 export type AppContext = {
     pumpService: PumpService;
     jwtToken: string;
+    wikiService: WikiService;
 };
 
 // Initialize Supabase client
@@ -34,7 +36,9 @@ export function createAppRouter() {
                     .limit(1);
 
                 if (error) {
-                    throw new Error(`Failed to fetch article name: ${error.message}`);
+                    throw new Error(
+                        `Failed to fetch article name: ${error.message}`
+                    );
                 }
                 if (data.length === 0) {
                     return null;
@@ -53,12 +57,22 @@ export function createAppRouter() {
                     .limit(1);
 
                 if (error) {
-                    throw new Error(`Failed to fetch article token: ${error.message}`);
+                    throw new Error(
+                        `Failed to fetch article token: ${error.message}`
+                    );
                 }
                 if (data.length === 0) {
                     return null;
                 }
                 return data[0];
+            }),
+
+        getArticleSymbolOptions: t.procedure
+            .input(z.object({ articleName: z.string() }))
+            .query(async ({ ctx, input }) => {
+                return ctx.wikiService.getArticleSymbolOptions(
+                    input.articleName
+                );
             }),
 
         getSolBalance: t.procedure
@@ -79,11 +93,8 @@ export function createAppRouter() {
         getAllTokenBalances: t.procedure
             .input(z.object({ address: z.string() }))
             .query(async ({ ctx, input }) => {
-                return ctx.pumpService.getAllUserTokenBalances(
-                    input.address,
-                );
+                return ctx.pumpService.getAllUserTokenBalances(input.address);
             }),
-
 
         /**
          * Fetches all users from the database
@@ -110,7 +121,7 @@ export function createAppRouter() {
                     imageUri: token.uri,
                     startSlot: token.start_slot,
                     supply: token.supply / 1e5,
-                    decimals: 6
+                    decimals: 6,
                 },
             }));
         }),

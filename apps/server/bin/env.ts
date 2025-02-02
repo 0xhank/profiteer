@@ -17,6 +17,7 @@ const commonSchema = z.object({
   PAYER_PRIVATE_KEY: z.string(),
   RPC_URL: z.string(),
 
+  DEEPINFRA_API_KEY: z.string().optional(),
 });
 
 export function parseEnv<TSchema extends ZodTypeAny | undefined = undefined>(

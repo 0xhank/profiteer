@@ -15,7 +15,6 @@ import idl from "programs/clients/js/src/idls/pump_science.json";
 export const initProviders = () => {
   const feePayerKeypair = Keypair.fromSecretKey(bs58.decode(env.PAYER_PRIVATE_KEY));
   const masterKp = fromWeb3JsKeypair(feePayerKeypair);
-  console.log({masterKp});
 
   const rpcUrl = env.RPC_URL;
 

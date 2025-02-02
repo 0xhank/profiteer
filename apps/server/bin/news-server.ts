@@ -4,6 +4,7 @@ import fastify from "fastify";
 import { AppRouter, createAppRouter } from "../src/createAppRouter";
 import env from "./env";
 import { createPumpService } from "@/services/PumpService";
+import { WikiService } from "@/services/WikiService";
 
 
 // @see https://fastify.dev/docs/latest/
@@ -33,6 +34,7 @@ export const start = async () => {
     await server.register(import("@fastify/cors"));
 
     const pumpService = createPumpService();
+    const wikiService = WikiService();
     // @see https://trpc.io/docs/server/adapters/fastify
     server.register(fastifyTRPCPlugin<AppRouter>, {
       prefix: "/trpc",
@@ -41,6 +43,7 @@ export const start = async () => {
         createContext: async (opt) => ({
           jwtToken: getBearerToken(opt.req) ?? "",
           pumpService,
+          wikiService,
         }),
       },
     });

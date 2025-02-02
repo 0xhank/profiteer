@@ -26,8 +26,10 @@
     "@trpc/client": "^10.45.2",
     "@trpc/server": "^10.45.2",
     "bs58": "^6.0.0",
+    "deepinfra": "^2.0.2",
     "dotenv": "^16.4.7",
     "fastify": "^4.21.0",
+    "openai": "^4.82.0",
     "programs": "workspace:*",
     "zod": "^3.24.1"
   },

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useServer } from "../../hooks/useServer";
 
 export const CreateToken = ({
@@ -16,13 +16,24 @@ export const CreateToken = ({
         return null;
     }, [articleContent]);
 
-    const symbol = useMemo(() => {
-        const symbol = articleContent.match(/class="fn">([^<]+)</);
-        if (symbol) {
-            return "n" + symbol[1].slice(0, 4).toUpperCase();
-        }
-        return "nUNKNOWN";
-    }, [articleContent]);
+
+
+    const { getArticleSymbolOptions } = useServer();
+
+    const [symbols, setSymbols] = useState<string[]>([]);
+    const [selectedSymbol, setSelectedSymbol] = useState<string>("");
+
+    useEffect(() => {
+        handleGetSymbols();
+    }, [articleName]);
+
+    const effectiveSymbol = selectedSymbol;
+
+    const handleGetSymbols = async () => {
+        const symbols = await getArticleSymbolOptions.query({ articleName });
+        console.log({ symbols });
+        setSymbols(symbols.map((s) => "n" + s));
+    };
 
     return (
         <div className="space-y-6">
@@ -52,15 +63,24 @@ export const CreateToken = ({
                     <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">
                         Symbol
                     </label>
-                    <div className="text-gray-700 dark:text-gray-300">
-                        {symbol}
-                    </div>
+                    <select
+                        className="w-full p-2 border rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
+                        value={selectedSymbol}
+                        onChange={(e) => setSelectedSymbol(e.target.value)}
+                    >
+                        <option value="Select a symbol">{effectiveSymbol}</option>
+                        {symbols.map((s) => (
+                            <option key={s} value={s}>
+                                {s}
+                            </option>
+                        ))}
+                    </select>
                 </div>
             </div>
 
             <CreateTokenButton
                 name={articleName}
-                symbol={symbol}
+                symbol={effectiveSymbol}
                 uri={imageUri ?? `https://api.news.fun/${articleName}`}
             />
         </div>
@@ -85,10 +105,7 @@ const CreateTokenButton = (props: {
     };
 
     return (
-        <button
-            onClick={onSendTransaction}
-            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-bold hover:scale-105 transform transition-all duration-300 shadow-lg"
-        >
+        <button onClick={onSendTransaction} className="btn btn-primary">
             Create Token
         </button>
     );

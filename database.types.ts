@@ -9,6 +9,27 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      article_symbol_options: {
+        Row: {
+          article_name: string
+          created_at: string
+          id: number
+          symbol_options: string[] | null
+        }
+        Insert: {
+          article_name: string
+          created_at?: string
+          id?: number
+          symbol_options?: string[] | null
+        }
+        Update: {
+          article_name?: string
+          created_at?: string
+          id?: number
+          symbol_options?: string[] | null
+        }
+        Relationships: []
+      }
       curve_data: {
         Row: {
           created_at: string
