@@ -18,7 +18,15 @@ export const TokenContent = ({ mint }: { mint: string }) => {
         virtual_token_reserves: number;
         virtual_sol_reserves: number;
     } | null>(null);
+    const [complete, setComplete] = useState<boolean | null>(null);
+    console.log({complete})
 
+
+    useEffect(() => {
+        if (tokenData) {
+            setComplete(tokenData.complete ?? false);
+        }
+    }, [tokenData]);
     const [curveLiquidity, setCurveLiquidity] = useState<number | null>(null);
 
     const mostRecentPrice = useMemo(() => {
@@ -29,7 +37,7 @@ export const TokenContent = ({ mint }: { mint: string }) => {
     const onSwap = () => {
         fetchCurveLiquidity();
         fetchTokenPrices();
-    }
+    };
     // todo: subscribe to the token price as updates come in
     // todo: only fetch prices from a certain window
     // todo: convert the prices into candles
@@ -64,7 +72,7 @@ export const TokenContent = ({ mint }: { mint: string }) => {
     const fetchCurveLiquidity = async () => {
         const { data, error } = await supabase
             .from("curve_data")
-            .select("virtual_token_reserves, virtual_sol_reserves")
+            .select("real_token_reserves, virtual_token_reserves, virtual_sol_reserves, complete")
             .eq("mint", mint)
             .order("created_at", { ascending: false })
             .limit(1);
@@ -72,7 +80,8 @@ export const TokenContent = ({ mint }: { mint: string }) => {
         if (error) {
             console.error(error);
         } else {
-            setCurveLiquidity(data[0].virtual_token_reserves);
+            setCurveLiquidity(data[0].real_token_reserves);
+            setComplete(data[0].complete);
             setReserveData(data[0]);
         }
     };
@@ -84,13 +93,18 @@ export const TokenContent = ({ mint }: { mint: string }) => {
 
     return (
         tokenData && (
-            <div className="col-span-1 flex flex-col gap-8 items-center">
+            <div className="col-span-1 flex flex-col gap-4 items-center">
                 {/* Token Header */}
                 <div className="flex justify-center w-full">
                     <TokenCard token={tokenData} clickable={false} />
                 </div>
 
                 {/* Progress Bar */}
+                <div className="flex flex-col gap-2">
+                    <p>Token: {reserveData?.virtual_token_reserves ?? 0 / 1e6}</p>
+                    <p>SOL: {reserveData?.virtual_sol_reserves ?? 0 / 1e9}</p>
+                    <p>Fee: {fee * 100}%</p>
+                </div>
                 {progress !== null && (
                     <div className="w-full flex flex-col gap-2">
                         <div className="flex justify-between text-sm">
@@ -101,15 +115,7 @@ export const TokenContent = ({ mint }: { mint: string }) => {
                                 </span>
                             </div>
                         </div>
-                        <p>
-                            Token: {reserveData?.virtual_token_reserves ?? 0 / 1e6}
-                        </p>
-                        <p>
-                            SOL: {reserveData?.virtual_sol_reserves ?? 0 / 1e9}
-                        </p>
-                        <p>
-                            Fee: {fee * 100}%
-                        </p>
+
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
                             <div
                                 className="bg-red-600 h-2.5 rounded-full"
@@ -133,7 +139,11 @@ export const TokenContent = ({ mint }: { mint: string }) => {
                 )}
                 <TokenBalance token={tokenData} />
 
-                <TokenTradeForm tokenData={tokenData} onSwap={onSwap} />
+                {!complete ? (
+                    <TokenTradeForm tokenData={tokenData} onSwap={onSwap} />
+                ) : (
+                    <div>Token is complete. Continue trading on Meteora.</div>
+                )}
             </div>
         )
     );

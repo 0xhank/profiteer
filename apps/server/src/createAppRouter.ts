@@ -123,6 +123,7 @@ export function createAppRouter() {
                         supply: rawToken.supply / 1e5,
                         decimals: 6,
                     },
+                    complete: rawToken.complete ?? undefined,
                 };
             }),
 

@@ -59,7 +59,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
   const fetchTokenBalances = useCallback(async () => {
     if (!walletAddress) return;
     const balances = (await getAllTokenBalances.query({ address: walletAddress })).reduce((acc, balance) => {
-      acc[balance.mint] = balance.balanceToken / 10 ** 9;
+      acc[balance.mint] = balance.balanceToken / 10 ** 6;
       return acc;
     }, {} as Record<string, number>);
     setTokenBalances(balances);

@@ -4,6 +4,7 @@ export const useTokenData = (mint: string) => {
     const { tokens } = useTokens();
 
     const token = tokens[mint];
+
     if (!token) {
         return null;
     }

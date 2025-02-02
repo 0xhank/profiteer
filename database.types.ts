@@ -127,6 +127,7 @@ export type Database = {
       }
       token_metadata: {
         Row: {
+          complete: boolean | null
           created_at: string
           creator: string
           decimals: number
@@ -139,6 +140,7 @@ export type Database = {
           uri: string
         }
         Insert: {
+          complete?: boolean | null
           created_at?: string
           creator: string
           decimals: number
@@ -151,6 +153,7 @@ export type Database = {
           uri: string
         }
         Update: {
+          complete?: boolean | null
           created_at?: string
           creator?: string
           decimals?: number

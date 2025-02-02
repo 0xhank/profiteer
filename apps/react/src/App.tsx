@@ -42,7 +42,7 @@ function _App() {
                 <Route path="/wiki/:id" element={<Token />} />
                 <Route path="/*" element={<Page404 />} />
             </Routes>
-            <Disclaimer />
+            {/* <Disclaimer /> */}
             <ServerStatus />
         </div>
     );

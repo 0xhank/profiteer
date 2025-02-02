@@ -10,6 +10,7 @@ export const TokenBalance = ({ token }: TokenBalanceProps) => {
   const { balance } = useTokenBalance(token.mint);
   const tokenData = useTokenData(token.mint);
   const mostRecentPrice = tokenData?.priceUsd;
+  console.log({balance, mostRecentPrice})
   return (
     <div className="flex justify-between gap-16 bg-black p-2 items-center min-w-[400px]">
       <div className="flex flex-col gap-0">

@@ -237,6 +237,13 @@ export const createPumpService = () => {
                     user: swapEvent.user.toBase58(),
                     complete,
                 });
+            if (complete) {
+                const { error: priceError } = await supabase
+                    .from("token_metadata")
+                    .update({
+                        complete: true,
+                    }).eq("mint", mintKp.toBase58());
+            }
             if (curveError) {
                 console.error(curveError);
                 throw new Error(

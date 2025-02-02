@@ -8,6 +8,7 @@ export const formatToken = (token: DbToken): Token => {
         mint: token.mint,
         createdAt: token.created_at,
         priceUsd: 0,
+        complete: token.complete ?? undefined,
         metadata: {
                 name: token.name,
                 symbol: token.symbol,
