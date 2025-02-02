@@ -1,11 +1,15 @@
 import supabase from "@/sbClient";
 import { CreateBondingCurveInput, SwapInput } from "@/types";
 import { initProviders } from "@/util/initProviders";
+import { simulateTransaction } from "@coral-xyz/anchor/dist/cjs/utils/rpc";
 import {
     fromWeb3JsKeypair,
     fromWeb3JsPublicKey,
 } from "@metaplex-foundation/umi-web3js-adapters";
-import { getAssociatedTokenAddressSync } from "@solana/spl-token";
+import {
+    getAssociatedTokenAddressSync,
+    TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
 import { Keypair, PublicKey, Keypair as Web3JsKeypair } from "@solana/web3.js";
 import { getTxEventsFromTxBuilderResponse, processTransaction } from "programs";
 
@@ -29,6 +33,24 @@ export const createPumpService = () => {
             "confirmed"
         );
         return tokenAccountBalance;
+    };
+
+    const getAllUserTokenBalances = async (
+        address: string
+    ): Promise<{ mint: string; balanceToken: number }[]> => {
+        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+            new PublicKey(address),
+            { programId: TOKEN_PROGRAM_ID },
+            "processed"
+        );
+
+        const tokenBalances = tokenAccounts.value.map((account) => ({
+            mint: account.account.data.parsed.info.mint as string,
+            balanceToken: Math.round(
+                Number(account.account.data.parsed.info.tokenAmount.amount)
+            ),
+        }));
+        return tokenBalances;
     };
 
     const createBondingCurve = async (input: CreateBondingCurveInput) => {
@@ -103,39 +125,49 @@ export const createPumpService = () => {
         const curveSdk = sdk.getCurveSDK(fromWeb3JsPublicKey(mintKp));
         const txBuilder = curveSdk.swap({
             direction: input.direction,
-            exactInAmount: input.amount,
-            minOutAmount: input.minAmountOut,
+            exactInAmount: BigInt(input.amount),
+            minOutAmount: BigInt(input.minAmountOut),
         });
-        const tx = await processTransaction(umi, txBuilder);
-        const events = await getTxEventsFromTxBuilderResponse(
-            connection,
-            // @ts-ignore TODO: fix this
-            program,
-            tx
-        );
-
-        const swapEvent = events.TradeEvent?.[0];
-        if (!swapEvent) {
-            throw new Error("SwapEvent not found");
-        }
-        const { error: curveError } = await supabase.from("curve_data").insert({
-            mint: mintKp.toBase58(),
-            real_sol_reserves: Number(swapEvent.realSolReserves),
-            real_token_reserves: Number(swapEvent.realTokenReserves),
-            virtual_sol_reserves: Number(swapEvent.virtualSolReserves),
-            virtual_token_reserves: Number(swapEvent.virtualTokenReserves),
-        });
-        if (curveError) {
-            throw new Error(
-                `Failed to insert curve data: ${curveError.message}`
+        try {
+            const tx = await processTransaction(umi, txBuilder);
+            const events = await getTxEventsFromTxBuilderResponse(
+                connection,
+                // @ts-ignore TODO: fix this
+                program,
+                tx
             );
-        }
-        const completeEvent = events.CompleteEvent?.[0];
-        if (completeEvent) {
-            await handleCurveComplete(mintKp);
-        }
 
-        return tx;
+            const swapEvent = events.TradeEvent?.[0];
+            if (!swapEvent) {
+                throw new Error("SwapEvent not found");
+            }
+
+            const { error: curveError } = await supabase
+                .from("curve_data")
+                .insert({
+                    mint: mintKp.toBase58(),
+                    real_sol_reserves: Number(swapEvent.realSolReserves),
+                    real_token_reserves: Number(swapEvent.realTokenReserves),
+                    virtual_sol_reserves: Number(swapEvent.virtualSolReserves),
+                    virtual_token_reserves: Number(
+                        swapEvent.virtualTokenReserves
+                    ),
+                });
+            if (curveError) {
+                console.error(curveError);
+                throw new Error(
+                    `Failed to insert curve data: ${curveError.message}`
+                );
+            }
+            const completeEvent = events.CompleteEvent?.[0];
+            if (completeEvent) {
+                await handleCurveComplete(mintKp);
+            }
+            return tx;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
     };
 
     const handleCurveComplete = async (mint: PublicKey) => {};
@@ -143,6 +175,7 @@ export const createPumpService = () => {
     return {
         getUserBalance,
         getUserTokenBalance,
+        getAllUserTokenBalances,
 
         createBondingCurve,
         swap,

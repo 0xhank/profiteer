@@ -14,9 +14,6 @@ export async function processTransaction(umi: Umi, txBuilder: TransactionBuilder
     );
     const fullBuilder = txBuilder.prepend(txWithBudget);
     const tx = await fullBuilder.sendAndConfirm(umi, {
-    send: {
-      skipPreflight: true,
-    },
     confirm: {
       commitment: "confirmed",
     },

@@ -22,11 +22,7 @@ export const PageLayout = ({ children }: PageLayoutProps) => {
           <feBlend mode="multiply" in2="SourceGraphic" />
         </filter>
       </svg>
-      <div
-        className={`fixed inset-0 flex items-center justify-center pointer-events-none opacity-5 text-[40rem] select-none animate-float`}
-      >
-        !!
-      </div>
+      
       <main className="flex flex-col gap-8 items-center w-full mt-20">
         {children}
       </main>

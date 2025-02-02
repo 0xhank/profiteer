@@ -4,6 +4,7 @@ import { z } from "zod";
 import supabase from "./sbClient";
 import { PumpService } from "./services/PumpService";
 import { createBondingCurveInputSchema, swapInputSchema } from "./types";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 
 export type AppContext = {
     pumpService: PumpService;
@@ -24,7 +25,7 @@ export function createAppRouter() {
         }),
 
         
-        getBalance: t.procedure
+        getSolBalance: t.procedure
             .input(z.object({ address: z.string() }))
             .query(async ({ ctx, input }) => {
                 return ctx.pumpService.getUserBalance(input.address);
@@ -38,6 +39,15 @@ export function createAppRouter() {
                     input.mint
                 );
             }),
+
+        getAllTokenBalances: t.procedure
+            .input(z.object({ address: z.string() }))
+            .query(async ({ ctx, input }) => {
+                return ctx.pumpService.getAllUserTokenBalances(
+                    input.address,
+                );
+            }),
+
 
         /**
          * Fetches all users from the database
@@ -64,6 +74,7 @@ export function createAppRouter() {
                     imageUri: token.uri,
                     startSlot: token.start_slot,
                     supply: token.supply / 1e5,
+                    decimals: 6
                 },
             }));
         }),
@@ -93,6 +104,7 @@ export function createAppRouter() {
                         imageUri: rawToken.uri,
                         startSlot: rawToken.start_slot,
                         supply: rawToken.supply / 1e5,
+                        decimals: 6,
                     },
                 };
             }),

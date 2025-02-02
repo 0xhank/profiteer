@@ -14,16 +14,22 @@ export default function ServerStatus() {
     }, []);
 
     const getServerStatus = async () => {
-        const status = await server.getStatus.query();
+        try {
+            const status = await server.getStatus.query();
+            console.log("Server status", status);
 
         let color = "bg-grey-500";
         if (status.status === 200) {
             color = "bg-green-700";
-        } else if (status.status >= 400) {
+        } else {
             color = "bg-red-500";
-        }
+            }
 
-        setServerStatus({ status: status.status, color });
+            setServerStatus({ status: status.status, color });
+        } catch (error) {
+            console.error("Error fetching server status", error);
+            setServerStatus({ status: "400", color: "bg-red-500" });
+        }
     };
 
     return (

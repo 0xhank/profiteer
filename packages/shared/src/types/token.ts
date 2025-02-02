@@ -9,5 +9,6 @@ export interface Token {
         imageUri: string;
         startSlot: number;
         supply: number;
+        decimals: number;
     };
 }

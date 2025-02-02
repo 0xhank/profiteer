@@ -4,7 +4,7 @@ import TokenCard from "../components/token-card";
 import { TokenTradeForm } from "../components/token/token-trade-form";
 import { useTokenData } from "../hooks/useTokenData";
 import { CandleChart } from "../components/token/candle-chart";
-import { LineChart } from "../components/token/line-chart";
+import { TokenBalance } from "../components/token/token-balance";
 
 export default function Token() {
     const params = useParams();
@@ -25,12 +25,6 @@ const candleTest = [
     { time: "2019-04-18", open: 76.64, close: 77.0, high: 78.0, low: 75.0 },
     { time: "2019-04-19", open: 81.89, close: 82.0, high: 83.0, low: 80.0 },
     { time: "2019-04-20", open: 74.43, close: 75.0, high: 76.0, low: 73.0 },
-];
-
-const lineTest = [
-    { time: "2019-04-11", value: 80.01 },
-    { time: "2019-04-12", value: 96.63 },
-    { time: "2019-04-13", value: 76.64 },
 ];
 
 function TokenContent({ mint }: { mint: string }) {
@@ -54,11 +48,7 @@ function TokenContent({ mint }: { mint: string }) {
                     colors={{ lineColor: "red" }}
                     className="w-[700px]"
                 />
-                <LineChart
-                    data={lineTest}
-                    colors={{ lineColor: "blue" }}
-                    className="w-[700px]"
-                />
+                <TokenBalance token={tokenData} />
 
                 <TokenTradeForm {...tokenData} />
             </div>

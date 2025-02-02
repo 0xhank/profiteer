@@ -15,6 +15,7 @@ export const formatToken = (token: DbToken): Token => {
                 startSlot: token.start_slot,
                 // times 1000 to get back to the original decimals divided by 1e9
                 supply: token.supply / 1e5,
+                decimals: 6,
             },
         };
     };

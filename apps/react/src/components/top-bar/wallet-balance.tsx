@@ -2,16 +2,22 @@ import { useFundWallet, useSolanaWallets } from "@privy-io/react-auth";
 import { useEmbeddedWallet } from "../../hooks/useEmbeddedWallet";
 import { useState } from "react";
 import { usePortfolio } from "../../hooks/usePortfolio";
-import { usePrivy } from "@privy-io/react-auth";
 import { useSolPrice } from "../../hooks/useSolPrice";
-
 export const WalletBalance = () => {
-  const { user, authenticated } = usePrivy();
-  const { balance, isLoading } = usePortfolio();
-  const profilePicUrl = user?.twitter?.profilePictureUrl?.replace(
-    "normal",
-    "400x400"
-  );
+  const { solBalance } = usePortfolio();
+
+  return <div>
+    <div>
+      <p>
+        {solBalance?.toFixed(3)} SOL
+      </p>
+    </div>
+  </div>;
+};
+const WalletBalance1 = () => {
+  // const { user, authenticated } = usePrivy();
+  const { solBalance, isLoading } = usePortfolio();
+  
   const [showModal, setShowModal] = useState(false);
   const { fundWallet } = useFundWallet();
   const embeddedWallet = useEmbeddedWallet();
@@ -54,7 +60,7 @@ export const WalletBalance = () => {
     );
   }
 
-  if (balance === null) {
+  if (solBalance === null) {
     return (
       <div className="flex items-center gap-4 px-4 py-1 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
         <div className="text-gray-500">Connect</div>
@@ -71,21 +77,21 @@ export const WalletBalance = () => {
         
         <div className="flex flex-col items-end bg-blue-900 rounded-full px-4">
           <p className="text-2xl font-bold text-gray-900 dark:text-white -mb-2">
-            ${(balance * priceUSD).toFixed(2)}
+            ${(solBalance * priceUSD).toFixed(2)}
           </p>
           <p className="text-md text-gray-200 font-semibold">
-            {balance.toFixed(3)} SOL
+            {solBalance.toFixed(3)} SOL
           </p>
         </div>
-          {profilePicUrl && (
+          {/* {profilePicUrl && (
           <img
             src={profilePicUrl}
             alt="Profile"
             width={32}
             height={32}
             className="rounded-full w-12 h-12 border-2 border-white/80 shadow-md"
-          />
-        )}
+          /> */}
+        {/* )} */}
       </div>
 
       {showModal && (
@@ -108,10 +114,10 @@ export const WalletBalance = () => {
                 Sol Balance
               </p>
               <p className="text-4xl font-extrabold text-gray-900 dark:text-white">
-                ${(balance * priceUSD).toFixed(2)} USD
+                ${(solBalance * priceUSD).toFixed(2)} USD
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {balance.toFixed(4)} SOL
+                {solBalance.toFixed(4)} SOL
               </p>
               {embeddedWallet?.address && (
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 break-all">

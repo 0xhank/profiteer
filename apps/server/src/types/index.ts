@@ -11,8 +11,8 @@ export type CreateBondingCurveInput = z.infer<typeof createBondingCurveInputSche
 
 export const swapInputSchema = z.object({
   mint: z.string(),
-  amount: z.bigint(),
-  minAmountOut: z.bigint(),
+  amount: z.string(),
+  minAmountOut: z.string(),
   direction: z.enum(["buy", "sell"]),
 });
 export type SwapInput = z.infer<typeof swapInputSchema>;
