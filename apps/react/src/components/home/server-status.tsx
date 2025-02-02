@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useServer } from "../hooks/useServer";
-import { cn } from "../utils/cn";
+import { useServer } from "../../hooks/useServer";
+import { cn } from "../../utils/cn";
 
 export default function ServerStatus() {
     const [serverStatus, setServerStatus] = useState<{

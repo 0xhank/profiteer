@@ -1,6 +1,6 @@
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { PageLayout } from "../components/page-layout";
-import WikiArticle from "../components/wiki-article";
+import { PageLayout } from "../components/common/page-layout";
+import WikiArticle from "../components/token/wiki-article";
 import bs58 from "bs58";
 import { useEffect, useState } from "react";
 import { useServer } from "../hooks/useServer";
@@ -51,7 +51,6 @@ export default function Token() {
         setIdAndName();
     }, [params]);
 
-    console.log(mint, articleName);
     if (loading) {
         return <PageLayout>Loading...</PageLayout>;
     }
@@ -88,19 +87,19 @@ function PageContent({
 
         fetchArticle({ title: articleName });
     }, []);
-    // if (!tokenData) {
-    //     return <PageLayout>Token not found</PageLayout>;
-    // }
-    if (!article) {
-        return <PageLayout>Loading...</PageLayout>;
-    }
+
     return (
         <PageLayout>
-            <div className="max-w-[1200px] h-full grid grid-cols-1 md:grid-cols-2 gap-8 items-start mt-12">
+            <div className="max-w-[1200px] h-full grid grid-cols-1 md:grid-cols-3 gap-8 items-start mt-12">
                 {/* Wiki Article on the left */}
-                <div className="col-span-1 overflow-y-auto h-full">
-                    <WikiArticle articleHtml={article} />
-                </div>
+                    <div className="col-span-2 overflow-y-auto h-full">
+                {article && (
+                        <WikiArticle articleHtml={article} />
+                )}
+                {!article && (
+                    <div>Loading...</div>
+                )}
+                    </div>
                 {/* Rest of the content */}
                 {mint && <TokenContent mint={mint} />}
                 {!mint && <CreateToken articleName={articleName} articleContent={article} />}

@@ -39,7 +39,7 @@ export const TokenTradeForm = (tokenData: Token) => {
     };
 
     return (
-        <div className="flex flex-col gap-0 w-[500px]">
+        <div className="flex flex-col gap-0 w-full">
             <div className="flex space-x-0">
                 <button
                     onClick={() => setIsBuyMode(true)}

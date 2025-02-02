@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom";
 // import { usePrivy } from "@privy-io/react-auth";
 // import { useSolanaWallets } from "@privy-io/react-auth/solana";
 import { useState } from "react";
-import { PageLayout } from "../components/page-layout";
-import { TokenList } from "../components/token-list";
+import { PageLayout } from "../components/common/page-layout";
+import { TokenList } from "../components/home/token-list";
+import { NewsStories } from "../components/home/news-stories";
 
 export default function Home() {
     // const { login, ready, authenticated, user } = usePrivy();
@@ -108,7 +109,7 @@ export default function Home() {
                                 "text-4xl opacity-70 dark:text-gray-300 white font-bold [filter:contrast(150%)_brightness(110%)_url(#noise)]"
                             }
                         >
-                            Trade the news. Meme the news.
+                            Everything is a meme.
                         </p>
                     </div>
                 </div>
@@ -137,6 +138,7 @@ export default function Home() {
                     </div>
                 </div>
             </div>
+            <NewsStories />
             <TokenList />
         </PageLayout>
     );

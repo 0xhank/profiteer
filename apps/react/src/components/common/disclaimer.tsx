@@ -1,5 +1,3 @@
-'use client'
-
 export const Disclaimer = () => {
   return (
     <div className={`static bottom-0 left-0 right-0 bg-gray-900/95 text-gray-400 p-4 text-sm backdrop-blur-sm flex justify-center space-x-6`}>

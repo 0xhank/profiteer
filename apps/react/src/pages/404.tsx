@@ -1,4 +1,4 @@
-import { PageLayout } from "../components/page-layout";
+import { PageLayout } from "../components/common/page-layout";
 
 export const Page404 = () => {
     return (

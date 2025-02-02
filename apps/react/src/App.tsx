@@ -1,7 +1,7 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import "./App.css";
-import { Disclaimer } from "./components/disclaimer";
-import ServerStatus from "./components/server-status";
+import { Disclaimer } from "./components/common/disclaimer";
+import ServerStatus from "./components/home/server-status";
 import TopBar from "./components/top-bar/top-bar";
 import { PortfolioProvider } from "./contexts/PortfolioContext";
 import { SolPriceProvider } from "./contexts/SolPriceContext";

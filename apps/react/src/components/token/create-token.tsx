@@ -6,9 +6,12 @@ export const CreateToken = ({
     articleContent,
 }: {
     articleName: string;
-    articleContent: string;
+    articleContent: string | null;
 }) => {
     const imageUri = useMemo(() => {
+        if (!articleContent) {
+            return null;
+        }
         const image = articleContent.match(/<img src="([^"]+)"/);
         if (image) {
             return image[1];
@@ -23,8 +26,10 @@ export const CreateToken = ({
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        handleGetSymbols(false);
-    }, [articleName]);
+        if (articleContent) {
+            handleGetSymbols(false);
+        }
+    }, [articleContent]);
 
     const effectiveSymbol = selectedSymbol;
 

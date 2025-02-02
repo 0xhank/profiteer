@@ -2,7 +2,7 @@ import { CandleChart } from "./candle-chart";
 import { TokenTradeForm } from "./token-trade-form";
 
 import { useTokenData } from "../../hooks/useTokenData";
-import TokenCard from "../token-card";
+import TokenCard from "../common/token-card";
 import { TokenBalance } from "./token-balance";
 
 const candleTest = [
@@ -18,29 +18,26 @@ const candleTest = [
     { time: "2019-04-20", open: 74.43, close: 75.0, high: 76.0, low: 73.0 },
 ];
 
-
 export const TokenContent = ({ mint }: { mint: string }) => {
-
     const { tokenData } = useTokenData({ mint });
     return (
         tokenData && (
             <div className="col-span-1 flex flex-col gap-8 items-center">
                 {/* Token Header */}
-                <div className="flex justify-center w-[700px]">
-                            <TokenCard token={tokenData} clickable={false} />
-                        </div>
+                <div className="flex justify-center w-full">
+                    <TokenCard token={tokenData} clickable={false} />
+                </div>
 
-                        {/* Price Graph */}
-                        <CandleChart
-                            data={candleTest}
-                            colors={{ lineColor: "red" }}
-                            className="w-[700px]"
-                        />
-                        <TokenBalance token={tokenData} />
+                {/* Price Graph */}
+                <CandleChart
+                    data={candleTest}
+                    colors={{ lineColor: "red" }}
+                    className="w-full"
+                />
+                <TokenBalance token={tokenData} />
 
-                        <TokenTradeForm {...tokenData} />
-                    </div>
-                )
+                <TokenTradeForm {...tokenData} />
+            </div>
+        )
     );
 };
-
