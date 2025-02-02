@@ -9,9 +9,10 @@ export default function TopBar({ className }: { className?: string }) {
     >
       <Link to="/">
         <div className="flex items-center gap-2 ml-2 px-1 justify-center bg-black hover:bg-black/90">
-          <div className="flex flex-col">
-            <h1 className={cn("text-2xl font-bold")}>news</h1>
-          </div>
+          <h1>
+            <span className={cn("text-2xl font-bold font-serif")}>news</span>
+            <span className={cn("text-2xl font-bold font-script")}>.fun</span>
+          </h1>
         </div>
       </Link>
       <WalletBalance />

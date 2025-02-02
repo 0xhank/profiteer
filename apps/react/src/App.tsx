@@ -9,19 +9,22 @@ import Home from "./pages/home";
 import Token from "./pages/token";
 import { ServerProvider } from "./providers/server-provider";
 import { SolPriceProvider } from "./contexts/SolPriceContext";
-
+import { PrivyClientProvider } from "./providers/privy-client-provider";
+import { PortfolioProvider } from "./contexts/WalletBalanceContext";
 function App() {
     return (
-        <div className="relative flex flex-col h-screen w-screen absolute top-0 left-0 right-0 z-50">
-            <TokenProvider>
-                <ServerProvider>
-                    <SolPriceProvider>
-                        {/* <WalletBalanceProvider> */}
-                        <_App />
-                        {/* </WalletBalanceProvider> */}
-                    </SolPriceProvider>
-                </ServerProvider>
-            </TokenProvider>
+        <div className="bg-lightGradient dark:bg-darkGradient font-sans relative flex flex-col h-screen w-screen absolute top-0 left-0 right-0 z-50">
+            <PrivyClientProvider>
+                <TokenProvider>
+                    <ServerProvider>
+                        <SolPriceProvider>
+                            <PortfolioProvider>
+                                <_App />
+                            </PortfolioProvider>
+                        </SolPriceProvider>
+                    </ServerProvider>
+                </TokenProvider>
+            </PrivyClientProvider>
         </div>
     );
 }

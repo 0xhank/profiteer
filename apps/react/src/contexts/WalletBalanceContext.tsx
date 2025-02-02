@@ -1,13 +1,11 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useEmbeddedWallet } from '../hooks/useEmbeddedWallet';
+import { useServer } from '../hooks/useServer';
 
-const RPC_ENDPOINT = 'https://special-yolo-butterfly.solana-mainnet.quiknode.pro/ebf72b17cd8c4be0b4ae113cd927b3803d793c17/';
-
-interface WalletBalanceContextType {
+interface PortfolioContextType {
   balance: number | null;
   isLoading: boolean;
   error: string | null;
@@ -15,19 +13,19 @@ interface WalletBalanceContextType {
   hasEnoughBalance: (requiredAmount: number) => boolean;
 }
 
-const WalletBalanceContext = createContext<WalletBalanceContextType | null>(null);
+export const PortfolioContext = createContext<PortfolioContextType | null>(null);
 
-export const WalletBalanceProvider = ({ children }: { children: React.ReactNode }) => {
+export const PortfolioProvider = ({ children }: { children: React.ReactNode }) => {
   const embeddedWallet = useEmbeddedWallet();
   const { ready } = usePrivy();
   const [balance, setBalance] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { getBalance } = useServer();
 
-  const walletAddress = embeddedWallet?.address;
+  const walletAddress = useMemo(() => embeddedWallet?.address, [embeddedWallet]);
 
   const fetchBalance = useCallback(async () => {
-    
     if (!ready) {
       return;
     }
@@ -39,8 +37,7 @@ export const WalletBalanceProvider = ({ children }: { children: React.ReactNode 
     }
 
     try {
-      const connection = new Connection(RPC_ENDPOINT, 'confirmed');
-      const walletBalance = await connection.getBalance(new PublicKey(walletAddress));
+      const walletBalance = await getBalance.query({ address: walletAddress });
       setBalance(walletBalance / 1e9);
       setError(null);
     } catch (err) {
@@ -66,16 +63,9 @@ export const WalletBalanceProvider = ({ children }: { children: React.ReactNode 
   }, [ready, walletAddress, fetchBalance]); // Only depend on ready state and wallet address
 
   return (
-    <WalletBalanceContext.Provider value={{ balance, isLoading, error, fetchBalance, hasEnoughBalance }}>
+    <PortfolioContext.Provider value={{ balance, isLoading, error, fetchBalance, hasEnoughBalance }}>
       {children}
-    </WalletBalanceContext.Provider>
+    </PortfolioContext.Provider>
   );
 };
 
-export const useWalletBalance = () => {
-  const context = useContext(WalletBalanceContext);
-  if (!context) {
-    throw new Error('useWalletBalance must be used within a WalletBalanceProvider');
-  }
-  return context;
-}; 

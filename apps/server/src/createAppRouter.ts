@@ -23,13 +23,14 @@ export function createAppRouter() {
             return { status: 200 };
         }),
 
-        getUserBalance: t.procedure
+        
+        getBalance: t.procedure
             .input(z.object({ address: z.string() }))
             .query(async ({ ctx, input }) => {
                 return ctx.pumpService.getUserBalance(input.address);
             }),
 
-        getUserTokenBalance: t.procedure
+        getTokenBalance: t.procedure
             .input(z.object({ address: z.string(), mint: z.string() }))
             .query(async ({ ctx, input }) => {
                 return ctx.pumpService.getUserTokenBalance(

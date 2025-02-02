@@ -1,33 +1,102 @@
 @import "tailwindcss";
-
-@font-face {
-  font-family: 'Mister';
-  src: url('assets/fonts/mister-firley.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
+@theme {
+    --font-sans: "Comic Neue", sans-serif;
+    --font-serif: "Libre Caslon Text", serif;
+    --font-script: "Kaushan Script", serif;
+}
+@plugin "daisyui";
+@plugin "daisyui/theme" {
+    name: "light";
+    default: true;
+    --color-primary: colors.cyan[900];
+    --color-secondary: colors.cyan[700];
+    --color-accent: colors.cyan[400];
+    --color-neutral: colors.slate[900];
+    --color-base-100: colors.slate[800];
+    --color-info: colors.indigo[800];
+    --color-success: colors.emerald[600];
+    --color-warning: colors.yellow[600];
+    --color-error: "#A8375D";
+    --rounded-box: "0rem";
+    --rounded-btn: "0rem";
+    --rounded-badge: "0rem";
+    --animation-btn: "0s";
+    --animation-input: "0.2s";
+    --btn-text-case: "uppercase";
+    --btn-focus-scale: "1";
+    --border-btn: "1px";
+    --tab-border: "1px";
+    --tab-radius: "0.5rem";
 }
 
-@font-face {
-  font-family: 'EarlyQuake';
-  src: url('assets/fonts/early-quake.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
+.libre-caslon-text-regular {
+    font-family: "Libre Caslon Text", serif;
+    font-weight: 400;
+    font-style: normal;
 }
 
-@font-face {
-  font-family: 'Naganoshi';
-  src: url('assets/fonts/naganoshi.otf') format('opentype');
-  font-weight: normal;
-  font-style: normal;
+.libre-caslon-text-bold {
+    font-family: "Libre Caslon Text", serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.libre-caslon-text-regular-italic {
+    font-family: "Libre Caslon Text", serif;
+    font-weight: 400;
+    font-style: italic;
+}
+
+.kaushan-script-regular {
+    font-family: "Kaushan Script", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.comic-neue-light {
+    font-family: "Comic Neue", serif;
+    font-weight: 300;
+    font-style: normal;
+}
+
+.comic-neue-regular {
+    font-family: "Comic Neue", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.comic-neue-bold {
+    font-family: "Comic Neue", serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.comic-neue-light-italic {
+    font-family: "Comic Neue", serif;
+    font-weight: 300;
+    font-style: italic;
+}
+
+.comic-neue-regular-italic {
+    font-family: "Comic Neue", serif;
+    font-weight: 400;
+    font-style: italic;
+}
+
+.comic-neue-bold-italic {
+    font-family: "Comic Neue", serif;
+    font-weight: 700;
+    font-style: italic;
 }
 
 #root {
-  font-family: 'EarlyQuake', sans-serif;
-  padding: 0;
-  margin: 0;
+    font-family: "Comic Neue", serif;
+    padding: 0;
+    margin: 0;
 }
 
-html, body {
-  padding: 0;
-  margin: 0;
+html,
+body {
+    padding: 0;
+    margin: 0;
 }

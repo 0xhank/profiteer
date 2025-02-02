@@ -9,9 +9,11 @@ export default {
         foreground: "var(--foreground)",
       },
       fontFamily: {
-        mister: ["var(--font-mister)", "sans-serif"],
-        earlyquake: ["var(--font-earlyquake)", "sans-serif"],
-        naganoshi: ["var(--font-naganoshi)", "sans-serif"],
+        caslon: ["Libre Caslon Text", "serif"],
+        kaushan: ["Kaushan Script", "serif"],
+        comic: ["Comic Neue", "serif"],
+        roboto: ['Roboto', 'sans-serif'],
+
       },
       keyframes: {
         float: {
