@@ -98,7 +98,7 @@ export default function Home() {
         <PageLayout>
             <div className="flex flex-col text-left animate-fade-in">
                 <h1 className="text-[100pt]">
-                    <span className="font-serif">news</span>
+                    <span className="font-serif font-semibold">news</span>
                     <span className="font-script text-accent">.fun</span>
                 </h1>
                 <div className="flex justify-between flex-col md:flex-row text-primary">
