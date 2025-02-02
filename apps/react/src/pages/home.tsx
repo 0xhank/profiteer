@@ -138,8 +138,14 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <NewsStories />
-            <TokenList />
+            <div className="grid grid-cols-4 gap-4">
+                <div className="col-span-3">
+                    <NewsStories />
+                </div>
+                <div className="col-span-1">
+                    <TokenList />
+                </div>
+            </div>
         </PageLayout>
     );
 }
