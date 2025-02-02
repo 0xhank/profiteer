@@ -8,7 +8,7 @@ interface PageLayoutProps {
 
 export const PageLayout = ({ children }: PageLayoutProps) => {
   return (
-    <div className="h-full grid grid-rows-[auto_1fr_20px] items-center justify-items-center dark:bg-slate-800">
+    <div className="h-full grid grid-rows-[auto_1fr_20px] items-center justify-items-center bg-base-300">
       <svg className="fixed w-0 h-0">
         <filter id="noise">
           <feTurbulence

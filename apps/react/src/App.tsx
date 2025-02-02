@@ -13,7 +13,6 @@ import { PrivyClientProvider } from "./providers/privy-client-provider";
 import { PortfolioProvider } from "./contexts/WalletBalanceContext";
 function App() {
     return (
-        <div className="bg-lightGradient dark:bg-darkGradient font-sans relative flex flex-col h-screen w-screen absolute top-0 left-0 right-0 z-50">
             <PrivyClientProvider>
                 <TokenProvider>
                     <ServerProvider>
@@ -25,12 +24,12 @@ function App() {
                     </ServerProvider>
                 </TokenProvider>
             </PrivyClientProvider>
-        </div>
     );
 }
 
 function _App() {
     return (
+        <div className="flex flex-col relative h-screen w-screen absolute top-0 left-0 right-0 z-50">
         <Router>
             <TopBar className="absolute top-0 left-0 right-0 z-50" />
             <Routes>
@@ -41,6 +40,7 @@ function _App() {
             <Disclaimer />
             <ServerStatus />
         </Router>
+        </div>
     );
 }
 
