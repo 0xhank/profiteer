@@ -68,10 +68,11 @@ export function createAppRouter() {
             }),
 
         getArticleSymbolOptions: t.procedure
-            .input(z.object({ articleName: z.string() }))
+            .input(z.object({ articleName: z.string(), hardRefresh: z.boolean().optional() }))
             .query(async ({ ctx, input }) => {
                 return ctx.wikiService.getArticleSymbolOptions(
-                    input.articleName
+                    input.articleName,
+                    input.hardRefresh
                 );
             }),
 

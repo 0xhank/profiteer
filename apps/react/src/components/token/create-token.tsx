@@ -16,23 +16,29 @@ export const CreateToken = ({
         return null;
     }, [articleContent]);
 
-
-
     const { getArticleSymbolOptions } = useServer();
 
     const [symbols, setSymbols] = useState<string[]>([]);
     const [selectedSymbol, setSelectedSymbol] = useState<string>("");
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        handleGetSymbols();
+        handleGetSymbols(false);
     }, [articleName]);
 
     const effectiveSymbol = selectedSymbol;
 
-    const handleGetSymbols = async () => {
-        const symbols = await getArticleSymbolOptions.query({ articleName });
-        console.log({ symbols });
-        setSymbols(symbols.map((s) => "n" + s));
+    const handleGetSymbols = async (hardRefresh: boolean = false) => {
+        setIsLoading(true);
+        try {
+            const symbols = await getArticleSymbolOptions.query({
+                articleName,
+                hardRefresh,
+            });
+            setSymbols(symbols.map((s) => "n" + s));
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -60,21 +66,44 @@ export const CreateToken = ({
                 </div>
 
                 <div>
-                    <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">
-                        Symbol
-                    </label>
-                    <select
-                        className="w-full p-2 border rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
-                        value={selectedSymbol}
-                        onChange={(e) => setSelectedSymbol(e.target.value)}
-                    >
-                        <option value="Select a symbol">{effectiveSymbol}</option>
-                        {symbols.map((s) => (
-                            <option key={s} value={s}>
-                                {s}
-                            </option>
-                        ))}
-                    </select>
+                    <div className="flex justify-between items-center mb-2">
+                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">
+                            Symbol
+                        </label>
+                        <button
+                            onClick={() => handleGetSymbols(true)}
+                            className="btn btn-sm btn-outline"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? "Loading..." : "Refresh Symbols"}
+                        </button>
+                    </div>
+
+                    {isLoading ? (
+                        <div className="text-gray-500">Loading symbols...</div>
+                    ) : (
+                        <div className="space-y-2">
+                            {symbols.map((symbol) => (
+                                <label
+                                    key={symbol}
+                                    className="flex items-center space-x-2"
+                                >
+                                    <input
+                                        type="radio"
+                                        value={symbol}
+                                        checked={selectedSymbol === symbol}
+                                        onChange={(e) =>
+                                            setSelectedSymbol(e.target.value)
+                                        }
+                                        className="radio radio-primary"
+                                    />
+                                    <span className="text-gray-700 dark:text-gray-300">
+                                        {symbol}
+                                    </span>
+                                </label>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -83,6 +112,9 @@ export const CreateToken = ({
                 symbol={effectiveSymbol}
                 uri={imageUri ?? `https://api.news.fun/${articleName}`}
             />
+            <div className="text-gray-700 dark:text-gray-300">
+                {JSON.stringify(symbols)}
+            </div>
         </div>
     );
 };
