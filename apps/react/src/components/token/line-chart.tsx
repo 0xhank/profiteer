@@ -1,4 +1,4 @@
-import { ColorType, LineSeries } from "lightweight-charts";
+import { ColorType, LineSeries, UTCTimestamp } from "lightweight-charts";
 
 import { createChart } from "lightweight-charts";
 import { useEffect, useRef } from "react";
@@ -47,10 +47,15 @@ export const LineChart = (props: ChartProps) => {
         });
         chart.timeScale().fitContent();
 
+        const formattedData: { time: UTCTimestamp; value: number }[] = data.map((item) => ({
+            time: Math.floor(new Date(item.time).getTime() / 1000) as UTCTimestamp,
+            value: item.value,
+        }));
+
         const newSeries = chart.addSeries(LineSeries, {
             color: lineColor,
         });
-        newSeries.setData(data);
+        newSeries.setData(formattedData);
 
         window.addEventListener("resize", handleResize);
 

@@ -3,9 +3,9 @@ import { PageLayout } from "../components/common/page-layout";
 import WikiArticle from "../components/token/wiki-article";
 import bs58 from "bs58";
 import { useEffect, useState } from "react";
-import { useServer } from "../hooks/useServer";
 import { TokenContent } from "../components/token/token-content";
 import { CreateToken } from "../components/token/create-token";
+import supabase from "../sbClient";
 
 export default function Token() {
     const params = useParams();
@@ -14,8 +14,35 @@ export default function Token() {
     const [articleName, setArticleName] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-    const { getMintFromArticleName, getArticleNameFromMint } = useServer();
 
+    const getArticleName = async (mint: string) => {
+        const { data, error } = await supabase
+            .from("mint_article_name")
+            .select("article_name")
+            .eq("mint", mint)
+            .limit(1);
+
+        if (error) {
+            throw new Error(`Failed to fetch article token: ${error.message}`);
+        }
+        if (data.length === 0) {
+            return null;
+        }
+        return data[0];
+    };
+
+    const getArticleMint = async (articleName: string) => {
+        const { data, error } = await supabase
+            .from("mint_article_name")
+            .select("mint")
+            .eq("article_name", articleName)
+            .limit(1);
+
+        if (error) {
+            throw new Error(`Failed to fetch article token: ${error.message}`);
+        }
+        return data[0];
+    };
     useEffect(() => {
         setLoading(true);
         const isBs58 = (id: string) => {
@@ -34,15 +61,11 @@ export default function Token() {
                 return;
             }
             if (!isBs58(id)) {
-                const mint = await getMintFromArticleName.query({
-                    articleName: id,
-                });
+                const mint = await getArticleMint(id);
                 setArticleName(id);
                 setMint(mint?.mint || null);
             } else {
-                const articleName = await getArticleNameFromMint.query({
-                    mint: id,
-                });
+                const articleName = await getArticleName(id);
                 setMint(id);
                 setArticleName(articleName?.article_name || null);
             }
@@ -92,17 +115,18 @@ function PageContent({
         <PageLayout>
             <div className="max-w-[1200px] h-full grid grid-cols-1 md:grid-cols-3 gap-8 items-start mt-12">
                 {/* Wiki Article on the left */}
-                    <div className="col-span-2 overflow-y-auto h-full">
-                {article && (
-                        <WikiArticle articleHtml={article} />
-                )}
-                {!article && (
-                    <div>Loading...</div>
-                )}
-                    </div>
+                <div className="col-span-2 overflow-y-auto h-full">
+                    {article && <WikiArticle articleHtml={article} />}
+                    {!article && <div>Loading...</div>}
+                </div>
                 {/* Rest of the content */}
                 {mint && <TokenContent mint={mint} />}
-                {!mint && <CreateToken articleName={articleName} articleContent={article} />}
+                {!mint && (
+                    <CreateToken
+                        articleName={articleName}
+                        articleContent={article}
+                    />
+                )}
             </div>
         </PageLayout>
     );
