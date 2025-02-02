@@ -31,22 +31,23 @@ const candleTest = [
 function TokenContent({ mint }: { mint: string }) {
     const { tokenData } = useTokenData({ mint });
 
-    if (!tokenData) {
-        return <PageLayout>Token not found</PageLayout>;
-    }
+    // if (!tokenData) {
+    //     return <PageLayout>Token not found</PageLayout>;
+    // }
 
     return (
         <PageLayout>
             <div className="max-w-[1200px] h-full grid grid-cols-1 md:grid-cols-2 gap-8 items-start mt-12">
                 {/* Wiki Article on the left */}
                 <div className="col-span-1 overflow-y-auto h-full">
-                    <WikiArticle />
+                    <WikiArticle title={mint} />
                 </div>
                 {/* Rest of the content */}
-                <div className="col-span-1 flex flex-col gap-8 items-center">
-                    {/* Token Header */}
-                    <div className="flex justify-center w-[700px]">
-                        <TokenCard token={tokenData} clickable={false} />
+                {tokenData && (
+                    <div className="col-span-1 flex flex-col gap-8 items-center">
+                        {/* Token Header */}
+                        <div className="flex justify-center w-[700px]">
+                            <TokenCard token={tokenData} clickable={false} />
                     </div>
 
                     {/* Price Graph */}
@@ -57,8 +58,9 @@ function TokenContent({ mint }: { mint: string }) {
                     />
                     <TokenBalance token={tokenData} />
 
-                    <TokenTradeForm {...tokenData} />
-                </div>
+                        <TokenTradeForm {...tokenData} />
+                    </div>
+                )}
             </div>
         </PageLayout>
     );

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const WikiArticle = () => {
+const WikiArticle = ({ title }: { title: string }) => {
     const [article, setArticle] = useState("");
 
     useEffect(() => {
@@ -19,7 +19,7 @@ const WikiArticle = () => {
             }
         };
 
-        fetchArticle({ title: "Jimi_Hendrix" });
+        fetchArticle({ title: title });
     }, []);
 
     console.log(article);
