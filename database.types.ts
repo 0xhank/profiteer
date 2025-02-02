@@ -29,29 +29,35 @@ export type Database = {
       }
       curve_data: {
         Row: {
+          complete: boolean
           created_at: string
           id: number
           mint: string
           real_sol_reserves: number
           real_token_reserves: number
+          user: string | null
           virtual_sol_reserves: number
           virtual_token_reserves: number
         }
         Insert: {
+          complete?: boolean
           created_at?: string
           id?: number
           mint: string
           real_sol_reserves: number
           real_token_reserves: number
+          user?: string | null
           virtual_sol_reserves: number
           virtual_token_reserves: number
         }
         Update: {
+          complete?: boolean
           created_at?: string
           id?: number
           mint?: string
           real_sol_reserves?: number
           real_token_reserves?: number
+          user?: string | null
           virtual_sol_reserves?: number
           virtual_token_reserves?: number
         }

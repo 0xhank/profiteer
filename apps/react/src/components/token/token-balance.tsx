@@ -1,5 +1,6 @@
 import { Token } from "shared/src/types/token";
 import { useTokenBalance } from "../../hooks/useTokenBalance";
+import { useTokenData } from "../../hooks/useTokenData";
 
 interface TokenBalanceProps {
   token: Token;
@@ -7,6 +8,8 @@ interface TokenBalanceProps {
 
 export const TokenBalance = ({ token }: TokenBalanceProps) => {
   const { balance } = useTokenBalance(token.mint);
+  const tokenData = useTokenData(token.mint);
+  const mostRecentPrice = tokenData?.priceUsd;
   return (
     <div className="flex justify-between gap-16 bg-black p-2 items-center min-w-[400px]">
       <div className="flex flex-col gap-0">
@@ -19,9 +22,16 @@ export const TokenBalance = ({ token }: TokenBalanceProps) => {
           あなたが所有する
         </p>
       </div>
-        <p className="text-2xl md:text-4xl font-extrabold text-gray-900 dark:text-white">
+      <div className="flex flex-col gap-0">
+        <p className="text-2xl md:text-2xl font-extrabold text-gray-900 dark:text-white">
           {balance.toFixed(2)} 
         </p>
+        {mostRecentPrice && (
+          <p className="text-sm font-extrabold text-gray-900 dark:text-white">
+            ${(balance * mostRecentPrice).toFixed(2)}
+          </p>
+        )}
+      </div>
     </div>
   );
 };

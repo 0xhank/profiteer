@@ -1,11 +1,11 @@
 import { initTRPC } from "@trpc/server";
+import { observable } from "@trpc/server/observable";
 import { Token } from "shared/src/types/token";
 import { z } from "zod";
 import supabase from "./sbClient";
 import { PumpService } from "./services/PumpService";
-import { createBondingCurveInputSchema, swapInputSchema } from "./types";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { WikiService } from "./services/WikiService";
+import { createBondingCurveInputSchema, swapInputSchema } from "./types";
 
 export type AppContext = {
     pumpService: PumpService;
@@ -26,49 +26,18 @@ export function createAppRouter() {
             return { status: 200 };
         }),
 
-        getMintFromArticleName: t.procedure
-            .input(z.object({ articleName: z.string() }))
-            .query(async ({ ctx, input }) => {
-                const { data, error } = await supabase
-                    .from("mint_article_name")
-                    .select("mint")
-                    .eq("article_name", input.articleName)
-                    .limit(1);
-
-                if (error) {
-                    throw new Error(
-                        `Failed to fetch article name: ${error.message}`
-                    );
-                }
-                if (data.length === 0) {
-                    return null;
-                }
-
-                return data[0];
-            }),
-
-        getArticleNameFromMint: t.procedure
-            .input(z.object({ mint: z.string() }))
-            .query(async ({ ctx, input }) => {
-                const { data, error } = await supabase
-                    .from("mint_article_name")
-                    .select("article_name")
-                    .eq("mint", input.mint)
-                    .limit(1);
-
-                if (error) {
-                    throw new Error(
-                        `Failed to fetch article token: ${error.message}`
-                    );
-                }
-                if (data.length === 0) {
-                    return null;
-                }
-                return data[0];
-            }),
+        getSlot: t.procedure.query(async ({ ctx }) => {
+            return ctx.pumpService.getSlot();
+        }),
+     
 
         getArticleSymbolOptions: t.procedure
-            .input(z.object({ articleName: z.string(), hardRefresh: z.boolean().optional() }))
+            .input(
+                z.object({
+                    articleName: z.string(),
+                    hardRefresh: z.boolean().optional(),
+                })
+            )
             .query(async ({ ctx, input }) => {
                 return ctx.wikiService.getArticleSymbolOptions(
                     input.articleName,

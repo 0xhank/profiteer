@@ -1,11 +1,15 @@
-import { createTRPCProxyClient, CreateTRPCProxyClient, createWSClient, httpBatchLink, HTTPBatchLinkOptions, splitLink, wsLink } from "@trpc/client";
+import {
+    createTRPCProxyClient,
+    CreateTRPCProxyClient,
+    httpBatchLink,
+    HTTPBatchLinkOptions,
+} from "@trpc/client";
 
 import type { AppRouter } from "./createAppRouter";
 
 type CreateClientOptions = {
-  httpUrl: string;
-  wsUrl: string;
-  httpHeaders: HTTPBatchLinkOptions["headers"]
+    httpUrl: string;
+    httpHeaders: HTTPBatchLinkOptions["headers"];
 };
 
 /**
@@ -14,23 +18,14 @@ type CreateClientOptions = {
  * @param {CreateClientOptions} options See `CreateClientOptions`.
  * @returns {CreateTRPCProxyClient<AppRouter>} A typed tRPC client.
  */
-export function createClient({ httpUrl, wsUrl, httpHeaders }: CreateClientOptions): CreateTRPCProxyClient<AppRouter> {
-  const wsClient = createWSClient({
-    url: wsUrl,
-  });
-  return createTRPCProxyClient<AppRouter>({
-    links: [
-      splitLink({
-        condition: (op) => op.type === 'subscription',
-        true: wsLink({
-          client: wsClient,
-        }),
-        false: httpBatchLink({
-          url: httpUrl,
-          headers: httpHeaders
-        }),
-      }),
-    ],
-  });
-  
+export function createClient({
+    httpUrl,
+}: CreateClientOptions): CreateTRPCProxyClient<AppRouter> {
+    return createTRPCProxyClient<AppRouter>({
+        links: [
+            httpBatchLink({
+                url: httpUrl,
+            }),
+        ],
+    });
 }

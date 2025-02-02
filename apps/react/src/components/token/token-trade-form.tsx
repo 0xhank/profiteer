@@ -4,7 +4,7 @@ import { usePortfolio } from "../../hooks/usePortfolio";
 import { useServer } from "../../hooks/useServer";
 import { useTokenBalance } from "../../hooks/useTokenBalance";
 
-export const TokenTradeForm = (tokenData: Token) => {
+export const TokenTradeForm = ({ tokenData, onSwap }: { tokenData: Token, onSwap: () => void }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [amount, setAmount] = useState(1);
     const [isBuyMode, setIsBuyMode] = useState(true);
@@ -31,6 +31,7 @@ export const TokenTradeForm = (tokenData: Token) => {
 
             // dont await this
             refreshPortfolio();
+            onSwap();
         } catch (error) {
             console.error(error);
         } finally {

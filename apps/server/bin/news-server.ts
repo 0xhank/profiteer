@@ -2,13 +2,11 @@
 import { createPumpService } from "@/services/PumpService";
 import { WikiService } from "@/services/WikiService";
 import fastifyWebsocket from "@fastify/websocket";
-import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
-import { NodeHTTPCreateContextFnOptions } from "@trpc/server/adapters/node-http";
-import { applyWSSHandler } from "@trpc/server/adapters/ws";
-import fastify from "fastify";
+import { CreateFastifyContextOptions, fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
 import { IncomingMessage } from "http";
 import { AppRouter, createAppRouter } from "../src/createAppRouter";
 import env from "./env";
+import fastify from "fastify";
 
 // @see https://fastify.dev/docs/latest/
 export const server = fastify({
@@ -30,21 +28,28 @@ const getBearerToken = (req: IncomingMessage) => {
     return null;
 };
 
+export function createContext({ req, res }: CreateFastifyContextOptions) {
+  const user = { name: req.headers.username ?? 'anonymous' };
+  return { req, res, user };
+}
+
 export const start = async () => {
+  console.log("starting")
+
     try {
-        // Register WebSocket plugin here instead
         await server.register(fastifyWebsocket);
         await server.register(import("@fastify/compress"));
         await server.register(import("@fastify/cors"));
 
         const pumpService = createPumpService();
         const wikiService = WikiService();
-        // @see https://trpc.io/docs/server/adapters/fastify
-        server.register(fastifyTRPCPlugin<AppRouter>, {
+        const router = createAppRouter();
+
+        // Single TRPC registration that handles both HTTP and WebSocket
+        await server.register(fastifyTRPCPlugin<AppRouter>, {
             prefix: "/trpc",
-            useWSS: true,
             trpcOptions: {
-                router: createAppRouter(),
+                router: router,
                 createContext: async (opt) => ({
                     jwtToken: getBearerToken(opt.req.raw) ?? "",
                     pumpService,
@@ -52,24 +57,12 @@ export const start = async () => {
                 }),
             },
         });
+
         await server.listen({ host: env.SERVER_HOST, port: env.SERVER_PORT });
         console.log(
             `news server listening on http://${env.SERVER_HOST}:${env.SERVER_PORT}`
         );
 
-        // Apply WebSocket handler
-        applyWSSHandler({
-            wss: server.websocketServer,
-            router: createAppRouter(),
-            // @ts-expect-error IncomingMessage is not typed
-            createContext: async (
-                opt: NodeHTTPCreateContextFnOptions<IncomingMessage, WebSocket>
-            ) => ({
-                pumpService,
-                wikiService,
-                jwtToken: getBearerToken(opt.req) ?? "",
-            }),
-        });
         return server;
     } catch (err) {
         server.log.error(err);

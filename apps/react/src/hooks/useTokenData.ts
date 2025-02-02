@@ -1,11 +1,11 @@
 import { useTokens } from "./useTokens";
 
-export const useTokenData = ({ mint }: { mint: string }) => {
+export const useTokenData = (mint: string) => {
     const { tokens } = useTokens();
 
     const token = tokens[mint];
     if (!token) {
-        return { tokenData: null };
+        return null;
     }
-    return { tokenData: token };
+    return token;
 };

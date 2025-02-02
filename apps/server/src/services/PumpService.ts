@@ -1,7 +1,6 @@
 import supabase from "@/sbClient";
-import { CreateBondingCurveInput, SwapInput } from "@/types";
+import { CreateBondingCurveInput, CurveCompleteEvent, SwapInput } from "@/types";
 import { initProviders } from "@/util/initProviders";
-import { simulateTransaction } from "@coral-xyz/anchor/dist/cjs/utils/rpc";
 import {
     fromWeb3JsKeypair,
     fromWeb3JsPublicKey,
@@ -10,11 +9,81 @@ import {
     getAssociatedTokenAddressSync,
     TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import { Keypair, PublicKey, Keypair as Web3JsKeypair } from "@solana/web3.js";
+import { PublicKey, Keypair as Web3JsKeypair } from "@solana/web3.js";
 import { getTxEventsFromTxBuilderResponse, processTransaction } from "programs";
 
 export const createPumpService = () => {
     const { umi, sdk, connection, program } = initProviders();
+
+    const slotSubscribers = new Map<string, (slot: number) => void>();
+    let pollInterval: NodeJS.Timeout | null = null;
+
+    let slot = 0;
+    let lastChecked = 0
+    const getSlot = async () => {
+        if (lastChecked + 1000 < Date.now()) {
+            slot = await connection.getSlot();
+            lastChecked = Date.now();
+        }
+
+        return slot;
+    };
+
+    const startPolling = () => {
+        if (pollInterval) return; // Already polling
+
+        // First emit immediately to avoid delay
+        connection.getSlot().then((slot) => {
+            slotSubscribers.forEach((callback) => callback(slot));
+        });
+
+        pollInterval = setInterval(async () => {
+            const slot = await connection.getSlot();
+            // Remove the console.log to reduce noise
+            slotSubscribers.forEach((callback) => {
+                callback(slot);
+            });
+        }, 1000); // Consider increasing this interval if you don't need updates every second
+    };
+
+    const stopPolling = () => {
+        if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+        }
+    };
+
+    // Start/stop polling based on subscribers
+    const subscribeToSlot = (key: string, callback: (slot: number) => void) => {
+        console.log(
+            `[PumpService] New subscription: ${key}. Active subscribers: ${slotSubscribers.size}`
+        );
+        console.log(
+            "[PumpService] Current subscribers:",
+            Array.from(slotSubscribers.keys())
+        );
+
+        slotSubscribers.set(key, callback);
+        if (slotSubscribers.size === 1) {
+            console.log("[PumpService] Starting polling...");
+            startPolling();
+        }
+        return () => {
+            console.log(`[PumpService] Unsubscribing: ${key}`);
+            unsubscribeFromSlot(key);
+        };
+    };
+
+    const unsubscribeFromSlot = (key: string) => {
+        slotSubscribers.delete(key);
+        console.log(
+            `[PumpService] Unsubscribed: ${key}. Remaining subscribers: ${slotSubscribers.size}`
+        );
+        if (slotSubscribers.size === 0) {
+            console.log("[PumpService] Stopping polling - no subscribers");
+            stopPolling();
+        }
+    };
 
     const getUserBalance = async (address: string) => {
         const balance = await connection.getBalance(new PublicKey(address));
@@ -154,6 +223,7 @@ export const createPumpService = () => {
                 throw new Error("SwapEvent not found");
             }
 
+            const complete = !!events.CompleteEvent?.[0];
             const { error: curveError } = await supabase
                 .from("curve_data")
                 .insert({
@@ -164,6 +234,8 @@ export const createPumpService = () => {
                     virtual_token_reserves: Number(
                         swapEvent.virtualTokenReserves
                     ),
+                    user: swapEvent.user.toBase58(),
+                    complete,
                 });
             if (curveError) {
                 console.error(curveError);
@@ -171,10 +243,7 @@ export const createPumpService = () => {
                     `Failed to insert curve data: ${curveError.message}`
                 );
             }
-            const completeEvent = events.CompleteEvent?.[0];
-            if (completeEvent) {
-                await handleCurveComplete(mintKp);
-            }
+            
             return tx;
         } catch (error) {
             console.error(error);
@@ -182,15 +251,17 @@ export const createPumpService = () => {
         }
     };
 
-    const handleCurveComplete = async (mint: PublicKey) => {};
+  
 
     return {
         getUserBalance,
         getUserTokenBalance,
         getAllUserTokenBalances,
-
+        subscribeToSlot,
+        unsubscribeFromSlot,
         createBondingCurve,
         swap,
+        getSlot,
     };
 };
 

@@ -6,16 +6,31 @@ import supabase from "../../sbClient";
 import TokenCard from "../common/token-card";
 import { LineChart } from "./line-chart";
 import { TokenBalance } from "./token-balance";
+import { useFee } from "../../hooks/useFee";
 
 export const TokenContent = ({ mint }: { mint: string }) => {
-    const { tokenData } = useTokenData({ mint });
+    const tokenData = useTokenData(mint);
     const [tokenPrices, setTokenPrices] = useState<
         { time: string; value: number }[]
     >([]);
     const [loading, setLoading] = useState(true);
+    const [reserveData, setReserveData] = useState<{
+        virtual_token_reserves: number;
+        virtual_sol_reserves: number;
+    } | null>(null);
 
     const [curveLiquidity, setCurveLiquidity] = useState<number | null>(null);
 
+    const mostRecentPrice = useMemo(() => {
+        return tokenPrices[tokenPrices.length - 1]?.value;
+    }, [tokenPrices]);
+    const { fee } = useFee(mint);
+
+    const onSwap = () => {
+        fetchCurveLiquidity();
+        fetchTokenPrices();
+    }
+    // todo: subscribe to the token price as updates come in
     // todo: only fetch prices from a certain window
     // todo: convert the prices into candles
     const fetchTokenPrices = async () => {
@@ -49,7 +64,7 @@ export const TokenContent = ({ mint }: { mint: string }) => {
     const fetchCurveLiquidity = async () => {
         const { data, error } = await supabase
             .from("curve_data")
-            .select("virtual_token_reserves")
+            .select("virtual_token_reserves, virtual_sol_reserves")
             .eq("mint", mint)
             .order("created_at", { ascending: false })
             .limit(1);
@@ -58,6 +73,7 @@ export const TokenContent = ({ mint }: { mint: string }) => {
             console.error(error);
         } else {
             setCurveLiquidity(data[0].virtual_token_reserves);
+            setReserveData(data[0]);
         }
     };
 
@@ -85,6 +101,15 @@ export const TokenContent = ({ mint }: { mint: string }) => {
                                 </span>
                             </div>
                         </div>
+                        <p>
+                            Token: {reserveData?.virtual_token_reserves ?? 0 / 1e6}
+                        </p>
+                        <p>
+                            SOL: {reserveData?.virtual_sol_reserves ?? 0 / 1e9}
+                        </p>
+                        <p>
+                            Fee: {fee * 100}%
+                        </p>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
                             <div
                                 className="bg-red-600 h-2.5 rounded-full"
@@ -108,7 +133,7 @@ export const TokenContent = ({ mint }: { mint: string }) => {
                 )}
                 <TokenBalance token={tokenData} />
 
-                <TokenTradeForm {...tokenData} />
+                <TokenTradeForm tokenData={tokenData} onSwap={onSwap} />
             </div>
         )
     );
