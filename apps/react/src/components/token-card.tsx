@@ -10,12 +10,10 @@ export default function TokenCard({
   token: Token;
   clickable?: boolean;
 }) {
-
-
   return (
     <Link
       key={token.mint}
-      to={`/token/${token.mint}`}
+      to={`/wiki/${token.mint}`}
       className={cn(
         `block transform`,
         clickable ? "hover:scale-105" : "cursor-default"

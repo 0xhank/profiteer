@@ -89,7 +89,7 @@ export default function Home() {
     };
 
     const handleSuggestionClick = (suggestion: string) => {
-        navigate(`/token/${suggestion}`);
+        navigate(`/wiki/${suggestion}`);
         setQuery("");
         setSuggestions([]);
     };
@@ -135,12 +135,6 @@ export default function Home() {
                             ))}
                         </ul>
                     </div>
-                    <button
-                        className="btn btn-accent btn-xl text-slate-950 z-50"
-                        onClick={() => navigate("/create")}
-                    >
-                        Create Token
-                    </button>
                 </div>
             </div>
             <TokenList />

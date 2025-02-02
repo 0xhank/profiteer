@@ -35,7 +35,7 @@ function _App() {
                 <TopBar className="absolute top-0 left-0 right-0 z-50" />
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/token/:id" element={<Token />} />
+                    <Route path="/wiki/:id" element={<Token />} />
                     <Route path="/*" element={<Page404 />} />
                 </Routes>
                 <Disclaimer />

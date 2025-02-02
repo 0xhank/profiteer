@@ -1,10 +1,10 @@
+import { CandleChart } from "./candle-chart";
+import { TokenTradeForm } from "./token-trade-form";
+
 import { useTokenData } from "../../hooks/useTokenData";
+import TokenCard from "../token-card";
+import { TokenBalance } from "./token-balance";
 
-export const TokenContent = ({ mint }: { mint: string }) => {
-
-    const { tokenData } = useTokenData({ mint });
-    return <div>TokenContent</div>;
-};
 const candleTest = [
     { time: "2019-04-11", open: 80.01, close: 81.0, high: 82.0, low: 79.0 },
     { time: "2019-04-12", open: 96.63, close: 97.0, high: 98.0, low: 95.0 },
@@ -19,21 +19,28 @@ const candleTest = [
 ];
 
 
-//    {tokenData && (
-//                     <div className="col-span-1 flex flex-col gap-8 items-center">
-//                         {/* Token Header */}
-//                         <div className="flex justify-center w-[700px]">
-//                             <TokenCard token={tokenData} clickable={false} />
-//                         </div>
+export const TokenContent = ({ mint }: { mint: string }) => {
 
-//                         {/* Price Graph */}
-//                         <CandleChart
-//                             data={candleTest}
-//                             colors={{ lineColor: "red" }}
-//                             className="w-[700px]"
-//                         />
-//                         <TokenBalance token={tokenData} />
+    const { tokenData } = useTokenData({ mint });
+    return (
+        tokenData && (
+            <div className="col-span-1 flex flex-col gap-8 items-center">
+                {/* Token Header */}
+                <div className="flex justify-center w-[700px]">
+                            <TokenCard token={tokenData} clickable={false} />
+                        </div>
 
-//                         <TokenTradeForm {...tokenData} />
-//                     </div>
-//                 )}
+                        {/* Price Graph */}
+                        <CandleChart
+                            data={candleTest}
+                            colors={{ lineColor: "red" }}
+                            className="w-[700px]"
+                        />
+                        <TokenBalance token={tokenData} />
+
+                        <TokenTradeForm {...tokenData} />
+                    </div>
+                )
+    );
+};
+
