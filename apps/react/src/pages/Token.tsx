@@ -1,10 +1,11 @@
 import { useParams } from "react-router-dom";
 import { PageLayout } from "../components/page-layout";
 import TokenCard from "../components/token-card";
-import { TokenTradeForm } from "../components/token/token-trade-form";
-import { useTokenData } from "../hooks/useTokenData";
 import { CandleChart } from "../components/token/candle-chart";
 import { TokenBalance } from "../components/token/token-balance";
+import { TokenTradeForm } from "../components/token/token-trade-form";
+import WikiArticle from "../components/wiki-article";
+import { useTokenData } from "../hooks/useTokenData";
 
 export default function Token() {
     const params = useParams();
@@ -36,21 +37,28 @@ function TokenContent({ mint }: { mint: string }) {
 
     return (
         <PageLayout>
-            <div className="max-w-[1200px] flex flex-col gap-8 items-center mt-12">
-                {/* Token Header */}
-                <div className="flex justify-center w-[700px]">
-                    <TokenCard token={tokenData} clickable={false} />
+            <div className="max-w-[1200px] h-full grid grid-cols-1 md:grid-cols-2 gap-8 items-start mt-12">
+                {/* Wiki Article on the left */}
+                <div className="col-span-1 overflow-y-auto h-full">
+                    <WikiArticle />
                 </div>
+                {/* Rest of the content */}
+                <div className="col-span-1 flex flex-col gap-8 items-center">
+                    {/* Token Header */}
+                    <div className="flex justify-center w-[700px]">
+                        <TokenCard token={tokenData} clickable={false} />
+                    </div>
 
-                {/* Price Graph */}
-                <CandleChart
-                    data={candleTest}
-                    colors={{ lineColor: "red" }}
-                    className="w-[700px]"
-                />
-                <TokenBalance token={tokenData} />
+                    {/* Price Graph */}
+                    <CandleChart
+                        data={candleTest}
+                        colors={{ lineColor: "red" }}
+                        className="w-[700px]"
+                    />
+                    <TokenBalance token={tokenData} />
 
-                <TokenTradeForm {...tokenData} />
+                    <TokenTradeForm {...tokenData} />
+                </div>
             </div>
         </PageLayout>
     );
