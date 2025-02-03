@@ -32,7 +32,7 @@ export const initProviders = () => {
     provider
   );
   const umi = createUmi(rpcUrl).use(keypairIdentity(masterKp));
-  const sdk = new PumpScienceSDK(umi);
+  const sdk = new PumpScienceSDK(provider, masterKp);
 
   return { umi, connection, rpcUrl, masterKp, sdk, program };
 };

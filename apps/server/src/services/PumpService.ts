@@ -210,6 +210,7 @@ export const createPumpService = () => {
             minOutAmount: BigInt(input.minAmountOut),
         });
         try {
+            console.log("txBuilder ===>>>", txBuilder.items.length);
             const tx = await processTransaction(umi, txBuilder);
             const events = await getTxEventsFromTxBuilderResponse(
                 connection,
@@ -261,9 +262,10 @@ export const createPumpService = () => {
     const migrate = async (mint: string) => {
         const mintKp = new PublicKey(mint);
         const curveSdk = sdk.getCurveSDK(fromWeb3JsPublicKey(mintKp));
-        const txBuilder = curveSdk.migrate();
+        const txBuilder = await curveSdk.migrate();
         try {
             const tx = await processTransaction(umi, txBuilder);
+            console.log("tx ===>>>", tx);
             return tx;
         } catch (error) {
             console.error(error);

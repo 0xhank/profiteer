@@ -2,16 +2,16 @@ import { BN, Program, web3 } from '@coral-xyz/anchor';
 import * as anchor from '@coral-xyz/anchor';
 import fs from 'fs';
 import NodeWallet from '@coral-xyz/anchor/dist/cjs/nodewallet';
-import { INIT_DEFAULTS, SIMPLE_DEFAULT_BONDING_CURVE_PRESET, FEE_RECEIVER, METEORA_CONFIG, PumpScienceSDK, PUMP_SCIENCE_PROGRAM_ID } from '../clients/js/src';
+import { INIT_DEFAULTS, SIMPLE_DEFAULT_BONDING_CURVE_PRESET, FEE_RECEIVER, METEORA_CONFIG, PumpScienceSDK, PUMP_SCIENCE_PROGRAM_ID, VAULT_PROGRAM_ID, AMM_PROGRAM_ID } from '../clients/js/src';
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { web3JsRpc } from '@metaplex-foundation/umi-rpc-web3js';
 import { fromWeb3JsKeypair, toWeb3JsPublicKey } from '@metaplex-foundation/umi-web3js-adapters';
 import { keypairIdentity, publicKey, transactionBuilder, TransactionBuilder, Umi } from '@metaplex-foundation/umi';
 import { setComputeUnitLimit } from '@metaplex-foundation/mpl-toolbox';
 import { ComputeBudgetProgram, Transaction, PublicKey, SYSVAR_RENT_PUBKEY, SystemProgram, TransactionInstruction, TransactionMessage, VersionedTransaction, LAMPORTS_PER_SOL, SYSVAR_CLOCK_PUBKEY, AddressLookupTableProgram, Keypair as Web3JsKeypair } from '@solana/web3.js';
-import VaultImpl, { getVaultPdas } from '@mercurial-finance/vault-sdk';
+import VaultImpl, { getVaultPdas, VaultIdl } from '@mercurial-finance/vault-sdk';
 import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID, NATIVE_MINT, getAssociatedTokenAddressSync } from '@solana/spl-token';
-import AmmImpl, { PROGRAM_ID } from '@mercurial-finance/dynamic-amm-sdk';
+import AmmImpl, { Amm, AmmIdl, PROGRAM_ID } from '@mercurial-finance/dynamic-amm-sdk';
 import { IDL, PumpScience } from '../target/types/pump_science';
 import { vault, derivePoolAddressWithConfig, createProgram, getOrCreateATAInstruction, deriveMintMetadata, wrapSOLInstruction, deriveLockEscrowPda } from './util'
 import { SEEDS } from '@mercurial-finance/dynamic-amm-sdk/dist/cjs/src/amm/constants';
@@ -116,7 +116,7 @@ export const global = async () => {
 export const createPrograms = () => {
   const provider = new AnchorProvider(connection, {} as any, AnchorProvider.defaultOptions());
   const ammProgram = new Program<Amm>(AmmIdl, AMM_PROGRAM_ID, provider);
-  const vaultProgram = new Program<VaultIdl>(VaultIDL, VAULT_PROGRAM_ID, provider);
+  const vaultProgram = new Program<VaultIdl>(VaultIdl, VAULT_PROGRAM_ID, provider);
 
   return { provider, ammProgram, vaultProgram };
 };
