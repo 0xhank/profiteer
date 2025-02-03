@@ -5,6 +5,7 @@ import { useState } from "react";
 import { PageLayout } from "../components/common/page-layout";
 import { NewsStories } from "../components/home/news-stories";
 import { TokenList } from "../components/home/token-list";
+import { cn } from "../utils/cn";
 
 export default function Home() {
     const navigate = useNavigate();
@@ -97,7 +98,7 @@ export default function Home() {
                             </svg>
                         </div>
                         <ul
-                            className="absolute text-left bg-white rounded rounded-md w-full z-10 list-none border border-base-300"
+                            className={cn("absolute text-left bg-white rounded rounded-md w-full z-10 list-none border border-base-300", suggestions.length > 0 ? "block" : "hidden")}
                             style={{
                                 listStyleType: "none",
                                 MozMarginStart: "0",

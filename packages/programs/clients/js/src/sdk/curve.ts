@@ -1,15 +1,14 @@
 import { Program } from "@coral-xyz/anchor";
-import { Amm, AmmIdl, PROGRAM_ID, VaultIdl } from "@mercurial-finance/dynamic-amm-sdk";
-import { METAPLEX_PROGRAM } from "@mercurial-finance/dynamic-amm-sdk/dist/cjs/src/amm/constants";
+import { Amm, AmmIdl, VaultIdl } from "@mercurial-finance/dynamic-amm-sdk";
 import VaultImpl, { getVaultPdas, VaultIdl as VaultIdlType } from "@mercurial-finance/vault-sdk";
 import { SEEDS } from "@mercurial-finance/vault-sdk/dist/cjs/src/vault/constants";
-import { findAssociatedTokenPda, SPL_ASSOCIATED_TOKEN_PROGRAM_ID } from "@metaplex-foundation/mpl-toolbox";
+import { findAssociatedTokenPda, setComputeUnitLimit, SPL_ASSOCIATED_TOKEN_PROGRAM_ID } from "@metaplex-foundation/mpl-toolbox";
 import { createSignerFromKeypair, Keypair, Pda, PublicKey, RpcGetAccountOptions, Signer, TransactionBuilder, Umi } from "@metaplex-foundation/umi";
 import { fromWeb3JsInstruction, fromWeb3JsPublicKey, toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
 import { publicKey as publicKeySerializer, string } from '@metaplex-foundation/umi/serializers';
 import { deriveLockEscrowPda, getOrCreateATAInstruction } from "@meteora-ag/stake-for-fee";
-import { ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync, NATIVE_MINT, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { AddressLookupTableProgram, SystemProgram, SYSVAR_CLOCK_PUBKEY, SYSVAR_RENT_PUBKEY, TransactionInstruction, PublicKey as Web3PublicKey } from "@solana/web3.js";
+import { getAssociatedTokenAddressSync, NATIVE_MINT } from "@solana/spl-token";
+import { SYSVAR_CLOCK_PUBKEY, SYSVAR_RENT_PUBKEY, TransactionInstruction, PublicKey as Web3PublicKey } from "@solana/web3.js";
 import {
     createBondingCurve,
     CreateBondingCurveInstructionDataArgs,
@@ -17,7 +16,6 @@ import {
     CreatePoolInstructionAccounts,
     fetchBondingCurve,
     findBondingCurvePda,
-    lockPool,
     PUMP_SCIENCE_PROGRAM_ID,
     swap,
     SwapInstructionArgs
@@ -72,11 +70,14 @@ export class CurveSDK {
 
     swap(params: {
         direction: "buy" | "sell",
+        user: PublicKey,
     } & Pick<SwapInstructionArgs, "exactInAmount" | "minOutAmount">) {
-        const userTokenAccount = this.getUserTokenAccount(this.umi.identity.publicKey);
-        return swap(this.umi, {
+        const userTokenAccount = this.getUserTokenAccount(params.user);
+        let txBuilder = new TransactionBuilder()
+        .add(setComputeUnitLimit(this.umi, { units: 600_000 }))
+        .add(swap(this.umi, {
             global: this.PumpScience.globalPda[0],
-            user: this.umi.identity,
+            user: params.user as unknown as Signer,
             baseIn: params.direction !== "buy",
             exactInAmount: params.exactInAmount,
             minOutAmount: params.minOutAmount,
@@ -89,7 +90,8 @@ export class CurveSDK {
             clock: fromWeb3JsPublicKey(SYSVAR_CLOCK_PUBKEY),
             associatedTokenProgram: SPL_ASSOCIATED_TOKEN_PROGRAM_ID,
             ...this.PumpScience.evtAuthAccs,
-        });
+        }));
+        return txBuilder;
     }
 
     createBondingCurve(params: CreateBondingCurveInstructionDataArgs, user: PublicKey, mintKp: Keypair, whitelist: boolean) {
@@ -99,24 +101,23 @@ export class CurveSDK {
         console.log("mintKp ===>>>", mintKp.publicKey.toString());
         console.log("user ===>>>", user);
         console.log("identity ===>>>", this.umi.identity.publicKey);
-        // Create bonding curve
-        const createBondingCurveIx = createBondingCurve(this.umi, {
-            global: this.PumpScience.globalPda[0],
-            creator: user as unknown as Signer,
-            mint: createSignerFromKeypair(this.umi, mintKp),
-            bondingCurve: this.bondingCurvePda[0],
-            bondingCurveTokenAccount: this.bondingCurveTokenAccount[0],
-            bondingCurveSolEscrow: this.bondingCurveSolEscrow,
-            metadata: this.mintMetaPda[0],
-            ...this.PumpScience.evtAuthAccs,
-            associatedTokenProgram: SPL_ASSOCIATED_TOKEN_PROGRAM_ID,
-            ...params,
-            whitelist: whitelist ? this.whitelistPda[0] : undefined
-        });
 
         // Combine all instructions
         return new TransactionBuilder()
-            .add(createBondingCurveIx);
+            .add(setComputeUnitLimit(this.umi, { units: 600_000 }))
+            .add(createBondingCurve(this.umi, {
+                global: this.PumpScience.globalPda[0],
+                creator: user as unknown as Signer,
+                mint: createSignerFromKeypair(this.umi, mintKp),
+                bondingCurve: this.bondingCurvePda[0],
+                bondingCurveTokenAccount: this.bondingCurveTokenAccount[0],
+                bondingCurveSolEscrow: this.bondingCurveSolEscrow,
+                metadata: this.mintMetaPda[0],
+                ...this.PumpScience.evtAuthAccs,
+                associatedTokenProgram: SPL_ASSOCIATED_TOKEN_PROGRAM_ID,
+                ...params,
+                whitelist: whitelist ? this.whitelistPda[0] : undefined
+            }));
     }
 
     getUserTokenAccount(user: PublicKey) {

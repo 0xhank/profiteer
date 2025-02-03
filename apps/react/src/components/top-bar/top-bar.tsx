@@ -10,8 +10,7 @@ export default function TopBar({ className }: { className?: string }) {
       <Link to="/">
         <div className="flex items-center gap-2 ml-2 px-1 justify-center bg-black hover:bg-black/90">
           <h1>
-            <span className={cn("text-2xl font-bold font-serif text-white")}>news</span>
-            <span className={cn("text-2xl font-base-300 font-script text-accent")}>.fun</span>
+            <span className={cn("text-2xl font-bold font-serif text-white")}>Profiteer</span>
           </h1>
         </div>
       </Link>

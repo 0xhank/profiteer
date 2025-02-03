@@ -60,6 +60,7 @@ export const TokenContent = ({ mint }: { mint: string }) => {
     const progress = useMemo(() => {
         if (curveLiquidity == null) return null;
         const initialLiquidity = 793_100_000_000_000;
+        console.log({curveLiquidity, initialLiquidity});
         return (initialLiquidity - curveLiquidity) / initialLiquidity;
     }, [curveLiquidity]);
 

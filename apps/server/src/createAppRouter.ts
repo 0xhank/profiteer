@@ -163,10 +163,16 @@ export function createAppRouter() {
                 });
             }),
 
-        swap: t.procedure
+        createSwapTx: t.procedure
             .input(swapInputSchema)
+            .query(async ({ input, ctx }) => {
+                return ctx.pumpService.createSwapTx(input);
+            }),
+
+        sendSwapTx: t.procedure
+            .input(z.object({ userPublicKey: z.string(), txMessage: z.string(), signature: z.string() }))
             .mutation(async ({ input, ctx }) => {
-                return ctx.pumpService.swap(input);
+                return ctx.pumpService.sendSwapTx(input);
             }),
 
         migrate: t.procedure

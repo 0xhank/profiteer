@@ -71,7 +71,7 @@ export const WalletBalance = () => {
             )}
             <button
                 onClick={logout}
-                className="btn btn-secondary text-gray-400 hover:text-gray-200"
+                className="btn btn-secondary"
             >
                 Logout
             </button>

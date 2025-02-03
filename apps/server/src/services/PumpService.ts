@@ -173,13 +173,18 @@ export const createPumpService = () => {
         const returnObject = {
             txMessage: txMessageBase64,
         };
-        mintKpRegistry.set(txMessageBase64, { kp: mintKp, createdAt: Date.now(), name: input.name, description: input.description });
+        mintKpRegistry.set(txMessageBase64, {
+            kp: mintKp,
+            createdAt: Date.now(),
+            name: input.name,
+            description: input.description,
+        });
         return returnObject;
     };
 
     const mintKpRegistry = new Map<
         string,
-        { kp: Keypair; createdAt: number; name: string, description: string }
+        { kp: Keypair; createdAt: number; name: string; description: string }
     >();
 
     // Clean up stale entries every 30s
@@ -207,7 +212,7 @@ export const createPumpService = () => {
             if (!entry) {
                 throw new Error("Mint Kp not found");
             }
-            const txMessage = Buffer.from(txInput, 'base64')
+            const txMessage = Buffer.from(txInput, "base64");
             const { kp, name, description } = entry;
             const pubKey = new PublicKey(userPublicKey);
             // Convert base64 signature to Uint8Array first
@@ -291,33 +296,104 @@ export const createPumpService = () => {
         }
     };
 
-    const swap = async (input: SwapInput) => {
+    const swapRegistry = new Map<
+        string,
+        {
+            mint: string;
+            direction: string;
+            amount: bigint;
+            minAmountOut: bigint;
+            createdAt: number;
+        }
+    >();
+
+    // New function to prepare swap tx
+    const createSwapTx = async (input: SwapInput) => {
         const mintKp = new PublicKey(input.mint);
         const curveSdk = sdk.getCurveSDK(fromWeb3JsPublicKey(mintKp));
-        const txBuilder = curveSdk.swap({
+        const userPublicKey = new PublicKey(input.userPublicKey);
+
+        const fakeSigner = {
+            publicKey: fromWeb3JsPublicKey(userPublicKey),
+        } as Signer;
+
+        let txBuilder = curveSdk.swap({
             direction: input.direction,
+            user: fromWeb3JsPublicKey(userPublicKey),
             exactInAmount: BigInt(input.amount),
             minOutAmount: BigInt(input.minAmountOut),
         });
+
+        const blockhash = await connection.getLatestBlockhash();
+        txBuilder = txBuilder.setBlockhash(blockhash.blockhash);
+
+        const { serializedMessage } = txBuilder.build({
+            ...umi,
+            payer: fakeSigner,
+        });
+
+        const txMessageBase64 =
+            Buffer.from(serializedMessage).toString("base64");
+
+        swapRegistry.set(txMessageBase64, {
+            mint: input.mint,
+            direction: input.direction,
+            amount: BigInt(input.amount),
+            minAmountOut: BigInt(input.minAmountOut),
+            createdAt: Date.now(),
+        });
+
+        return { txMessage: txMessageBase64 };
+    };
+
+    // Modified swap function to handle signed tx
+    const sendSwapTx = async ({
+        userPublicKey,
+        txMessage: txInput,
+        signature,
+    }: {
+        userPublicKey: string;
+        txMessage: string;
+        signature: string;
+    }) => {
         try {
-            const tx = await processTransaction(umi, txBuilder);
+            const entry = swapRegistry.get(txInput);
+            if (!entry) {
+                throw new Error("Swap tx not found");
+            }
+
+            const txMessage = Buffer.from(txInput, "base64");
+            const pubKey = new PublicKey(userPublicKey);
+            const signatureUint8 = Uint8Array.from(
+                Buffer.from(signature, "base64")
+            );
+
+            const message = MessageV0.deserialize(txMessage);
+            console.log(
+                "Number of instructions in tx:",
+                message.compiledInstructions.length
+            );
+            const transaction = new VersionedTransaction(message);
+            transaction.addSignature(pubKey, signatureUint8);
+
+            const txId = await connection.sendTransaction(transaction);
             const events = await getTxEventsFromTxBuilderResponse(
                 connection,
-                // @ts-ignore TODO: fix this
                 program,
-                tx
+                txId
             );
 
             const swapEvent = events.TradeEvent?.[0];
             if (!swapEvent) {
                 throw new Error("SwapEvent not found");
             }
+            console.log("swapEvent ===>>>", swapEvent);
 
             const complete = !!events.CompleteEvent?.[0];
             const { error: curveError } = await supabase
                 .from("curve_data")
                 .insert({
-                    mint: mintKp.toBase58(),
+                    mint: entry.mint,
                     real_sol_reserves: Number(swapEvent.realSolReserves),
                     real_token_reserves: Number(swapEvent.realTokenReserves),
                     virtual_sol_reserves: Number(swapEvent.virtualSolReserves),
@@ -327,27 +403,39 @@ export const createPumpService = () => {
                     user: swapEvent.user.toBase58(),
                     complete,
                 });
+
             if (complete) {
                 const { error: priceError } = await supabase
                     .from("token_metadata")
                     .update({
                         complete: true,
                     })
-                    .eq("mint", mintKp.toBase58());
+                    .eq("mint", entry.mint);
             }
+
             if (curveError) {
-                console.error(curveError);
                 throw new Error(
                     `Failed to insert curve data: ${curveError.message}`
                 );
             }
 
-            return tx;
+            return txId;
         } catch (error) {
             console.error(error);
             throw error;
         }
     };
+
+    // Add cleanup interval for swapRegistry
+    setInterval(() => {
+        const now = Date.now();
+        for (const [key, value] of swapRegistry.entries()) {
+            if (now - value.createdAt > 60000) {
+                // 60s
+                swapRegistry.delete(key);
+            }
+        }
+    }, 30000);
 
     const migrate = async (mint: string) => {
         const mintKp = new PublicKey(mint);
@@ -375,7 +463,9 @@ export const createPumpService = () => {
         createBondingCurveTx,
         sendCreateBondingCurveTx,
 
-        swap,
+        createSwapTx,
+        sendSwapTx,
+
         migrate,
         getSlot,
     };
