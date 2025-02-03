@@ -53,6 +53,25 @@ export function NewsStories() {
 
                 const newsSection = newsBlurb.querySelector("#mp-itn");
 
+                // Remove links around images but keep the images
+                [eventsBlurb, newsBlurb].forEach((element) => {
+                    element.querySelectorAll("a > img").forEach((img) => {
+                        const link = img.parentElement;
+                        if (link?.tagName === "A") {
+                            link.replaceWith(img);
+                        }
+                    });
+
+                    // Convert Portal links to divs
+                    element
+                        .querySelectorAll('a[href^="/wiki/Portal:"]')
+                        .forEach((link) => {
+                            const div = document.createElement("span");
+                            div.innerHTML = link.innerHTML;
+                            link.replaceWith(div);
+                        });
+                });
+
                 setArticle(`
                     <h2>In The News</h2>
                     ${newsSection?.innerHTML || "No news available"}

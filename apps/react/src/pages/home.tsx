@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 // import { useSolanaWallets } from "@privy-io/react-auth/solana";
 import { useState } from "react";
 import { PageLayout } from "../components/common/page-layout";
-import { TokenList } from "../components/home/token-list";
 import { NewsStories } from "../components/home/news-stories";
+import { TokenList } from "../components/home/token-list";
 
 export default function Home() {
     // const { login, ready, authenticated, user } = usePrivy();
@@ -76,7 +76,9 @@ export default function Home() {
         }
     }
 
-    const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleSearchChange = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
         const newQuery = event.target.value;
         setQuery(newQuery);
 
@@ -97,36 +99,63 @@ export default function Home() {
 
     return (
         <PageLayout>
-            <div className="flex flex-col text-left animate-fade-in">
-                <h1 className="text-[100pt]">
+            <div className="flex flex-col animation gap-4 text-center animate-fade-in">
+                <h4 className="w-full text-right opacity-70">devnet</h4>
+                <h1 className="text-[100pt] -mt-20 -mb-16">
                     <span className="font-serif font-semibold">news</span>
                     <span className="font-script text-accent">.fun</span>
                 </h1>
-                <div className="flex justify-between flex-col md:flex-row text-primary">
-                    <div className="flex flex-col">
-                        <p
-                            className={
-                                "text-4xl opacity-70 dark:text-gray-300 white font-bold [filter:contrast(150%)_brightness(110%)_url(#noise)]"
-                            }
-                        >
-                            Everything is a meme.
-                        </p>
-                    </div>
-                </div>
+                <p
+                    className={
+                        "px-4 text-2xl opacity-70 text-primary font-bold w-full text-left"
+                    }
+                >
+                    Every link is a meme.
+                </p>
                 <div className="space-y-4 flex flex-col items-center">
-                    <div className="relative w-full max-w-xs">
+                    <div className="relative w-full max-w-md">
                         <input
                             type="text"
                             value={query}
                             onChange={handleSearchChange}
+                            onBlur={() => {
+                                // Small delay to allow suggestion clicks to register
+                                setTimeout(() => {
+                                    setQuery("");
+                                    setSuggestions([]);
+                                }, 200);
+                            }}
                             placeholder="Search for news..."
-                            className="input input-bordered w-full"
+                            className="input input-bordered w-full pr-10 text-xl h-14"
                         />
-                        <ul className="absolute bg-white border border-gray-300 w-full list-disc z-10">
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <svg
+                                className="w-5 h-5 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                />
+                            </svg>
+                        </div>
+                        <ul
+                            className="absolute text-left bg-white rounded rounded-md w-full z-10 list-none"
+                            style={{
+                                listStyleType: "none",
+                                marginStart: "0",
+                                marginInlineStart: "0",
+                                marginInlineEnd: "0",
+                            }}
+                        >
                             {suggestions.map((suggestion, index) => (
                                 <li
                                     key={index}
-                                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                                    className=" px-8 p-2 bg-base-100 hover:bg-base-300 border-y border-base-300 cursor-pointer"
                                     onClick={() =>
                                         handleSuggestionClick(suggestion)
                                     }
@@ -138,8 +167,8 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-1">
+            <div className="grid grid-cols-3 gap-12">
+                <div className="col-span-2">
                     <NewsStories />
                 </div>
                 <div className="col-span-1">

@@ -15,49 +15,34 @@ export default function TokenCard({
             key={token.mint}
             to={`/wiki/${token.mint}`}
             className={cn(
-                `block transform`,
-                clickable ? "hover:scale-105" : "cursor-default"
+                clickable ? "hover:scale-105" : "cursor-default",
+                "card bg-base-200 shadow-sm rounded rounded-sm"
             )}
         >
-            <div className="relative bg-white p-4 sm:p-6 h-full transform skew-x-[-12deg] shadow-[8px_8px_0px_0px_rgba(0,0,0,0.8)] overflow-hidden">
-                <div className="absolute inset-0 -z-10">
+            <div className="card-body p-2 gap-2 flex flex-col items-center text-center text-primary">
+                <h2 className="card-title break-words">
+                    {token.metadata.name.replace(/_/g, " ")}
+                </h2>
+                <div className="flex flex-row gap-4 items-center">
                     <img
-                        src="/cloud-bg.webp"
-                        alt=""
-                        className="object-cover transform skew-x-[12deg] scale-150 blur-[2px] w-full h-full"
+                        src={token.metadata.imageUri}
+                        alt={token.metadata.name}
+                        className="rounded rounded-xl h-24"
                     />
-                </div>
-                <div className="flex items-center justify-between space-x-2 transform skew-x-[12deg] relative z-10">
-                    <div className="flex items-center space-x-3 min-w-0">
-                        <img
-                            src={token.metadata.imageUri}
-                            alt={token.metadata.name}
-                            width={40}
-                            height={40}
-                            className="rounded-full flex-shrink-0 sm:w-12 sm:h-12"
-                        />
-                        <div className="min-w-0">
-                            <h3 className="text-2xl font-bold text-gray-900 truncate">
-                                {token.metadata.name}
-                            </h3>
-                            <p className="text-xl text-semibold text-gray-500 truncate">
-                                ${token.metadata.symbol}
-                            </p>
-                        </div>
+
+                    <div className="flex flex-col items-center text-center">
+                        <p className = "text-lg">${token.metadata.symbol}</p>
+                        {token.priceUsd && (
+                            <div className="text-right">
+                                <p className="font-bold">
+                                    Market cap: $
+                                    {formatNumber(
+                                        token.priceUsd * token.metadata.supply
+                                    )}
+                                </p>
+                            </div>
+                        )}
                     </div>
-                    {token.priceUsd && (
-                        <div className="text-right flex-shrink-0">
-                            <p className="text-lg sm:text-2xl font-bold text-gray-900">
-                                ${formatPrice(token.priceUsd)}
-                            </p>
-                            <p className="text-lg sm:text-2xl font-bold text-gray-900">
-                                Mkt cap:{" "}
-                                {formatNumber(
-                                    token.priceUsd * token.metadata.supply
-                                )}
-                            </p>
-                        </div>
-                    )}
                 </div>
             </div>
         </Link>

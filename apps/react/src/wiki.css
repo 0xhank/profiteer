@@ -13,12 +13,103 @@ q {
 	quotes: '"' '"' "'" "'";
 }
 
+a {
+    text-decoration: underline;
+    color: #0645ad;
+}
+
+a:where(:not([role='button'])) {
+    color: var(--color-progressive, #36c);
+    border-radius: 2px;
+    text-decoration: none;
+}
+
+h2 {
+	font-weight: var(--font-weight-bold);
+	font-size: var(--text-2xl)
+}
+
+/* thumbnail */
+.itn-img {
+	padding: 10px;
+	width: fit-content;
+	background-color: var(--color-base-200);
+	min-width: 100px;
+	float: right;
+	margin-left: 0.5rem;
+	margin-top: 0.2rem;
+}
+
+.thumbcaption {
+	word-wrap: break-word;
+	text-align: left;
+	border: 0;
+	font-size: 94%;
+}
+
+.noprint {
+	display: none;
+}
+
+ul {
+    margin-top: 0.3em;
+    margin-bottom: 0;
+    margin-left: 1.6em;
+    margin-right: 0;
+    -webkit-margin-start: 1.6em;
+    -webkit-margin-end: 0;
+    margin-inline-start: 1.6em;
+    margin-inline-end: 0;
+    padding: 0;
+}
+
+b {
+	font-weight: bold;
+}
+ul {
+	list-style-type: disc;
+}
+.hlist ul {
+	margin: 0;
+	padding: 0;
+}
+
+.hlist li {
+	padding-inline: 0.1rem;
+	margin: 0;
+	display: inline;
+}
+
+.hlist ul ul {
+	display: inline;
+}
+
+.mw-parser-output .hlist li li:first-child::before {
+	content: "(";
+	font-weight: normal;
+}
+
+.mw-parser-output .hlist dd dd:last-child::after, .mw-parser-output .hlist dd dt:last-child::after, .mw-parser-output .hlist dd li:last-child::after, .mw-parser-output .hlist dt dd:last-child::after, .mw-parser-output .hlist dt dt:last-child::after, .mw-parser-output .hlist dt li:last-child::after, .mw-parser-output .hlist li dd:last-child::after, .mw-parser-output .hlist li dt:last-child::after, .mw-parser-output .hlist li li:last-child::after {
+    content: ")";
+    font-weight: normal;
+}
+.itn-footer {
+	margin-top: 0.5rem;
+
+}
+
+.hlist.inline {
+	display: inline;
+	direction: ltr;
+}
+
 /* Avoid collision of blockquote with floating elements by swapping margin and padding */
 blockquote {
 	overflow: hidden;
 	margin: 1em 0;
 	padding: 0 40px;
 }
+
 
 /* Consistent size for <small>, <sub> and <sup> */
 small {
@@ -42,7 +133,7 @@ small {
 /* Avoid FOUC/reflows on collapsed elements. */
 /* This copies MediaWiki's solution for T42812 to apply to innercollapse/outercollapse (T325115). */
 /* TODO: Use :is() selector at some reasonable future when support is good for Most Clients */
-/* Reference: https://gerrit.wikimedia.org/g/mediawiki/core/+/ecda06cb2aef55b77c4b4d7ecda492d634419ead/resources/src/jquery/jquery.makeCollapsible.styles.less#75 */
+Reference: https://gerrit.wikimedia.org/g/mediawiki/core/+/ecda06cb2aef55b77c4b4d7ecda492d634419ead/resources/src/jquery/jquery.makeCollapsible.styles.less#75
 .client-js .outercollapse .innercollapse.mw-collapsible:not( .mw-made-collapsible ) > p,
 .client-js .outercollapse .innercollapse.mw-collapsible:not( .mw-made-collapsible ) > table,
 .client-js .outercollapse .innercollapse.mw-collapsible:not( .mw-made-collapsible ) > thead + tbody,
@@ -246,7 +337,7 @@ span.mwe-math-mathml-inline {
 	 * except on main, user, and portal namespaces
 	 */
 	body:not(.ns-0):not(.ns-2):not(.ns-100) .gallerybox .thumb img {
-		background: #fff url(//upload.wikimedia.org/wikipedia/commons/5/5d/Checker-16x16.png) repeat;
+		/* background: #fff url(//upload.wikimedia.org/wikipedia/commons/5/5d/Checker-16x16.png) repeat; */
 	}
 
 	/* Display "From Wikipedia, the free encyclopedia" in skins that support it,
@@ -438,7 +529,10 @@ span.texhtml span.texhtml {
 	}
 }
 
-/*
- * Put anything you mean to be a sitewide addition above the TemplateStyles
- * comment above.
- */
+.current-events-main {
+	background-color: #f8f9fa;
+}
+
+.current-events-nav {
+	display: none;
+}
