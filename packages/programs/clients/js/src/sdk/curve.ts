@@ -7,8 +7,8 @@ import { findAssociatedTokenPda, SPL_ASSOCIATED_TOKEN_PROGRAM_ID } from "@metapl
 import { createSignerFromKeypair, Keypair, Pda, PublicKey, RpcGetAccountOptions, TransactionBuilder, Umi } from "@metaplex-foundation/umi";
 import { fromWeb3JsInstruction, fromWeb3JsPublicKey, toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
 import { publicKey as publicKeySerializer, string } from '@metaplex-foundation/umi/serializers';
-import { getOrCreateATAInstruction } from "@meteora-ag/stake-for-fee";
-import { ASSOCIATED_TOKEN_PROGRAM_ID, NATIVE_MINT, TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { deriveLockEscrowPda, getOrCreateATAInstruction } from "@meteora-ag/stake-for-fee";
+import { ASSOCIATED_TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync, NATIVE_MINT, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { AddressLookupTableProgram, SystemProgram, SYSVAR_CLOCK_PUBKEY, SYSVAR_RENT_PUBKEY, TransactionInstruction, PublicKey as Web3PublicKey } from "@solana/web3.js";
 import {
     createBondingCurve,
@@ -133,12 +133,11 @@ export class CurveSDK {
 
 
     async migrate() {
-
         console.log("migrating")
         // get the vault program
         const vaultProgram = new Program<VaultIdlType>(VaultIdl, VAULT_PROGRAM_ID, this.PumpScience.provider);
         const meteoraProgram = new Program<Amm>(AmmIdl, AMM_PROGRAM_ID, this.PumpScience.provider);
-        const txBuilder = new TransactionBuilder();
+        let preTxBuilder = new TransactionBuilder();
 
         const global = this.PumpScience.globalPda[0];
         const bondingCurve = this.bondingCurvePda[0];
@@ -148,11 +147,9 @@ export class CurveSDK {
         const poolPubkeyWeb3 = toWeb3JsPublicKey(poolPubkey);
         const config = this.PumpScience.globalPda[0];
         const bondingCurveSolEscrow = this.bondingCurveSolEscrow[0];
-        const payerPoolLp = this.getUserTokenAccount(this.umi.identity.publicKey)[0];
+
         const protocolTokenAFee = this.getUserTokenAccount(FEE_RECIPIENT)[0];
         const protocolTokenBFee = this.getUserTokenAccount(FEE_RECIPIENT)[0];
-        
-        
 
         const tokenAMint = NATIVE_MINT;
         const tokenBMint = new Web3PublicKey(this.mint);
@@ -198,76 +195,27 @@ export class CurveSDK {
         meteoraProgram.programId,
     );
 
+    const payerPoolLp = getAssociatedTokenAddressSync(lpMint, toWeb3JsPublicKey(bondingCurveSolEscrow), true);
+
     const [aVaultLp] =   Web3PublicKey.findProgramAddressSync([aVault.toBuffer(), poolPubkeyWeb3.toBuffer()], meteoraProgram.programId)
     const [bVaultLp] = Web3PublicKey.findProgramAddressSync([bVault.toBuffer(), poolPubkeyWeb3.toBuffer()], meteoraProgram.programId)
 
-    const [{ataPubKey: payerTokenA, ix: payerTokenAIx}, {ataPubKey: payerTokenB, ix: payerTokenBIx}] = await Promise.all([
+    const [{ataPubKey: payerTokenA, ix: payerTokenAIx}, {ataPubKey: payerTokenB, ix: payerTokenBIx}, {ataPubKey: feeReceiverToken, ix: feeReceiverTokenIx}] = await Promise.all([
         getOrCreateATAInstruction(this.PumpScience.provider.connection, tokenAMint, toWeb3JsPublicKey(this.payer)),
         getOrCreateATAInstruction(this.PumpScience.provider.connection, tokenBMint, toWeb3JsPublicKey(this.payer)),
+        getOrCreateATAInstruction(this.PumpScience.provider.connection, tokenBMint, toWeb3JsPublicKey(FEE_RECIPIENT)),
     ]);
         // Add addresses to lookup table
         if (payerTokenAIx) preInstructions.push(payerTokenAIx);
         if (payerTokenBIx) preInstructions.push(payerTokenBIx);
-        
-    const addresses : Web3PublicKey[] = [
-        toWeb3JsPublicKey(global),
-        toWeb3JsPublicKey(bondingCurve),
-        toWeb3JsPublicKey(feeReceiver),
-        toWeb3JsPublicKey(feeReceiverTokenAccount),
-        toWeb3JsPublicKey(poolPubkey),
-        toWeb3JsPublicKey(config),
-        lpMint,
-        tokenAMint,
-        tokenBMint,
-        aVault,
-        bVault,
-        aTokenVault,
-        bTokenVault,
-        aLpMintPda,
-        bLpMintPda,
-        aVaultLpMint,
-        bVaultLpMint,
-        payerTokenA,
-        payerTokenB,
-        toWeb3JsPublicKey(bondingCurveSolEscrow),
-        toWeb3JsPublicKey(payerPoolLp),
-        toWeb3JsPublicKey(protocolTokenAFee),
-        toWeb3JsPublicKey(protocolTokenBFee),
-        toWeb3JsPublicKey(this.payer),
-        toWeb3JsPublicKey(this.mintMetaPda[0]),
-        SYSVAR_RENT_PUBKEY,
-        METAPLEX_PROGRAM,
-        vaultProgram.programId,
-        TOKEN_PROGRAM_ID,
-        ASSOCIATED_TOKEN_PROGRAM_ID,
-        SystemProgram.programId,
-        new Web3PublicKey(PROGRAM_ID),
-    ]
-        const slot = await this.umi.rpc.getSlot();
-        // const [createLookupTableInstruction, lookupTableId] = AddressLookupTableProgram.createLookupTable({
-        //     authority: toWeb3JsPublicKey(this.umi.identity.publicKey),
-        //     payer: toWeb3JsPublicKey(this.umi.identity.publicKey),
-        //     recentSlot: slot - 200,
-        // });
+        if (feeReceiverTokenIx) preInstructions.push(feeReceiverTokenIx);
 
 
-        // const addAddressesInstruction = AddressLookupTableProgram.extendLookupTable({
-        //     payer: toWeb3JsPublicKey(this.umi.identity.publicKey),
-        //     authority: toWeb3JsPublicKey(this.umi.identity.publicKey),
-        //     lookupTable: lookupTableId,
-        //     addresses: addresses.slice(0, 30) // Max 30 addresses per extend
-        // });
-
-        // // Add lookup table instructions to transaction
-        // preInstructions.push(createLookupTableInstruction);
-        // preInstructions.push(addAddressesInstruction);
-
-        // preInstructions.map(ix => txBuilder.add({instruction: fromWeb3JsInstruction(ix),
-        //     signers: [],
-        //     bytesCreatedOnChain: 0
-        // }));
-        console.log("preInstructions ===>>>", preInstructions.length);
-        console.log("txBuilder ===>>>", txBuilder.items.length);
+        preInstructions.map(ix => preTxBuilder = preTxBuilder.append({
+            instruction: fromWeb3JsInstruction(ix),
+            signers: [],
+            bytesCreatedOnChain: 0
+        }));
 
         // Create pool
         const params : CreatePoolInstructionAccounts = {
@@ -276,7 +224,7 @@ export class CurveSDK {
             feeReceiver: FEE_RECIPIENT,
             pool: this.bondingCurvePda[0],
             config: this.PumpScience.globalPda[0],
-            lpMint: this.bondingCurvePda[0],
+            lpMint: fromWeb3JsPublicKey(lpMint),
             aVaultLp: fromWeb3JsPublicKey(aVaultLp),
             bVaultLp: fromWeb3JsPublicKey(bVaultLp),
             tokenAMint: fromWeb3JsPublicKey(tokenAMint),
@@ -290,11 +238,11 @@ export class CurveSDK {
             bondingCurveTokenAccount: this.bondingCurveTokenAccount[0],
             feeReceiverTokenAccount: this.getUserTokenAccount(FEE_RECIPIENT)[0],
             bondingCurveSolEscrow: this.bondingCurveSolEscrow[0],
-            payerTokenA: this.getUserTokenAccount(this.umi.identity.publicKey)[0],
-            payerTokenB: this.getUserTokenAccount(FEE_RECIPIENT)[0],
-            payerPoolLp: this.getUserTokenAccount(this.umi.identity.publicKey)[0],
-            protocolTokenAFee: this.getUserTokenAccount(FEE_RECIPIENT)[0],
-            protocolTokenBFee: this.getUserTokenAccount(FEE_RECIPIENT)[0],
+            payerTokenA: fromWeb3JsPublicKey(payerTokenA),
+            payerTokenB: fromWeb3JsPublicKey(payerTokenB),
+            payerPoolLp: fromWeb3JsPublicKey(payerPoolLp),
+            protocolTokenAFee: protocolTokenAFee,
+            protocolTokenBFee: protocolTokenBFee,
             mintMetadata: this.mintMetaPda[0],
             rent: fromWeb3JsPublicKey(SYSVAR_RENT_PUBKEY),
             metadataProgram: tokenMetadataProgramId,
@@ -305,41 +253,36 @@ export class CurveSDK {
 
         const createPoolIx = createPool(this.PumpScience.umi, params)
 
-        console.log("createPoolIx:", createPoolIx);
+        let txBuilder = new TransactionBuilder().append(createPoolIx)
 
-        txBuilder.add(createPoolIx)
+        const [lockEscrowPK] = deriveLockEscrowPda(toWeb3JsPublicKey(this.bondingCurvePda[0]), toWeb3JsPublicKey(FEE_RECIPIENT), toWeb3JsPublicKey(AMM_PROGRAM_ID));
+        // const lockPoolIx = lockPool(this.PumpScience.umi, {
+        //     global: this.PumpScience.globalPda[0],
+        //     bondingCurve: this.bondingCurvePda[0],
+        //     bondingCurveSolEscrow: this.bondingCurveSolEscrow[0],
+        //     pool: this.bondingCurvePda[0],
+        //     lpMint: this.bondingCurvePda[0],
+        //     aVaultLp: fromWeb3JsPublicKey(aVaultLpMint),
+        //     bVaultLp: fromWeb3JsPublicKey(bVaultLpMint),
+        //     tokenBMint: fromWeb3JsPublicKey(tokenBMint),
+        //     aVault: fromWeb3JsPublicKey(aVault),
+        //     bVault: fromWeb3JsPublicKey(bVault),
+        //     aVaultLpMint: fromWeb3JsPublicKey(aVaultLpMint),
+        //     bVaultLpMint: fromWeb3JsPublicKey(bVaultLpMint),
+        //     payerPoolLp: fromWeb3JsPublicKey(payerPoolLp),
+        //     payer: this.umi.identity,
+        //     feeReceiver: FEE_RECIPIENT,
+        //     tokenProgram: fromWeb3JsPublicKey(TOKEN_PROGRAM_ID),
+        //     associatedTokenProgram: fromWeb3JsPublicKey(ASSOCIATED_TOKEN_PROGRAM_ID),
+        //     systemProgram: fromWeb3JsPublicKey(SystemProgram.programId),
+        //     lockEscrow: fromWeb3JsPublicKey(lockEscrowPK),
+        //     escrowVault: this.getUserTokenAccount(FEE_RECIPIENT)[0],
+        //     meteoraProgram: AMM_PROGRAM_ID,
+        //     eventAuthority: this.PumpScience.evtAuthAccs.eventAuthority,
+        // })
 
-        console.log("txBuilder after createPool:", txBuilder.items);
+        // txBuilder = txBuilder.append(lockPoolIx)
 
-        const lockPoolIx = lockPool(this.PumpScience.umi, {
-            global: this.PumpScience.globalPda[0],
-            bondingCurve: this.bondingCurvePda[0],
-            bondingCurveSolEscrow: this.bondingCurveSolEscrow[0],
-            pool: this.bondingCurvePda[0],
-            lpMint: this.bondingCurvePda[0],
-            aVaultLp: fromWeb3JsPublicKey(aVaultLpMint),
-            bVaultLp: fromWeb3JsPublicKey(bVaultLpMint),
-            tokenBMint: fromWeb3JsPublicKey(tokenBMint),
-            aVault: fromWeb3JsPublicKey(aVault),
-            bVault: fromWeb3JsPublicKey(bVault),
-            aVaultLpMint: fromWeb3JsPublicKey(aVaultLpMint),
-            bVaultLpMint: fromWeb3JsPublicKey(bVaultLpMint),
-            payerPoolLp: this.getUserTokenAccount(this.umi.identity.publicKey)[0],
-            payer: this.umi.identity,
-            feeReceiver: FEE_RECIPIENT,
-            tokenProgram: fromWeb3JsPublicKey(TOKEN_PROGRAM_ID),
-            associatedTokenProgram: fromWeb3JsPublicKey(ASSOCIATED_TOKEN_PROGRAM_ID),
-            systemProgram: fromWeb3JsPublicKey(SystemProgram.programId),
-            lockEscrow: this.bondingCurveSolEscrow[0],
-            escrowVault: this.getUserTokenAccount(FEE_RECIPIENT)[0],
-            meteoraProgram: AMM_PROGRAM_ID,
-            eventAuthority: this.PumpScience.evtAuthAccs.eventAuthority,
-        })
-
-        txBuilder.add(lockPoolIx)
-
-        console.log("txBuilder ===>>>", txBuilder.items.length);
-
-        return txBuilder;
+        return {preTxBuilder, txBuilder};
     }
 }

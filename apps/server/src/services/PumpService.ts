@@ -264,9 +264,12 @@ export const createPumpService = () => {
         const curveSdk = sdk.getCurveSDK(fromWeb3JsPublicKey(mintKp));
         const txBuilder = await curveSdk.migrate();
         try {
-            const tx = await processTransaction(umi, txBuilder);
+            console.log("sending preTx");
+            const preTx = await processTransaction(umi, txBuilder.preTxBuilder);
+            console.log("preTx ===>>>", preTx);
+            const tx = await processTransaction(umi, txBuilder.txBuilder);
             console.log("tx ===>>>", tx);
-            return tx;
+            return preTx;
         } catch (error) {
             console.error(error);
             throw error;
