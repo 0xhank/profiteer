@@ -7,12 +7,13 @@ import {
     useCallback,
     useMemo,
 } from "react";
-import { usePrivy } from "@privy-io/react-auth";
+import { usePrivy, useSolanaWallets } from "@privy-io/react-auth";
 import { useServer } from "../hooks/useServer";
 import { useEmbeddedWallet } from "../hooks/useEmbeddedWallet";
 
 interface PortfolioContextType {
-    solBalance: number ;
+    walletAddress: string | null;
+    solBalance: number;
     isLoading: boolean;
     error: string | null;
     tokenBalances: Record<string, number>;
@@ -30,7 +31,7 @@ export const PortfolioProvider = ({
     children: React.ReactNode;
 }) => {
     const embeddedWallet = useEmbeddedWallet();
-    const {login} = usePrivy();
+    const { login } = usePrivy();
 
     const { ready } = usePrivy();
     const [isLoading, setIsLoading] = useState(true);
@@ -40,17 +41,26 @@ export const PortfolioProvider = ({
     const [tokenBalances, setTokenBalances] = useState<Record<string, number>>(
         {}
     );
+    const { ready: walletsReady, wallets } = useSolanaWallets();
 
-    const walletAddress = useMemo(
-        () => embeddedWallet?.address,
-        [embeddedWallet]
-    );
+    const walletAddress = useMemo(() => {
+      console.log({wallets})
+        if (wallets.length === 0) 
+            return null; 
+        return wallets[0]!.address;
+    }, [embeddedWallet]);
 
     const fetchSolBalance = useCallback(async () => {
-        if (!ready) {
+        if (!ready || !walletsReady) {
             setIsLoading(false);
             return;
         }
+        if (wallets.length === 0) {
+            setSolBalance(0);
+            setIsLoading(false);
+            return;
+        }
+        const walletAddress = wallets[0]!.address;
 
         if (!walletAddress) {
             setSolBalance(0);
@@ -107,6 +117,7 @@ export const PortfolioProvider = ({
     return (
         <PortfolioContext.Provider
             value={{
+                walletAddress,
                 solBalance,
                 isLoading,
                 error,

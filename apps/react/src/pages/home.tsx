@@ -1,58 +1,12 @@
 "use client";
 
 import { useNavigate } from "react-router-dom";
-// import { usePrivy } from "@privy-io/react-auth";
-// import { useSolanaWallets } from "@privy-io/react-auth/solana";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { PageLayout } from "../components/common/page-layout";
 import { NewsStories } from "../components/home/news-stories";
 import { TokenList } from "../components/home/token-list";
-import { usePrivy, useSolanaWallets } from "@privy-io/react-auth";
 
 export default function Home() {
-    const { ready, authenticated, user } = usePrivy();
-    const { createWallet, wallets } = useSolanaWallets();
-
-    useEffect(() => {
-      const createWalletAndUser = async () => {
-        if (
-          authenticated &&
-          ready &&
-          wallets.length === 0 &&
-          user?.twitter?.username
-        ) {
-          try {
-            const wallet = await createWallet();
-          } catch (error) {
-            if (
-              !(error instanceof Error) ||
-              !error.message.includes("already has")
-            ) {
-              console.error("Failed to create Solana wallet or user:", error);
-            }
-          }
-        }
-      };
-
-      createWalletAndUser();
-    }, [authenticated, ready, wallets, createWallet, user?.twitter?.username]);
-
-    // const handleCreateToken = async () => {
-    //   if (!authenticated) {
-    //     try {
-    //       await login();
-    //     } catch (error) {
-    //       console.error("Login failed:", error);
-    //     }
-    //   } else {
-    //     if (!isLoading && hasToken && twitterUsername) {
-    //       navigate(`/token/${twitterUsername}`);
-    //     } else {
-    //       navigate("/create");
-    //     }
-    //   }
-    // };
-
     const navigate = useNavigate();
 
     const [query, setQuery] = useState("");
@@ -144,10 +98,10 @@ export default function Home() {
                             </svg>
                         </div>
                         <ul
-                            className="absolute text-left bg-white rounded rounded-md w-full z-10 list-none"
+                            className="absolute text-left bg-white rounded rounded-md w-full z-10 list-none border border-base-300"
                             style={{
                                 listStyleType: "none",
-                                marginStart: "0",
+                                MozMarginStart: "0",
                                 marginInlineStart: "0",
                                 marginInlineEnd: "0",
                             }}
