@@ -6,7 +6,6 @@ import supabase from "../../sbClient";
 import TokenCard from "../common/token-card";
 import { LineChart } from "./line-chart";
 import { TokenBalance } from "./token-balance";
-import { useFee } from "../../hooks/useFee";
 import { useServer } from "../../hooks/useServer";
 
 export const TokenContent = ({ mint }: { mint: string }) => {
@@ -21,7 +20,6 @@ export const TokenContent = ({ mint }: { mint: string }) => {
     } | null>(null);
     const [complete, setComplete] = useState<boolean | null>(null);
     const { migrate } = useServer();
-
 
     useEffect(() => {
         if (tokenData) {
@@ -60,7 +58,7 @@ export const TokenContent = ({ mint }: { mint: string }) => {
     };
 
     const progress = useMemo(() => {
-        if (!curveLiquidity) return null;
+        if (curveLiquidity == null) return null;
         const initialLiquidity = 793_100_000_000_000;
         return (initialLiquidity - curveLiquidity) / initialLiquidity;
     }, [curveLiquidity]);
@@ -68,11 +66,14 @@ export const TokenContent = ({ mint }: { mint: string }) => {
     const fetchCurveLiquidity = async () => {
         const { data, error } = await supabase
             .from("curve_data")
-            .select("real_token_reserves, virtual_token_reserves, virtual_sol_reserves, complete")
+            .select(
+                "real_token_reserves, virtual_token_reserves, virtual_sol_reserves, complete"
+            )
             .eq("mint", mint)
             .order("created_at", { ascending: false })
             .limit(1);
 
+            console.log(data)
         if (error) {
             console.error(error);
         } else {
@@ -96,7 +97,7 @@ export const TokenContent = ({ mint }: { mint: string }) => {
                 </div>
 
                 {/* Progress Bar */}
-               
+
                 {progress !== null && (
                     <div className="w-full flex flex-col gap-2">
                         <div className="flex justify-between text-sm">
@@ -134,7 +135,7 @@ export const TokenContent = ({ mint }: { mint: string }) => {
                 {!complete ? (
                     <TokenTradeForm tokenData={tokenData} onSwap={onSwap} />
                 ) : (
-                    <button className="bg-blue-500 text-white p-2 rounded-md" onClick={() => migrate.mutate({mint: mint})}>Migrate</button>
+                    <p>This token has been migrated. </p>
                 )}
             </div>
         )

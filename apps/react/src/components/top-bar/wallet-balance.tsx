@@ -61,8 +61,9 @@ export const WalletBalance = () => {
             )}
             {walletAddress && (
                 <div className="flex flex-row items-center gap-12">
+                    <p>{walletAddress}</p>
                     <Airdrop />
-                    <div className="flex flex-col items-end bg-blue-900 rounded-full px-4">
+                    <div className="flex flex-col items-end bg-primary rounded-full px-4">
                         <p className="text-2xl font-bold text-gray-900 dark:text-white -mb-2">
                             ${(solBalance * priceUSD).toFixed(2)}
                         </p>
@@ -74,7 +75,7 @@ export const WalletBalance = () => {
             )}
             <button
                 onClick={logout}
-                className="btn btn-ghost text-gray-400 hover:text-gray-200"
+                className="btn btn-secondary text-gray-400 hover:text-gray-200"
             >
                 Logout
             </button>

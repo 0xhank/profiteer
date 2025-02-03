@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Token } from "shared/src/types/token";
 import { cn } from "../../utils/cn";
-import { formatNumber, formatPrice } from "../../utils/formatPrice";
+import { formatNumber } from "../../utils/formatPrice";
 
 export default function TokenCard({
     token,
@@ -23,6 +23,17 @@ export default function TokenCard({
                 <h2 className="card-title break-words">
                     {token.metadata.name.replace(/_/g, " ")}
                 </h2>
+                <p
+                    className="text-xs cursor-pointer hover:opacity-70"
+                    onClick={(e) => {
+                        e.preventDefault(); // Prevent link navigation
+                        navigator.clipboard.writeText(token.mint);
+                        alert("Copied to clipboard");
+                    }}
+                    title="Click to copy"
+                >
+                    {token.mint}
+                </p>
                 <div className="flex flex-row gap-4 items-center">
                     <img
                         src={token.metadata.imageUri}
@@ -31,7 +42,7 @@ export default function TokenCard({
                     />
 
                     <div className="flex flex-col items-center text-center">
-                        <p className = "text-lg">${token.metadata.symbol}</p>
+                        <p className="text-lg">${token.metadata.symbol}</p>
                         {token.priceUsd && (
                             <div className="text-right">
                                 <p className="font-bold">
