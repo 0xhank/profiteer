@@ -6,11 +6,10 @@ import { useSolPrice } from "../../hooks/useSolPrice";
 
 export const WalletBalance = () => {
   const { solBalance, isLoading } = usePortfolio();
-  const { login } = usePrivy();
+  const { login, authenticated,ready } = usePrivy();
 
   const { fundWallet } = useFundWallet();
   const embeddedWallet = useEmbeddedWallet();
-  const { exportWallet } = useSolanaWallets();
   const { priceUSD } = useSolPrice();
 
 
@@ -30,15 +29,13 @@ export const WalletBalance = () => {
 
  
 
-  if (isLoading) {
+  if (isLoading || !ready) {
     return (
-      <div className="flex items-center h-full gap-4 px-3 py-1 bg-white dark:bg-gray-800 rounded-xl shadow-lg animate-pulse">
-        Portfolio loading...
-      </div>
+      null
     );
   }
 
-  if (solBalance === null) {
+  if (!authenticated) {
     return (
       <button className="btn btn-primary mr-4" onClick={login}>
         <div className="text-gray-500">Connect</div>
@@ -49,7 +46,7 @@ export const WalletBalance = () => {
   return (
     <>
       <div
-        className="flex h-full items-center gap-6 sm:gap-4 px-3 py-1 cursor-pointer hover:bg-white/10"
+        className="flex h-full items-center gap-6 sm:gap-4 px-3 py-1"
       >
         
         <div className="flex flex-col items-end bg-blue-900 rounded-full px-4">

@@ -12,7 +12,7 @@ import { useServer } from "../hooks/useServer";
 import { useEmbeddedWallet } from "../hooks/useEmbeddedWallet";
 
 interface PortfolioContextType {
-    solBalance: number | null;
+    solBalance: number ;
     isLoading: boolean;
     error: string | null;
     tokenBalances: Record<string, number>;
@@ -36,7 +36,7 @@ export const PortfolioProvider = ({
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { getSolBalance, getAllTokenBalances } = useServer();
-    const [solBalance, setSolBalance] = useState<number | null>(null);
+    const [solBalance, setSolBalance] = useState<number>(0);
     const [tokenBalances, setTokenBalances] = useState<Record<string, number>>(
         {}
     );
@@ -53,7 +53,7 @@ export const PortfolioProvider = ({
         }
 
         if (!walletAddress) {
-            setSolBalance(null);
+            setSolBalance(0);
             setIsLoading(false);
             return;
         }
@@ -67,7 +67,7 @@ export const PortfolioProvider = ({
         } catch (err) {
             setError("Error fetching balance");
             console.error("Error fetching balance:", err);
-            setSolBalance(null);
+            setSolBalance(0);
         } finally {
             setIsLoading(false);
         }
