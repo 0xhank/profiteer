@@ -3,6 +3,7 @@ import { Token } from "shared/src/types/token";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { useServer } from "../../hooks/useServer";
 import { useTokenBalance } from "../../hooks/useTokenBalance";
+import { useFee } from "../../hooks/useFee";
 
 export const TokenTradeForm = ({ tokenData, onSwap }: { tokenData: Token, onSwap: () => void }) => {
     const [isLoading, setIsLoading] = useState(false);
@@ -12,6 +13,7 @@ export const TokenTradeForm = ({ tokenData, onSwap }: { tokenData: Token, onSwap
     const { swap } = useServer();
     const { refreshPortfolio } = usePortfolio();
     const { balance: tokenBalance } = useTokenBalance(tokenData.mint);
+    const { fee } = useFee(tokenData.mint);
 
     const handleExecute = async () => {
         setIsLoading(true);
@@ -19,6 +21,7 @@ export const TokenTradeForm = ({ tokenData, onSwap }: { tokenData: Token, onSwap
         const amountIn = BigInt(Math.round(amount)) * BigInt(10 ** decimals);
         const minAmountOut =
             amountIn * BigInt(Math.round(100 - maxSlippagePct / 10000));
+
 
 
         try {
@@ -116,6 +119,9 @@ export const TokenTradeForm = ({ tokenData, onSwap }: { tokenData: Token, onSwap
                 className="w-full px-4 py-2 border bg-white"
                 placeholder="Enter amount"
             />
+ <div className="flex flex-col gap-2">
+                    <p>Fee: {fee * 100}%</p>
+                </div>
             <button
                 onClick={handleExecute}
                 disabled={isLoading}

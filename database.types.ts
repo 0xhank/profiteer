@@ -13,16 +13,19 @@ export type Database = {
         Row: {
           article_name: string
           created_at: string
+          description: string | null
           symbols: string[] | null
         }
         Insert: {
           article_name: string
           created_at?: string
+          description?: string | null
           symbols?: string[] | null
         }
         Update: {
           article_name?: string
           created_at?: string
+          description?: string | null
           symbols?: string[] | null
         }
         Relationships: []
@@ -131,6 +134,7 @@ export type Database = {
           created_at: string
           creator: string
           decimals: number
+          description: string | null
           id: number
           mint: string
           name: string
@@ -144,6 +148,7 @@ export type Database = {
           created_at?: string
           creator: string
           decimals: number
+          description?: string | null
           id?: number
           mint: string
           name: string
@@ -157,6 +162,7 @@ export type Database = {
           created_at?: string
           creator?: string
           decimals?: number
+          description?: string | null
           id?: number
           mint?: string
           name?: string

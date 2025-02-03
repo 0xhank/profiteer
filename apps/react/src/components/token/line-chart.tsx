@@ -46,14 +46,32 @@ export const LineChart = (props: ChartProps) => {
             height: 300,
         });
         chart.timeScale().fitContent();
+        chart.timeScale().applyOptions({
+            timeVisible: true,
+            secondsVisible: false,
+        });
 
-        const formattedData: { time: UTCTimestamp; value: number }[] = data.map((item) => ({
-            time: Math.floor(new Date(item.time).getTime() / 1000) as UTCTimestamp,
-            value: item.value,
-        }));
+        const formattedData: { time: UTCTimestamp; value: number }[] = data.map(
+            (item) => ({
+                time: Math.floor(
+                    (new Date(item.time).getTime() -
+                        new Date().getTimezoneOffset() * 60 * 1000) /
+                        1000
+                ) as UTCTimestamp,
+                value: item.value,
+            })
+        );
 
         const newSeries = chart.addSeries(LineSeries, {
             color: lineColor,
+            priceFormat: {
+                type: "custom",
+                minMove: 0.00000001,
+                formatter: (price: number) => {
+                    if (price < 0.000001) return price.toExponential(2);
+                    return price.toPrecision(6);
+                },
+            },
         });
         newSeries.setData(formattedData);
 

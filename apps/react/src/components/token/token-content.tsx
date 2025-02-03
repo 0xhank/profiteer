@@ -30,11 +30,6 @@ export const TokenContent = ({ mint }: { mint: string }) => {
     }, [tokenData]);
     const [curveLiquidity, setCurveLiquidity] = useState<number | null>(null);
 
-    const mostRecentPrice = useMemo(() => {
-        return tokenPrices[tokenPrices.length - 1]?.value;
-    }, [tokenPrices]);
-    const { fee } = useFee(mint);
-
     const onSwap = () => {
         fetchCurveLiquidity();
         fetchTokenPrices();
@@ -101,11 +96,7 @@ export const TokenContent = ({ mint }: { mint: string }) => {
                 </div>
 
                 {/* Progress Bar */}
-                <div className="flex flex-col gap-2">
-                    <p>Token: {reserveData?.virtual_token_reserves ?? 0 / 1e6}</p>
-                    <p>SOL: {reserveData?.virtual_sol_reserves ?? 0 / 1e9}</p>
-                    <p>Fee: {fee * 100}%</p>
-                </div>
+               
                 {progress !== null && (
                     <div className="w-full flex flex-col gap-2">
                         <div className="flex justify-between text-sm">

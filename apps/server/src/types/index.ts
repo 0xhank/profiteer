@@ -4,6 +4,7 @@ import { z } from "zod";
 export const createBondingCurveInputSchema = z.object({
     name: z.string(),
     symbol: z.string(),
+    description: z.string(),
     uri: z.string(),
 });
 

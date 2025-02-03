@@ -22,6 +22,7 @@ export const CreateToken = ({
     const { getArticleSymbolOptions } = useServer();
 
     const [symbols, setSymbols] = useState<string[]>([]);
+    const [description, setDescription] = useState<string>("");
     const [selectedSymbol, setSelectedSymbol] = useState<string>("");
     const [isLoading, setIsLoading] = useState(false);
 
@@ -36,25 +37,27 @@ export const CreateToken = ({
     const handleGetSymbols = async (hardRefresh: boolean = false) => {
         setIsLoading(true);
         try {
-            const symbols = await getArticleSymbolOptions.query({
+            const {symbols, description }= await getArticleSymbolOptions.query({
                 articleName,
                 hardRefresh,
             });
             setSymbols(symbols.map((s) => "n" + s));
+            setDescription(description);
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="space-y-6">
+        <div className="card bg-base-200 p-4 shadow-sm rounded rounded-sm space-y-6">
+            <div className="card-title">Create a token</div>
             {imageUri && (
                 <div className="flex justify-center mb-6">
                     <div className="relative">
                         <img
                             src={imageUri}
                             alt="Profile"
-                            className="rounded-full border-4 border-blue-500 shadow-lg transform transition-all duration-300 hover:scale-105"
+                            className="shadow-lg"
                         />
                     </div>
                 </div>
@@ -62,30 +65,37 @@ export const CreateToken = ({
 
             <div className="space-y-4">
                 <div>
-                    <label className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">
-                        Name
-                    </label>
-                    <div className="text-gray-700 dark:text-gray-300">
-                        {articleName}
-                    </div>
+                    <p className="label">Name</p>
+                    <p>{articleName.replace(/_/g, " ")}</p>
+                </div>
+
+                <div>
+                    <p className="label">Description</p>
+                    <textarea
+                        className="textarea textarea-bordered w-full"
+                        placeholder="loading..."
+                        rows={3}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        disabled
+
+                    />
                 </div>
 
                 <div>
                     <div className="flex justify-between items-center mb-2">
-                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">
-                            Symbol
-                        </label>
+                        <p className="label">Ticker</p>
                         <button
                             onClick={() => handleGetSymbols(true)}
                             className="btn btn-sm btn-outline"
                             disabled={isLoading}
                         >
-                            {isLoading ? "Loading..." : "Refresh Symbols"}
+                            {isLoading ? "Loading..." : "Regenerate"}
                         </button>
                     </div>
 
                     {isLoading ? (
-                        <div className="text-gray-500">Loading symbols...</div>
+                        <div className="opacity-50">Loading...</div>
                     ) : (
                         <div className="space-y-2">
                             {symbols.map((symbol) => (
@@ -102,9 +112,7 @@ export const CreateToken = ({
                                         }
                                         className="radio radio-primary"
                                     />
-                                    <span className="text-gray-700 dark:text-gray-300">
-                                        {symbol}
-                                    </span>
+                                    <span>{symbol}</span>
                                 </label>
                             ))}
                         </div>
@@ -116,10 +124,9 @@ export const CreateToken = ({
                 name={articleName}
                 symbol={effectiveSymbol}
                 uri={imageUri ?? `https://api.news.fun/${articleName}`}
+                description={description}
+                disabled={!effectiveSymbol}
             />
-            <div className="text-gray-700 dark:text-gray-300">
-                {JSON.stringify(symbols)}
-            </div>
         </div>
     );
 };
@@ -128,6 +135,8 @@ const CreateTokenButton = (props: {
     name: string;
     symbol: string;
     uri: string;
+    description: string;
+    disabled: boolean;
 }) => {
     const { createBondingCurve } = useServer();
 
@@ -142,7 +151,11 @@ const CreateTokenButton = (props: {
     };
 
     return (
-        <button onClick={onSendTransaction} className="btn btn-primary">
+        <button
+            onClick={onSendTransaction}
+            className="btn btn-primary"
+            disabled={props.disabled}
+        >
             Create Token
         </button>
     );

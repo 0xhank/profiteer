@@ -125,8 +125,11 @@ export const createPumpService = () => {
     const createBondingCurve = async (input: CreateBondingCurveInput) => {
         const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
         const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
+        const name = input.name.replace(/_/g, " ")
         const txBuilder = curveSdk.createBondingCurve(
-            { ...input, startSlot: null },
+            { ...input, 
+                name: name.slice(0, 32), 
+                startSlot: null },
             mintKp,
             false
         );
@@ -145,12 +148,14 @@ export const createPumpService = () => {
                 throw new Error("CreateEvent not found");
             }
 
+            console.log("inserting metadata", createEvent);
             const { error: metadataError } = await supabase
                 .from("token_metadata")
                 .insert({
                     mint: createEvent.mint.toBase58(),
                     creator: createEvent.creator.toBase58(),
-                    name: createEvent.name,
+                    name: name,
+                    description: input.description,
                     symbol: createEvent.symbol,
                     uri: createEvent.uri,
                     start_slot: createEvent.startSlot.toNumber(),
@@ -166,7 +171,7 @@ export const createPumpService = () => {
                 .from("mint_article_name")
                 .insert({
                     mint: createEvent.mint.toBase58(),
-                    article_name: input.name,
+                    article_name: name,
                 });
             if (nameError) {
                 throw new Error(
