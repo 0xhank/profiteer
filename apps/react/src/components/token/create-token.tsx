@@ -147,7 +147,7 @@ const CreateTokenButton = (props: {
             return;
         }
         try {
-            const txMessage = await createBondingCurveTx.mutate({
+            const {txMessage} = await createBondingCurveTx.mutate({
                 ...props,
                 userPublicKey: wallet.address,
             });

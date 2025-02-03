@@ -15,13 +15,14 @@ import idl from "programs/clients/js/src/idls/pump_science.json";
 export const initProviders = () => {
   const feePayerKeypair = Keypair.fromSecretKey(bs58.decode(env.ADMIN_PRIVATE_KEY));
   const masterKp = fromWeb3JsKeypair(feePayerKeypair);
+  const masterWallet = new Wallet(feePayerKeypair);
 
   const rpcUrl = env.RPC_URL;
 
   const connection = new Connection(rpcUrl, "confirmed");
   const provider = new anchor.AnchorProvider(
     connection,
-    new Wallet(feePayerKeypair),
+    masterWallet,
     anchor.AnchorProvider.defaultOptions()
   );
 
@@ -34,5 +35,5 @@ export const initProviders = () => {
   const umi = createUmi(rpcUrl).use(keypairIdentity(masterKp));
   const sdk = new PumpScienceSDK(provider, masterKp);
 
-  return { umi, connection, rpcUrl, masterKp, sdk, program };
+  return { umi, connection, rpcUrl, sdk, program, masterWallet };
 };

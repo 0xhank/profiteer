@@ -56,15 +56,14 @@ export default function Home() {
             <div className="flex flex-col animation gap-4 text-center animate-fade-in">
                 <h4 className="w-full text-right opacity-70">devnet</h4>
                 <h1 className="text-[100pt] -mt-20 -mb-16">
-                    <span className="font-serif font-semibold">news</span>
-                    <span className="font-script text-accent">.fun</span>
+                    <span className="font-serif font-semibold">Profiteer</span>
                 </h1>
                 <p
                     className={
                         "px-4 text-2xl opacity-70 text-primary font-bold w-full text-left"
                     }
                 >
-                    Every link is a meme.
+                    Everything is a meme.
                 </p>
                 <div className="space-y-4 flex flex-col items-center">
                     <div className="relative w-full max-w-md">

@@ -43,7 +43,7 @@ export default function TokenCard({
 
                     <div className="flex flex-col items-center text-center">
                         <p className="text-lg">${token.metadata.symbol}</p>
-                        {token.priceUsd && (
+                        {token.priceUsd !== undefined && (
                             <div className="text-right">
                                 <p className="font-bold">
                                     Market cap: $

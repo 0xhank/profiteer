@@ -14,15 +14,13 @@ import {
 import {
     MessageV0,
     PublicKey,
-    Transaction,
-    TransactionSignature,
     VersionedTransaction,
     Keypair as Web3JsKeypair,
 } from "@solana/web3.js";
 import { getTxEventsFromTxBuilderResponse, processTransaction } from "programs";
 
 export const createPumpService = () => {
-    const { umi, sdk, connection, program } = initProviders();
+    const { umi, sdk, connection, program, masterWallet } = initProviders();
 
     const slotSubscribers = new Map<string, (slot: number) => void>();
     let pollInterval: NodeJS.Timeout | null = null;
@@ -145,8 +143,6 @@ export const createPumpService = () => {
         return tokenBalances;
     };
 
-    let txData: { mintKp: Keypair; name: string; description: string } | null =
-        null;
     const createBondingCurveTx = async (input: CreateBondingCurveInput) => {
         const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
         const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
@@ -174,20 +170,45 @@ export const createPumpService = () => {
         // log the signers of the tx
         const txMessageBase64 =
             Buffer.from(serializedMessage).toString("base64");
-        txData = { mintKp, name, description: input.description };
-        return txMessageBase64;
+        const returnObject = {
+            txMessage: txMessageBase64,
+        };
+        mintKpRegistry.set(txMessageBase64, { kp: mintKp, createdAt: Date.now(), name: input.name, description: input.description });
+        return returnObject;
     };
 
-    const sendCreateBondingCurveTx = async (
-        userPublicKey: string,
-        txMessage: Uint8Array,
-        signature: string
-    ) => {
-        if (!txData) {
-            throw new Error("Tx data not found");
+    const mintKpRegistry = new Map<
+        string,
+        { kp: Keypair; createdAt: number; name: string, description: string }
+    >();
+
+    // Clean up stale entries every 30s
+    setInterval(() => {
+        const now = Date.now();
+        for (const [key, value] of mintKpRegistry.entries()) {
+            if (now - value.createdAt > 60000) {
+                // 60s
+                mintKpRegistry.delete(key);
+            }
         }
-        const { mintKp, name, description } = txData;
+    }, 30000);
+
+    const sendCreateBondingCurveTx = async ({
+        userPublicKey,
+        txMessage: txInput,
+        signature,
+    }: {
+        userPublicKey: string;
+        txMessage: string;
+        signature: string;
+    }) => {
         try {
+            const entry = mintKpRegistry.get(txInput);
+            if (!entry) {
+                throw new Error("Mint Kp not found");
+            }
+            const txMessage = Buffer.from(txInput, 'base64')
+            const { kp, name, description } = entry;
             const pubKey = new PublicKey(userPublicKey);
             // Convert base64 signature to Uint8Array first
             const signatureUint8 = Uint8Array.from(
@@ -197,7 +218,7 @@ export const createPumpService = () => {
 
             const transaction = new VersionedTransaction(message);
 
-            transaction.sign([toWeb3JsKeypair(mintKp)]);
+            transaction.sign([toWeb3JsKeypair(kp)]);
             transaction.addSignature(pubKey, signatureUint8);
 
             const txId = await connection.sendTransaction(transaction);

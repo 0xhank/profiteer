@@ -156,8 +156,11 @@ export function createAppRouter() {
         sendCreateBondingCurveTx: t.procedure
             .input(z.object({ userPublicKey: z.string(), txMessage: z.string(), signature: z.string() }))
             .mutation(async ({ input, ctx }) => {
-                const txMessage = Buffer.from(input.txMessage, 'base64')
-                return await ctx.pumpService.sendCreateBondingCurveTx(input.userPublicKey, txMessage, input.signature);
+                return await ctx.pumpService.sendCreateBondingCurveTx({
+                    userPublicKey: input.userPublicKey,
+                    txMessage: input.txMessage,
+                    signature: input.signature,
+                });
             }),
 
         swap: t.procedure
