@@ -4,7 +4,7 @@ import { METAPLEX_PROGRAM } from "@mercurial-finance/dynamic-amm-sdk/dist/cjs/sr
 import VaultImpl, { getVaultPdas, VaultIdl as VaultIdlType } from "@mercurial-finance/vault-sdk";
 import { SEEDS } from "@mercurial-finance/vault-sdk/dist/cjs/src/vault/constants";
 import { findAssociatedTokenPda, SPL_ASSOCIATED_TOKEN_PROGRAM_ID } from "@metaplex-foundation/mpl-toolbox";
-import { createSignerFromKeypair, Keypair, Pda, PublicKey, RpcGetAccountOptions, TransactionBuilder, Umi } from "@metaplex-foundation/umi";
+import { createSignerFromKeypair, Keypair, Pda, PublicKey, RpcGetAccountOptions, Signer, TransactionBuilder, Umi } from "@metaplex-foundation/umi";
 import { fromWeb3JsInstruction, fromWeb3JsPublicKey, toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
 import { publicKey as publicKeySerializer, string } from '@metaplex-foundation/umi/serializers';
 import { deriveLockEscrowPda, getOrCreateATAInstruction } from "@meteora-ag/stake-for-fee";
@@ -92,20 +92,17 @@ export class CurveSDK {
         });
     }
 
-    createBondingCurve(params: CreateBondingCurveInstructionDataArgs, mintKp: Keypair, whitelist: boolean) {
-        // check mintKp is this.mint
-        console.log("creating mint ===>>>", this.mint.toString());
-        console.log("bondingCurveTokenAccount ===>>>", this.bondingCurveTokenAccount[0].toString());
-        console.log("bondingCurvePda ===>>>", this.bondingCurvePda[0].toString());
-
+    createBondingCurve(params: CreateBondingCurveInstructionDataArgs, user: PublicKey, mintKp: Keypair, whitelist: boolean) {
         if (mintKp.publicKey.toString() !== this.mint.toString()) {
             throw new Error("wrong mintKp provided");
         }
-
+        console.log("mintKp ===>>>", mintKp.publicKey.toString());
+        console.log("user ===>>>", user);
+        console.log("identity ===>>>", this.umi.identity.publicKey);
         // Create bonding curve
         const createBondingCurveIx = createBondingCurve(this.umi, {
             global: this.PumpScience.globalPda[0],
-            creator: this.umi.identity,
+            creator: user as unknown as Signer,
             mint: createSignerFromKeypair(this.umi, mintKp),
             bondingCurve: this.bondingCurvePda[0],
             bondingCurveTokenAccount: this.bondingCurveTokenAccount[0],
@@ -116,8 +113,6 @@ export class CurveSDK {
             ...params,
             whitelist: whitelist ? this.whitelistPda[0] : undefined
         });
-
-        console.log("this.whitelistPda[0]---->>>>", this.whitelistPda[0]);
 
         // Combine all instructions
         return new TransactionBuilder()

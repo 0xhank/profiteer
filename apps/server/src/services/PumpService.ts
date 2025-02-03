@@ -1,15 +1,24 @@
 import supabase from "@/sbClient";
-import { CreateBondingCurveInput, CurveCompleteEvent, SwapInput } from "@/types";
+import { CreateBondingCurveInput, SwapInput } from "@/types";
 import { initProviders } from "@/util/initProviders";
+import { Keypair, Signer, TransactionBuilder } from "@metaplex-foundation/umi";
 import {
     fromWeb3JsKeypair,
     fromWeb3JsPublicKey,
+    toWeb3JsKeypair,
 } from "@metaplex-foundation/umi-web3js-adapters";
 import {
     getAssociatedTokenAddressSync,
     TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import { PublicKey, Keypair as Web3JsKeypair } from "@solana/web3.js";
+import {
+    MessageV0,
+    PublicKey,
+    Transaction,
+    TransactionSignature,
+    VersionedTransaction,
+    Keypair as Web3JsKeypair,
+} from "@solana/web3.js";
 import { getTxEventsFromTxBuilderResponse, processTransaction } from "programs";
 
 export const createPumpService = () => {
@@ -19,7 +28,7 @@ export const createPumpService = () => {
     let pollInterval: NodeJS.Timeout | null = null;
 
     let slot = 0;
-    let lastChecked = 0
+    let lastChecked = 0;
     const getSlot = async () => {
         if (lastChecked + 1000 < Date.now()) {
             slot = await connection.getSlot();
@@ -30,9 +39,11 @@ export const createPumpService = () => {
     };
 
     const sendAirdrop = async (address: string) => {
-        console.log("sending airdrop to", address);
         try {
-            const tx = await connection.requestAirdrop(new PublicKey(address), 2000000000);
+            const tx = await connection.requestAirdrop(
+                new PublicKey(address),
+                2000000000
+            );
 
             await connection.confirmTransaction(tx, "confirmed");
             return tx;
@@ -40,7 +51,7 @@ export const createPumpService = () => {
             console.error(error);
             throw error;
         }
-    }
+    };
     const startPolling = () => {
         if (pollInterval) return; // Already polling
 
@@ -134,25 +145,67 @@ export const createPumpService = () => {
         return tokenBalances;
     };
 
-    const createBondingCurve = async (input: CreateBondingCurveInput) => {
+    let txData: { mintKp: Keypair; name: string; description: string } | null =
+        null;
+    const createBondingCurveTx = async (input: CreateBondingCurveInput) => {
         const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
         const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
-        const name = input.name.replace(/_/g, " ")
-        const txBuilder = curveSdk.createBondingCurve(
-            { ...input, 
-                name: name.slice(0, 32), 
-                startSlot: null },
-            mintKp,
-            false
+        const name = input.name.replace(/_/g, " ");
+        const userPublicKey = fromWeb3JsPublicKey(
+            new PublicKey(input.userPublicKey)
         );
+        const fakeSigner = {
+            publicKey: userPublicKey,
+        } as Signer;
+        let txBuilder = new TransactionBuilder().add(
+            curveSdk.createBondingCurve(
+                { ...input, name: name.slice(0, 32), startSlot: null },
+                fromWeb3JsPublicKey(new PublicKey(input.userPublicKey)),
+                mintKp,
+                false
+            )
+        );
+        const blockhash = await connection.getLatestBlockhash();
+        txBuilder = txBuilder.setBlockhash(blockhash.blockhash);
+        const { serializedMessage } = txBuilder.build({
+            ...umi,
+            payer: fakeSigner,
+        });
+        // log the signers of the tx
+        const txMessageBase64 =
+            Buffer.from(serializedMessage).toString("base64");
+        txData = { mintKp, name, description: input.description };
+        return txMessageBase64;
+    };
 
+    const sendCreateBondingCurveTx = async (
+        userPublicKey: string,
+        txMessage: Uint8Array,
+        signature: string
+    ) => {
+        if (!txData) {
+            throw new Error("Tx data not found");
+        }
+        const { mintKp, name, description } = txData;
         try {
-            const tx = await processTransaction(umi, txBuilder);
+            const pubKey = new PublicKey(userPublicKey);
+            // Convert base64 signature to Uint8Array first
+            const signatureUint8 = Uint8Array.from(
+                Buffer.from(signature, "base64")
+            );
+            const message = MessageV0.deserialize(txMessage);
+
+            const transaction = new VersionedTransaction(message);
+
+            transaction.sign([toWeb3JsKeypair(mintKp)]);
+            transaction.addSignature(pubKey, signatureUint8);
+
+            const txId = await connection.sendTransaction(transaction);
             const events = await getTxEventsFromTxBuilderResponse(
                 connection,
                 // @ts-ignore TODO: fix this
                 program,
-                tx
+                txId
             );
 
             const createEvent = events.CreateEvent?.[0];
@@ -160,14 +213,13 @@ export const createPumpService = () => {
                 throw new Error("CreateEvent not found");
             }
 
-            console.log("inserting metadata", createEvent);
             const { error: metadataError } = await supabase
                 .from("token_metadata")
                 .insert({
                     mint: createEvent.mint.toBase58(),
                     creator: createEvent.creator.toBase58(),
                     name: name,
-                    description: input.description,
+                    description: description,
                     symbol: createEvent.symbol,
                     uri: createEvent.uri,
                     start_slot: createEvent.startSlot.toNumber(),
@@ -227,7 +279,6 @@ export const createPumpService = () => {
             minOutAmount: BigInt(input.minAmountOut),
         });
         try {
-            console.log("txBuilder ===>>>", txBuilder.items.length);
             const tx = await processTransaction(umi, txBuilder);
             const events = await getTxEventsFromTxBuilderResponse(
                 connection,
@@ -260,7 +311,8 @@ export const createPumpService = () => {
                     .from("token_metadata")
                     .update({
                         complete: true,
-                    }).eq("mint", mintKp.toBase58());
+                    })
+                    .eq("mint", mintKp.toBase58());
             }
             if (curveError) {
                 console.error(curveError);
@@ -268,7 +320,7 @@ export const createPumpService = () => {
                     `Failed to insert curve data: ${curveError.message}`
                 );
             }
-            
+
             return tx;
         } catch (error) {
             console.error(error);
@@ -281,18 +333,14 @@ export const createPumpService = () => {
         const curveSdk = sdk.getCurveSDK(fromWeb3JsPublicKey(mintKp));
         const txBuilder = await curveSdk.migrate();
         try {
-            console.log("sending preTx");
             const preTx = await processTransaction(umi, txBuilder.preTxBuilder);
-            console.log("preTx ===>>>", preTx);
             const tx = await processTransaction(umi, txBuilder.txBuilder);
-            console.log("tx ===>>>", tx);
             return preTx;
         } catch (error) {
             console.error(error);
             throw error;
         }
-    }
-  
+    };
 
     return {
         sendAirdrop,
@@ -302,7 +350,10 @@ export const createPumpService = () => {
         getAllUserTokenBalances,
         subscribeToSlot,
         unsubscribeFromSlot,
-        createBondingCurve,
+
+        createBondingCurveTx,
+        sendCreateBondingCurveTx,
+
         swap,
         migrate,
         getSlot,

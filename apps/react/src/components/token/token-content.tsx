@@ -73,7 +73,6 @@ export const TokenContent = ({ mint }: { mint: string }) => {
             .order("created_at", { ascending: false })
             .limit(1);
 
-            console.log(data)
         if (error) {
             console.error(error);
         } else {

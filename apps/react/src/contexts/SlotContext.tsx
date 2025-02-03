@@ -21,9 +21,8 @@ export const SlotProvider = ({ children }: { children: React.ReactNode }) => {
         // Initial poll
         pollSlot();
 
-        const interval = setInterval(pollSlot, 1000);
-
-        return () => clearInterval(interval);
+        // const interval = setInterval(pollSlot, 1000);
+        // return () => clearInterval(interval);
     }, []);
 
     return (

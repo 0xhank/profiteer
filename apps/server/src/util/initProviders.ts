@@ -13,7 +13,7 @@ import * as anchor from "@coral-xyz/anchor";
 import idl from "programs/clients/js/src/idls/pump_science.json";
 
 export const initProviders = () => {
-  const feePayerKeypair = Keypair.fromSecretKey(bs58.decode(env.PAYER_PRIVATE_KEY));
+  const feePayerKeypair = Keypair.fromSecretKey(bs58.decode(env.ADMIN_PRIVATE_KEY));
   const masterKp = fromWeb3JsKeypair(feePayerKeypair);
 
   const rpcUrl = env.RPC_URL;

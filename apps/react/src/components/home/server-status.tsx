@@ -16,7 +16,6 @@ export default function ServerStatus() {
     const getServerStatus = async () => {
         try {
             const status = await server.getStatus.query();
-            console.log("Server status", status);
 
         let color = "bg-grey-500";
         if (status.status === 200) {

@@ -99,6 +99,7 @@ resolvedAccounts.tokenMetadataProgram.isWritable = false
   
   // Keys and Signers.
   const [keys, signers] = getAccountMetasAndSigners(orderedAccounts, "programId", programId);
+  console.log("signers ===>>>", signers.map((signer) => signer.publicKey.toString()));
 
   // Data.
       const data = getCreateBondingCurveInstructionDataSerializer().serialize(resolvedArgs as CreateBondingCurveInstructionDataArgs);

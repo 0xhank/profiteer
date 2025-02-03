@@ -2,6 +2,7 @@ import { MessageV0 } from "@solana/web3.js";
 import { z } from "zod";
 
 export const createBondingCurveInputSchema = z.object({
+    userPublicKey: z.string(),
     name: z.string(),
     symbol: z.string(),
     description: z.string(),

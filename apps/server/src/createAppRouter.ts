@@ -147,10 +147,17 @@ export function createAppRouter() {
                 };
             }),
 
-        createBondingCurve: t.procedure
+        createBondingCurveTx: t.procedure
             .input(createBondingCurveInputSchema)
             .mutation(async ({ input, ctx }) => {
-                return ctx.pumpService.createBondingCurve(input);
+                return await ctx.pumpService.createBondingCurveTx(input);
+            }),
+
+        sendCreateBondingCurveTx: t.procedure
+            .input(z.object({ userPublicKey: z.string(), txMessage: z.string(), signature: z.string() }))
+            .mutation(async ({ input, ctx }) => {
+                const txMessage = Buffer.from(input.txMessage, 'base64')
+                return await ctx.pumpService.sendCreateBondingCurveTx(input.userPublicKey, txMessage, input.signature);
             }),
 
         swap: t.procedure

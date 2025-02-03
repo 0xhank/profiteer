@@ -86,13 +86,9 @@ export const logEvent = (
 export const getTxEventsFromTxBuilderResponse = async (
   conn: Connection,
   program: Program<PumpScience>,
-  txBuilderRes: {
-    signature: TransactionSignature;
-    result: RpcConfirmTransactionResult;
-  }
+  signature: string 
 ) => {
-  const sig = bs58.encode(txBuilderRes.signature);
-  const txDetails = await getTxDetails(conn, sig);
+  const txDetails = await getTxDetails(conn, signature);
   return getTransactionEvents(program, txDetails);
 };
 

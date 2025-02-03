@@ -7,12 +7,12 @@ import {
     useCallback,
     useMemo,
 } from "react";
-import { usePrivy, useSolanaWallets } from "@privy-io/react-auth";
+import { ConnectedSolanaWallet, usePrivy, useSolanaWallets } from "@privy-io/react-auth";
 import { useServer } from "../hooks/useServer";
 import { useEmbeddedWallet } from "../hooks/useEmbeddedWallet";
 
 interface PortfolioContextType {
-    walletAddress: string | null;
+    wallet: ConnectedSolanaWallet | null;
     solBalance: number;
     isLoading: boolean;
     error: string | null;
@@ -31,7 +31,6 @@ export const PortfolioProvider = ({
     children: React.ReactNode;
 }) => {
     const embeddedWallet = useEmbeddedWallet();
-    const { login } = usePrivy();
 
     const { ready } = usePrivy();
     const [isLoading, setIsLoading] = useState(true);
@@ -43,36 +42,24 @@ export const PortfolioProvider = ({
     );
     const { ready: walletsReady, wallets } = useSolanaWallets();
 
-    const walletAddress = useMemo(() => {
-      console.log({wallets})
+    const wallet = useMemo(() => {
         if (wallets.length === 0) 
             return null; 
-        return wallets[0]!.address;
+        return wallets[0]
     }, [embeddedWallet]);
 
     const fetchSolBalance = useCallback(async () => {
-        if (!ready || !walletsReady) {
-            setIsLoading(false);
-            return;
-        }
-        if (wallets.length === 0) {
+        if (!wallet) {
             setSolBalance(0);
             setIsLoading(false);
             return;
         }
-        const walletAddress = wallets[0]!.address;
-
-        if (!walletAddress) {
-            setSolBalance(0);
-            setIsLoading(false);
-            return;
-        }
-
         try {
             const walletBalance = await getSolBalance.query({
-                address: walletAddress,
+                address: wallet.address,
             });
-            setSolBalance(walletBalance / 1e9);
+            console.log("walletBalance ===>>>", walletBalance);
+            setSolBalance(walletBalance / 1e9 );
             setError(null);
         } catch (err) {
             setError("Error fetching balance");
@@ -81,7 +68,7 @@ export const PortfolioProvider = ({
         } finally {
             setIsLoading(false);
         }
-    }, [getSolBalance, ready, walletAddress]);
+    }, [wallet]);
 
     const hasEnoughBalance = (requiredAmount: number) => {
         if (solBalance === null) return false;
@@ -89,22 +76,22 @@ export const PortfolioProvider = ({
     };
 
     const fetchTokenBalances = useCallback(async () => {
-        if (!walletAddress) return;
+        if (!wallet) return;
         const balances = (
-            await getAllTokenBalances.query({ address: walletAddress })
+            await getAllTokenBalances.query({ address: wallet.address })
         ).reduce((acc, balance) => {
             acc[balance.mint] = balance.balanceToken / 10 ** 6;
             return acc;
         }, {} as Record<string, number>);
         setTokenBalances(balances);
-    }, [walletAddress]);
+    }, [wallet]);
 
     const refreshPortfolio = useCallback(async () => {
         await Promise.all([fetchSolBalance(), fetchTokenBalances()]);
     }, [fetchSolBalance, fetchTokenBalances]);
 
     useEffect(() => {
-        if (walletAddress) {
+        if (wallet) {
             fetchSolBalance();
             fetchTokenBalances();
             const intervalId = setInterval(fetchSolBalance, 30000);
@@ -112,12 +99,12 @@ export const PortfolioProvider = ({
         } else {
             setIsLoading(false);
         }
-    }, [walletAddress]); // Only depend on ready state and wallet address
+    }, [wallet]); // Only depend on ready state and wallet address
 
     return (
         <PortfolioContext.Provider
             value={{
-                walletAddress,
+                wallet,
                 solBalance,
                 isLoading,
                 error,

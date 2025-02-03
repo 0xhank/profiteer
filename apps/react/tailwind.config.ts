@@ -12,6 +12,7 @@ export default {
         caslon: ["Libre Caslon Text", "serif"],
         kaushan: ["Kaushan Script", "serif"],
         comic: ["Comic Neue", "serif"],
+        openSans: ["Open Sans", "sans-serif"],
         roboto: ['Roboto', 'sans-serif'],
 
       },
