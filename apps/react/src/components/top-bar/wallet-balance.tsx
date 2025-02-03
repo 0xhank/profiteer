@@ -2,6 +2,7 @@ import { useFundWallet, usePrivy, useSolanaWallets } from "@privy-io/react-auth"
 import { useEmbeddedWallet } from "../../hooks/useEmbeddedWallet";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { useSolPrice } from "../../hooks/useSolPrice";
+import { Airdrop } from "./airdrop";
 
 export const WalletBalance = () => {
     const { solBalance, isLoading, walletAddress } = usePortfolio();
@@ -59,7 +60,8 @@ export const WalletBalance = () => {
                 </button>
             )}
             {walletAddress && (
-                <div className="flex flex-col items-end bg-blue-900 rounded-full px-4">
+                <div className="flex flex-row items-center gap-12">
+                    <Airdrop />
                     <div className="flex flex-col items-end bg-blue-900 rounded-full px-4">
                         <p className="text-2xl font-bold text-gray-900 dark:text-white -mb-2">
                             ${(solBalance * priceUSD).toFixed(2)}

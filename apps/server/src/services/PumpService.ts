@@ -29,6 +29,18 @@ export const createPumpService = () => {
         return slot;
     };
 
+    const sendAirdrop = async (address: string) => {
+        console.log("sending airdrop to", address);
+        try {
+            const tx = await connection.requestAirdrop(new PublicKey(address), 2000000000);
+
+            await connection.confirmTransaction(tx, "confirmed");
+            return tx;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
     const startPolling = () => {
         if (pollInterval) return; // Already polling
 
@@ -283,6 +295,8 @@ export const createPumpService = () => {
   
 
     return {
+        sendAirdrop,
+
         getUserBalance,
         getUserTokenBalance,
         getAllUserTokenBalances,

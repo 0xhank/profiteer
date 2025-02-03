@@ -112,7 +112,7 @@ export const PortfolioProvider = ({
         } else {
             setIsLoading(false);
         }
-    }, [ready, walletAddress, fetchSolBalance, fetchTokenBalances, login]); // Only depend on ready state and wallet address
+    }, [walletAddress]); // Only depend on ready state and wallet address
 
     return (
         <PortfolioContext.Provider

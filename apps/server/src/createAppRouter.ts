@@ -6,6 +6,7 @@ import supabase from "./sbClient";
 import { PumpService } from "./services/PumpService";
 import { WikiService } from "./services/WikiService";
 import { createBondingCurveInputSchema, swapInputSchema } from "./types";
+import env from "../bin/env";
 
 export type AppContext = {
     pumpService: PumpService;
@@ -26,9 +27,29 @@ export function createAppRouter() {
             return { status: 200 };
         }),
 
+        getChainType: t.procedure.query(async ({ ctx }) => {
+            const rpc = env.RPC_URL
+            if (rpc.includes("localhost")) {
+                return "local";
+            } else if (rpc.includes("devnet")) {
+                return "devnet";
+            } else {
+                return "mainnet";
+            }
+        }),
+
         getSlot: t.procedure.query(async ({ ctx }) => {
             return ctx.pumpService.getSlot();
         }),
+
+        getAirdrop: t.procedure
+            .input(z.object({ address: z.string() }))
+            .mutation(async ({ ctx, input }) => {
+                if (!env.RPC_URL.includes("localhost")) {
+                    throw new Error("Airdrop is not available on this chain");
+                }
+                return ctx.pumpService.sendAirdrop(input.address);
+            }),
 
         getArticleSymbolOptions: t.procedure
             .input(

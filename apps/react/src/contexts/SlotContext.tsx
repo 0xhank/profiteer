@@ -24,7 +24,7 @@ export const SlotProvider = ({ children }: { children: React.ReactNode }) => {
         const interval = setInterval(pollSlot, 1000);
 
         return () => clearInterval(interval);
-    }, [server]);
+    }, []);
 
     return (
         <SlotContext.Provider value={{ slot }}>{children}</SlotContext.Provider>
