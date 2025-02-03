@@ -27,14 +27,14 @@ export const Airdrop = () => {
 
 const AirdropLocal = () => {
     const { getAirdrop } = useServer();
-    const { walletAddress, refreshPortfolio } = usePortfolio();
+    const { wallet, refreshPortfolio } = usePortfolio();
 
     const handleAirdrop = async () => {
-        if (!walletAddress) return;
-        await getAirdrop.mutate({ address: walletAddress });
+        if (!wallet) return;
+        await getAirdrop.mutate({ address: wallet.address });
         await refreshPortfolio();
     };
-    if (!walletAddress) return null;
+    if (!wallet) return null;
     return (
         <button className="btn btn-primary" onClick={handleAirdrop}>
             Airdrop
@@ -43,16 +43,16 @@ const AirdropLocal = () => {
 };
 
 const AirdropDevnet = () => {
-    const { walletAddress } = usePortfolio();
+    const { wallet } = usePortfolio();
 
     const handleAirdrop = async () => {
-        if (!walletAddress) return;
+        if (!wallet) return;
         // Copy wallet address to clipboard
-        await navigator.clipboard.writeText(walletAddress);
+        await navigator.clipboard.writeText(wallet.address);
         window.open("https://faucet.solana.com/", "_blank");
     };
 
-    if (!walletAddress) return null;
+    if (!wallet) return null;
     return (
         <button className="btn btn-primary" onClick={handleAirdrop}>
             Get Devnet SOL
@@ -61,16 +61,16 @@ const AirdropDevnet = () => {
 };
 
 const AirdropMainnet = () => {
-    const { walletAddress, refreshPortfolio } = usePortfolio();
+    const { wallet, refreshPortfolio } = usePortfolio();
     const { fundWallet } = useFundWallet();
 
     const handleAirdrop = async () => {
-        if (!walletAddress) return;
-        await fundWallet(walletAddress);
+        if (!wallet) return;
+        await fundWallet(wallet.address);
         await refreshPortfolio();
     };
 
-    if (!walletAddress) return null;
+    if (!wallet) return null;
     return (
         <button className="btn btn-primary" onClick={handleAirdrop}>
             Fund Wallet

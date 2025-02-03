@@ -7,7 +7,7 @@ import {
     useCallback,
     useMemo,
 } from "react";
-import { ConnectedSolanaWallet, usePrivy, useSolanaWallets } from "@privy-io/react-auth";
+import { ConnectedSolanaWallet, useSolanaWallets } from "@privy-io/react-auth";
 import { useServer } from "../hooks/useServer";
 import { useEmbeddedWallet } from "../hooks/useEmbeddedWallet";
 
@@ -32,7 +32,6 @@ export const PortfolioProvider = ({
 }) => {
     const embeddedWallet = useEmbeddedWallet();
 
-    const { ready } = usePrivy();
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { getSolBalance, getAllTokenBalances } = useServer();
@@ -40,7 +39,7 @@ export const PortfolioProvider = ({
     const [tokenBalances, setTokenBalances] = useState<Record<string, number>>(
         {}
     );
-    const { ready: walletsReady, wallets } = useSolanaWallets();
+    const { wallets } = useSolanaWallets();
 
     const wallet = useMemo(() => {
         if (wallets.length === 0) 
