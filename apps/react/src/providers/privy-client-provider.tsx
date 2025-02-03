@@ -14,11 +14,11 @@ export function PrivyClientProvider({
 }) {
   return (
     <PrivyProvider
-      appId="cl10000000000000000000000"
+      appId="cm6pbbrvi00d1ie7frudjs2pq"
       config={{
         appearance: {
           theme: 'light',
-          accentColor: '#676FFF',
+          accentColor: '#16ff00',
           walletChainType: 'solana-only',
         }, 
         externalWallets: {

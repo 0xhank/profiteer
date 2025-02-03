@@ -3,39 +3,39 @@
 import { useNavigate } from "react-router-dom";
 // import { usePrivy } from "@privy-io/react-auth";
 // import { useSolanaWallets } from "@privy-io/react-auth/solana";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PageLayout } from "../components/common/page-layout";
 import { NewsStories } from "../components/home/news-stories";
 import { TokenList } from "../components/home/token-list";
+import { usePrivy, useSolanaWallets } from "@privy-io/react-auth";
 
 export default function Home() {
-    // const { login, ready, authenticated, user } = usePrivy();
-    // const { createWallet, wallets } = useSolanaWallets();
+    const { ready, authenticated, user } = usePrivy();
+    const { createWallet, wallets } = useSolanaWallets();
 
-    // useEffect(() => {
-    //   const createWalletAndUser = async () => {
-    //     if (
-    //       authenticated &&
-    //       ready &&
-    //       wallets.length === 0 &&
-    //       user?.twitter?.username
-    //     ) {
-    //       try {
-    //         const wallet = await createWallet();
-    //         await createUser(wallet.address, user.twitter.username);
-    //       } catch (error) {
-    //         if (
-    //           !(error instanceof Error) ||
-    //           !error.message.includes("already has")
-    //         ) {
-    //           console.error("Failed to create Solana wallet or user:", error);
-    //         }
-    //       }
-    //     }
-    //   };
+    useEffect(() => {
+      const createWalletAndUser = async () => {
+        if (
+          authenticated &&
+          ready &&
+          wallets.length === 0 &&
+          user?.twitter?.username
+        ) {
+          try {
+            const wallet = await createWallet();
+          } catch (error) {
+            if (
+              !(error instanceof Error) ||
+              !error.message.includes("already has")
+            ) {
+              console.error("Failed to create Solana wallet or user:", error);
+            }
+          }
+        }
+      };
 
-    //   createWalletAndUser();
-    // }, [authenticated, ready, wallets, createWallet, user?.twitter?.username]);
+      createWalletAndUser();
+    }, [authenticated, ready, wallets, createWallet, user?.twitter?.username]);
 
     // const handleCreateToken = async () => {
     //   if (!authenticated) {
