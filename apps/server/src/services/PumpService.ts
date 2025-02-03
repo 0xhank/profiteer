@@ -258,6 +258,18 @@ export const createPumpService = () => {
         }
     };
 
+    const migrate = async (mint: string) => {
+        const mintKp = new PublicKey(mint);
+        const curveSdk = sdk.getCurveSDK(fromWeb3JsPublicKey(mintKp));
+        const txBuilder = curveSdk.migrate();
+        try {
+            const tx = await processTransaction(umi, txBuilder);
+            return tx;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
   
 
     return {
@@ -268,6 +280,7 @@ export const createPumpService = () => {
         unsubscribeFromSlot,
         createBondingCurve,
         swap,
+        migrate,
         getSlot,
     };
 };

@@ -6,6 +6,8 @@ import { CreateBondingCurveInstructionArgs } from "./generated";
 
 export const FEE_RECIPIENT = publicKey("G2MxbSK844rQSzEsNxN7adrBZdtbzyMx7wb5KntfiYhJ");
 export const METEORA_CONFIG = publicKey("FiENCCbPi3rFh5pW2AJ59HC53yM32eLaCjMKxRqanKFJ");
+export const VAULT_PROGRAM_ID = publicKey("24Uqj9JCLxUeoC3hGfh5W3s9FM9uCHDS2SG3LYwBpyTi");
+export const AMM_PROGRAM_ID = publicKey("Eo7WjKq67rjJQSZxS6z3YkapzY3eMj6Xy8X5EQVn5UaB");
 
 export const TOKEN_DECIMALS = 6; // 6 decimals
 export const TOKEN_SUPPLY_AMOUNT = 1_000_000_000 * 10 ** TOKEN_DECIMALS;

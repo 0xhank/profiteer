@@ -113,6 +113,14 @@ export const global = async () => {
     return txHash;
 }
 
+export const createPrograms = () => {
+  const provider = new AnchorProvider(connection, {} as any, AnchorProvider.defaultOptions());
+  const ammProgram = new Program<Amm>(AmmIdl, AMM_PROGRAM_ID, provider);
+  const vaultProgram = new Program<VaultIdl>(VaultIDL, VAULT_PROGRAM_ID, provider);
+
+  return { provider, ammProgram, vaultProgram };
+};
+
 export const migrate = async (mint: string) => {
     const { ammProgram, vaultProgram } = createProgram(provider.connection, null);
     const eventAuthority = PublicKey.findProgramAddressSync([Buffer.from("__event_authority")], new PublicKey(PROGRAM_ID))[0];

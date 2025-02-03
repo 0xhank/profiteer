@@ -29,7 +29,6 @@ export function createAppRouter() {
         getSlot: t.procedure.query(async ({ ctx }) => {
             return ctx.pumpService.getSlot();
         }),
-     
 
         getArticleSymbolOptions: t.procedure
             .input(
@@ -137,6 +136,16 @@ export function createAppRouter() {
             .input(swapInputSchema)
             .mutation(async ({ input, ctx }) => {
                 return ctx.pumpService.swap(input);
+            }),
+
+        migrate: t.procedure
+            .input(
+                z.object({
+                    mint: z.string(),
+                })
+            )
+            .mutation(async ({ input, ctx }) => {
+            return ctx.pumpService.migrate(input.mint);
             }),
     });
 }

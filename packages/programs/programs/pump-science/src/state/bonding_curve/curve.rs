@@ -21,11 +21,11 @@ impl BondingCurve {
 
         let mut sol_fee: u64 = 0;
 
-        if slots_passed < 150 {
-            msg!("Phase 1: 99% fees between slot 0 - 150");
+        if slots_passed < 50 {
+            msg!("Phase 1: 99% fees between slot 0 - 50");
             sol_fee = bps_mul(9900, amount, 10_000).unwrap();
-        } else if slots_passed >= 150 && slots_passed <= 250 {
-            msg!("Phase 2: Linear decrease between 150 - 250");
+        } else if slots_passed >= 50 && slots_passed <= 150 {
+            msg!("Phase 2: Linear decrease between 50 - 150");
 
             // Calculate the minimum fee bps (at slot 250) scaled by 100_000 for precision
             let fee_bps = (-8_300_000_i64)

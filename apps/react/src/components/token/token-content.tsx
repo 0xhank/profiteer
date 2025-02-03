@@ -7,6 +7,7 @@ import TokenCard from "../common/token-card";
 import { LineChart } from "./line-chart";
 import { TokenBalance } from "./token-balance";
 import { useFee } from "../../hooks/useFee";
+import { useServer } from "../../hooks/useServer";
 
 export const TokenContent = ({ mint }: { mint: string }) => {
     const tokenData = useTokenData(mint);
@@ -19,7 +20,7 @@ export const TokenContent = ({ mint }: { mint: string }) => {
         virtual_sol_reserves: number;
     } | null>(null);
     const [complete, setComplete] = useState<boolean | null>(null);
-    console.log({complete})
+    const { migrate } = useServer();
 
 
     useEffect(() => {
@@ -142,7 +143,7 @@ export const TokenContent = ({ mint }: { mint: string }) => {
                 {!complete ? (
                     <TokenTradeForm tokenData={tokenData} onSwap={onSwap} />
                 ) : (
-                    <div>Token is complete. Continue trading on Meteora.</div>
+                    <button className="bg-blue-500 text-white p-2 rounded-md" onClick={() => migrate.mutate({mint: mint})}>Migrate</button>
                 )}
             </div>
         )
