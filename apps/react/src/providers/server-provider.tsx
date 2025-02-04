@@ -6,7 +6,7 @@ export type ServerContextType = ReturnType<typeof createServerClient>;
 
 export const ServerContext = createContext<ServerContextType | null>(null);
 
-const httpUrl = "http://localhost:8888/trpc";
+const httpUrl = import.meta.env.VITE_SERVER_URL + "/trpc";
 // const wsUrl = "ws://localhost:8888/trpc";
 
 export const ServerProvider: React.FC<{ children: React.ReactNode }> = ({
