@@ -16,13 +16,13 @@ export default function TokenCard({
             to={`/wiki/${token.mint}`}
             className={cn(
                 clickable ? "hover:scale-105" : "cursor-default",
-                "card bg-base-200 shadow-sm rounded rounded-sm"
+                "card bg-white shadow-sm rounded rounded-sm"
             )}
         >
-            <div className="card-body p-2 gap-2 flex flex-col items-center text-center text-primary">
-                <h2 className="card-title break-words">
+            <div className="card-body p-2 flex flex-col items-center text-center text-primary">
+                <p className="card-title break-words text-base font-bold">
                     {token.metadata.name.replace(/_/g, " ")}
-                </h2>
+                </p>
                 <p
                     className="text-xs cursor-pointer hover:opacity-70"
                     onClick={(e) => {

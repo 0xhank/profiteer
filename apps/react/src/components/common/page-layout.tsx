@@ -23,7 +23,7 @@ export const PageLayout = ({ children }: PageLayoutProps) => {
         </filter>
       </svg>
       
-      <main className="flex flex-col gap-8 items-center w-full mt-20">
+      <main className="flex flex-col gap-8 items-center w-full mt-8">
         {children}
       </main>
     </div>

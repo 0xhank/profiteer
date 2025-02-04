@@ -12,7 +12,7 @@ export const TokenBalance = ({ token }: TokenBalanceProps) => {
     const mostRecentPrice = tokenData?.priceUsd;
 
     return (
-        <div className="card bg-base-200 w-full p-4 shadow-sm rounded rounded-sm space-y-2">
+        <div className="card bg-white w-full p-4 shadow-sm rounded rounded-sm space-y-2">
             <div className="flex justify-between items-center">
                 <p className="card-title text-primary">YOU OWN</p>
                 <div className="text-right">

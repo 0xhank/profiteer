@@ -33,7 +33,7 @@ h2 {
 .itn-img {
 	padding: 10px;
 	width: fit-content;
-	background-color: var(--color-base-200);
+	background-color: white;
 	min-width: 100px;
 	float: right;
 	margin-left: 0.5rem;
