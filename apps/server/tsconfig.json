@@ -1,18 +1,40 @@
 {
-  "extends": "../../.tsconfigs/bundler/dom/library-monorepo.json",
   "compilerOptions": {
+    /* Base Options: */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "ESNext",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "verbatimModuleSyntax": false,
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    /* If NOT transpiling with TypeScript: */
+    "module": "preserve",
+    "noEmit": false,
+    /* AND if you're building for a library in a monorepo: */
+    "composite": true,
+    "declarationMap": true,
+    /* If your code runs in the DOM: */
+    "lib": ["es2022", "dom", "dom.iterable"],
     "moduleResolution": "bundler",
     "paths": {
       "@/*": ["./src/*"],
       "@bin/*": ["./bin/*"],
       "@core/*": ["../../packages/core/src/*"],
       "@solana/spl-token": ["./node_modules/@solana/spl-token"]
-    }
+    },
+    "rootDir": ".",
+    "outDir": "dist"
   },
   "include": [
     "**/*.ts",
     "src/constants",
-    "../../database.types.ts",
   ],
   "exclude": ["node_modules", "dist"]
 }
+

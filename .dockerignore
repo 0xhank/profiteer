@@ -1,0 +1,7 @@
+**/node_modules
+
+dist
+.env*
+*/.programsBin
+**/.programsBin
+packages/programs/.programsBin

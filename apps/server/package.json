@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "tsx bin/index.ts",
     "dev": "pnpm dev:nodemon",
     "dev:nodemon": "nodemon",
     "build": "tsc"
