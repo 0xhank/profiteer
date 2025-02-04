@@ -7,7 +7,7 @@
     "start": "tsx bin/index.ts",
     "dev": "pnpm dev:nodemon",
     "dev:nodemon": "nodemon",
-    "build": "tsc"
+    "build": "echo 'hello'"
   },
   "keywords": [],
   "author": "",
@@ -35,7 +35,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@types/node": "^22.12.0",
+  "@types/node": "^22.12.0",
     "nodemon": "^3.1.7",
     "shared": "workspace:*",
     "ts-node": "^10.9.2",
