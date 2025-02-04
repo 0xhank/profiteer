@@ -24,12 +24,13 @@ export default function TokenCard({
                     {token.metadata.name.replace(/_/g, " ")}
                 </p>
                 <p
-                    className="text-xs cursor-pointer hover:opacity-70"
-                    onClick={(e) => {
-                        e.preventDefault(); // Prevent link navigation
-                        navigator.clipboard.writeText(token.mint);
-                        alert("Copied to clipboard");
-                    }}
+                    className="text-xs cursor-pointer"
+                    // onClick={(e) => {
+                    //     e.preventDefault(); // Prevent link navigation
+                    //     if (clickable) return;
+                    //     navigator.clipboard.writeText(token.mint);
+                    //     alert("Copied to clipboard");
+                    // }}
                     title="Click to copy"
                 >
                     {token.mint}
