@@ -1,32 +1,31 @@
 FROM node:20-slim as builder
+ENV NODE_ENV=production
 
 # Install pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm tsx
 
 WORKDIR /app
+# Copy root package.json, pnpm-workspace.yaml, and pnpm-lock.yaml
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+
+ENV SB_CONNECTION=$SB_CONNECTION
+ENV SB_URL=$SB_URL
+ENV SB_SERVICE_KEY=$SB_SERVICE_KEY
+ENV RPC_URL=$RPC_URL
+ENV DEEPINFRA_API_KEY=$DEEPINFRA_API_KEY
+ENV ADMIN_PRIVATE_KEY=$ADMIN_PRIVATE_KEY
 
 # Copy workspace files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages ./packages
 COPY apps/server ./apps/server
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN NODE_ENV=production pnpm install --frozen-lockfile --no-scripts --production
 
-# Build the app
-RUN pnpm -F server build
+WORKDIR /app/apps/server
 
-FROM node:20-slim
-
-WORKDIR /app
-
-# Copy only necessary files
-COPY --from=builder /app/apps/server/dist ./dist
-COPY --from=builder /app/apps/server/package.json ./
-COPY --from=builder /app/node_modules ./node_modules
+CMD ["pnpm", "start"]
 
 # Expose port
 EXPOSE 8888
 
-# Start the server
-CMD ["node", "dist/bin/index.js"]

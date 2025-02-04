@@ -1,6 +1,7 @@
-packages/programs/.programsBin
-packages/programs/programsBin
-**/programsBin 
-node_modules
+**/node_modules
+
 dist
-.env 
+.env*
+*/.programsBin
+**/.programsBin
+packages/programs/.programsBin
