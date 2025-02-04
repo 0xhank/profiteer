@@ -1,6 +1,6 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { config } from "dotenv";
-import { Database } from "../../../database.types";
+import { Database } from "./database.types";
 import env from "../bin/env";
 
 // Initialize Supabase client

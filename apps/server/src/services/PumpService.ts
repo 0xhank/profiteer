@@ -379,6 +379,7 @@ export const createPumpService = () => {
             const txId = await connection.sendTransaction(transaction);
             const events = await getTxEventsFromTxBuilderResponse(
                 connection,
+                // @ts-ignore TODO: fix this
                 program,
                 txId
             );

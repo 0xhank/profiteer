@@ -6,7 +6,7 @@ import { findAssociatedTokenPda, setComputeUnitLimit, SPL_ASSOCIATED_TOKEN_PROGR
 import { createSignerFromKeypair, Keypair, Pda, PublicKey, RpcGetAccountOptions, Signer, TransactionBuilder, Umi } from "@metaplex-foundation/umi";
 import { fromWeb3JsInstruction, fromWeb3JsPublicKey, toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
 import { publicKey as publicKeySerializer, string } from '@metaplex-foundation/umi/serializers';
-import { deriveLockEscrowPda, getOrCreateATAInstruction } from "@meteora-ag/stake-for-fee";
+import { getOrCreateATAInstruction } from "@meteora-ag/stake-for-fee";
 import { getAssociatedTokenAddressSync, NATIVE_MINT } from "@solana/spl-token";
 import { SYSVAR_CLOCK_PUBKEY, SYSVAR_RENT_PUBKEY, TransactionInstruction, PublicKey as Web3PublicKey } from "@solana/web3.js";
 import {
@@ -135,13 +135,13 @@ export class CurveSDK {
         const meteoraProgram = new Program<Amm>(AmmIdl, AMM_PROGRAM_ID, this.PumpScience.provider);
         let preTxBuilder = new TransactionBuilder();
 
-        const global = this.PumpScience.globalPda[0];
-        const bondingCurve = this.bondingCurvePda[0];
-        const feeReceiver = FEE_RECIPIENT;
-        const feeReceiverTokenAccount = this.getUserTokenAccount(FEE_RECIPIENT)[0];
+        // const global = this.PumpScience.globalPda[0];
+        // const bondingCurve = this.bondingCurvePda[0];
+        // const feeReceiver = FEE_RECIPIENT;
+        // const feeReceiverTokenAccount = this.getUserTokenAccount(FEE_RECIPIENT)[0];
         const poolPubkey = this.bondingCurvePda[0];
         const poolPubkeyWeb3 = toWeb3JsPublicKey(poolPubkey);
-        const config = this.PumpScience.globalPda[0];
+        // const config = this.PumpScience.globalPda[0];
         const bondingCurveSolEscrow = this.bondingCurveSolEscrow[0];
 
         const protocolTokenAFee = this.getUserTokenAccount(FEE_RECIPIENT)[0];
@@ -196,7 +196,7 @@ export class CurveSDK {
     const [aVaultLp] =   Web3PublicKey.findProgramAddressSync([aVault.toBuffer(), poolPubkeyWeb3.toBuffer()], meteoraProgram.programId)
     const [bVaultLp] = Web3PublicKey.findProgramAddressSync([bVault.toBuffer(), poolPubkeyWeb3.toBuffer()], meteoraProgram.programId)
 
-    const [{ataPubKey: payerTokenA, ix: payerTokenAIx}, {ataPubKey: payerTokenB, ix: payerTokenBIx}, {ataPubKey: feeReceiverToken, ix: feeReceiverTokenIx}] = await Promise.all([
+    const [{ataPubKey: payerTokenA, ix: payerTokenAIx}, {ataPubKey: payerTokenB, ix: payerTokenBIx}, {ix: feeReceiverTokenIx}] = await Promise.all([
         getOrCreateATAInstruction(this.PumpScience.provider.connection, tokenAMint, toWeb3JsPublicKey(this.payer)),
         getOrCreateATAInstruction(this.PumpScience.provider.connection, tokenBMint, toWeb3JsPublicKey(this.payer)),
         getOrCreateATAInstruction(this.PumpScience.provider.connection, tokenBMint, toWeb3JsPublicKey(FEE_RECIPIENT)),
@@ -251,7 +251,7 @@ export class CurveSDK {
 
         let txBuilder = new TransactionBuilder().append(createPoolIx)
 
-        const [lockEscrowPK] = deriveLockEscrowPda(toWeb3JsPublicKey(this.bondingCurvePda[0]), toWeb3JsPublicKey(FEE_RECIPIENT), toWeb3JsPublicKey(AMM_PROGRAM_ID));
+        // const [lockEscrowPK] = deriveLockEscrowPda(toWeb3JsPublicKey(this.bondingCurvePda[0]), toWeb3JsPublicKey(FEE_RECIPIENT), toWeb3JsPublicKey(AMM_PROGRAM_ID));
         // const lockPoolIx = lockPool(this.PumpScience.umi, {
         //     global: this.PumpScience.globalPda[0],
         //     bondingCurve: this.bondingCurvePda[0],

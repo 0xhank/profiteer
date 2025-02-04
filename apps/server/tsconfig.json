@@ -7,12 +7,13 @@
       "@bin/*": ["./bin/*"],
       "@core/*": ["../../packages/core/src/*"],
       "@solana/spl-token": ["./node_modules/@solana/spl-token"]
-    }
+    },
+    "rootDir": ".",
+    "outDir": "dist"
   },
   "include": [
     "**/*.ts",
     "src/constants",
-    "../../database.types.ts",
   ],
   "exclude": ["node_modules", "dist"]
 }

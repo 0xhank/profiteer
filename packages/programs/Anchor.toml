@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-pump_science = "3f8czWoabRYKVvqeGfM1uKNj5rC7Dudpi8R3TkP1fGQQ"
+pump_science = "HHst35aSCp2ZNpAi3pwogbtBo5k6bgazL9UbUoBhjisX"
 
 [registry]
 url = "https://api.apr.dev"

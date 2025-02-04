@@ -27,10 +27,13 @@ import {
 import { confirmTransaction, processTransaction } from "../src/confirmTx";
 import idl from "../src/idls/pump_science.json";
 
+
 const privateKeyUrl = path.resolve(__dirname, "../../../pump_test.json");
 const loadProviders = () => {
   // convert the private key to a string
-  const rpcUrl = "http://127.0.0.1:8899";
+  const rpcUrl = "https://cosmological-wild-dew.solana-devnet.quiknode.pro/5c3ba882408038ec82100344e3c50147ace8fd51/";
+  // const rpcUrl = "http://localhost:8899";
+
   const web3jsKp = Web3JsKeypair.fromSecretKey(
     Uint8Array.from(require(privateKeyUrl))
   );
@@ -48,6 +51,7 @@ const loadProviders = () => {
     provider
   );
   const masterKp = fromWeb3JsKeypair(web3jsKp);
+  console.log("masterKp", masterKp.publicKey);
 
   const umi = createUmi(rpcUrl);
   return {
@@ -66,31 +70,32 @@ describe("pump tests", () => {
   let umi: Umi;
   let sdk: PumpScienceSDK;
   let masterKp: Keypair;
-  let web3jsKp: Web3JsKeypair;
   let connection: Connection;
   let program: Program<PumpScience>;
 
   beforeAll(async () => {
     const {
       masterKp: preMasterKp,
-      web3jsKp: preWeb3jsKp,
       umi: preumi,
       connection: preConnection,
       program: preProgram,
+      rpcUrl,
+      provider,
     } = loadProviders();
 
     masterKp = preMasterKp;
-    web3jsKp = preWeb3jsKp;
     connection = preConnection;
     program = preProgram;
     umi = preumi.use(keypairIdentity(masterKp));
-    sdk = new PumpScienceSDK(umi);
-    const tx = await preConnection.requestAirdrop(
-      web3jsKp.publicKey,
-      100 * LAMPORTS_PER_SOL
-    );
-    await confirmTransaction(preConnection, tx);
-    console.log("Airdropped SOL to master keypair");
+    sdk = new PumpScienceSDK(provider,masterKp);
+    if (rpcUrl.includes("localhost")) {
+      const tx = await preConnection.requestAirdrop(
+        toWeb3JsPublicKey(masterKp.publicKey),
+        100 * LAMPORTS_PER_SOL
+      );
+      await confirmTransaction(preConnection, tx);
+      console.log("Airdropped SOL to master keypair");
+    }
 
 
   });
@@ -134,14 +139,18 @@ describe("pump tests", () => {
     });
   });
 
+  let mintKp: Keypair;
   describe("create pool", () => {
-    const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
+    beforeAll(async () => {
+      mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
+    });
     it("creates a pool", async () => {
       const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
 
 
       const txBuilder = curveSdk.createBondingCurve(
         SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
+        masterKp.publicKey,
         mintKp,
         false
       );
@@ -152,7 +161,7 @@ describe("pump tests", () => {
         commitment: "confirmed",
       });
 
-      const events = await getTxEventsFromTxBuilderResponse(connection, program, txRes);
+      const events = await getTxEventsFromTxBuilderResponse(connection, program, txRes.signatureBs58);
       console.log("events", events);
 
       expect(Number(poolData.virtualSolReserves)).toBe(
@@ -173,11 +182,11 @@ describe("pump tests", () => {
     });
   });
 
-  it.skip("swap: buy", async () => {
-    const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
+  it("swap: buy", async () => {
     const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
     const curveTxBuilder = curveSdk.createBondingCurve(
       SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
+      masterKp.publicKey,
       mintKp,
       false
     );
@@ -203,16 +212,15 @@ describe("pump tests", () => {
     ).startSlot;
     // should use actual fee set on global when live
 
-    const { feeBps, solAmountWithFee } = getSolAmountWithFee(
+    const { solAmountWithFee } = getSolAmountWithFee(
       solAmount,
       currentSlot,
       Number(startSlot)
     );
-    let buyResult = amm.applyBuy(minBuyTokenAmount);
-    console.log({ feeBps, solAmount, solAmountWithFee, buyResult });
 
     const txBuilder = curveSdk.swap({
       direction: "buy",
+      user: masterKp.publicKey,
       exactInAmount: solAmountWithFee,
       minOutAmount: (minBuyTokenAmount * 975n) / 1000n,
     });

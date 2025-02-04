@@ -47,7 +47,9 @@ export class PumpScienceSDK {
     }
 
     async fetchGlobalData() {
-        return fetchGlobal(this.umi, this.globalPda);
+        return fetchGlobal(this.umi, this.globalPda, {
+            commitment: "confirmed",
+        });
     }
 
     getAdminSDK() {
