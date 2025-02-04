@@ -43,7 +43,6 @@ export const SolPriceProvider = ({
                 if (error) {
                     throw error;
                 }
-                console.log("data ===>>>", data);
                 setPriceUSD(data[0].price_usd);
             } catch {
                 setError("Error getting initial value");

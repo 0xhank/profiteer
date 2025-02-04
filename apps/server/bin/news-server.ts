@@ -2,11 +2,14 @@
 import { createPumpService } from "@/services/PumpService";
 import { WikiService } from "@/services/WikiService";
 import fastifyWebsocket from "@fastify/websocket";
-import { CreateFastifyContextOptions, fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
+import {
+    CreateFastifyContextOptions,
+    fastifyTRPCPlugin,
+} from "@trpc/server/adapters/fastify";
+import fastify from "fastify";
 import { IncomingMessage } from "http";
 import { AppRouter, createAppRouter } from "../src/createAppRouter";
-import env, { parseEnv } from "./env";
-import fastify from "fastify";
+import { parseEnv } from "./env";
 
 // @see https://fastify.dev/docs/latest/
 export const server = fastify({
@@ -29,17 +32,31 @@ const getBearerToken = (req: IncomingMessage) => {
 };
 
 export function createContext({ req, res }: CreateFastifyContextOptions) {
-  const user = { name: req.headers.username ?? 'anonymous' };
-  return { req, res, user };
+    const user = { name: req.headers.username ?? "anonymous" };
+    return { req, res, user };
 }
 
 export const start = async () => {
-  console.log("starting")
+    console.log("starting");
 
     try {
         await server.register(fastifyWebsocket);
         await server.register(import("@fastify/compress"));
-        await server.register(import("@fastify/cors"));
+        await server.register(import("@fastify/cors"), {
+            origin: [
+                "*"
+            ],
+            credentials: true,
+            methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+            allowedHeaders: [
+                "Origin",
+                "X-Requested-With",
+                "Content-Type",
+                "Accept",
+                "Authorization",
+                "ngrok-skip-browser-warning",
+            ],
+        });
 
         const pumpService = createPumpService();
         const wikiService = WikiService();
