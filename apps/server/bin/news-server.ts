@@ -5,7 +5,7 @@ import fastifyWebsocket from "@fastify/websocket";
 import { CreateFastifyContextOptions, fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
 import { IncomingMessage } from "http";
 import { AppRouter, createAppRouter } from "../src/createAppRouter";
-import env from "./env";
+import env, { parseEnv } from "./env";
 import fastify from "fastify";
 
 // @see https://fastify.dev/docs/latest/
@@ -44,6 +44,7 @@ export const start = async () => {
         const pumpService = createPumpService();
         const wikiService = WikiService();
         const router = createAppRouter();
+        const env = parseEnv();
 
         // Single TRPC registration that handles both HTTP and WebSocket
         await server.register(fastifyTRPCPlugin<AppRouter>, {
@@ -54,6 +55,7 @@ export const start = async () => {
                     jwtToken: getBearerToken(opt.req.raw) ?? "",
                     pumpService,
                     wikiService,
+                    env,
                 }),
             },
         });
