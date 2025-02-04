@@ -2,7 +2,7 @@ import { Program } from "@coral-xyz/anchor";
 import { Amm, AmmIdl, VaultIdl } from "@mercurial-finance/dynamic-amm-sdk";
 import VaultImpl, { getVaultPdas, VaultIdl as VaultIdlType } from "@mercurial-finance/vault-sdk";
 import { SEEDS } from "@mercurial-finance/vault-sdk/dist/cjs/src/vault/constants";
-import { findAssociatedTokenPda, setComputeUnitLimit, SPL_ASSOCIATED_TOKEN_PROGRAM_ID } from "@metaplex-foundation/mpl-toolbox";
+import { createLut, findAssociatedTokenPda, setComputeUnitLimit, SPL_ASSOCIATED_TOKEN_PROGRAM_ID } from "@metaplex-foundation/mpl-toolbox";
 import { createSignerFromKeypair, Keypair, Pda, PublicKey, RpcGetAccountOptions, Signer, TransactionBuilder, Umi } from "@metaplex-foundation/umi";
 import { fromWeb3JsInstruction, fromWeb3JsPublicKey, toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
 import { publicKey as publicKeySerializer, string } from '@metaplex-foundation/umi/serializers';
@@ -94,7 +94,7 @@ export class CurveSDK {
         return txBuilder;
     }
 
-    createBondingCurve(params: CreateBondingCurveInstructionDataArgs, user: PublicKey, mintKp: Keypair, whitelist: boolean) {
+    async createBondingCurve(params: CreateBondingCurveInstructionDataArgs, user: PublicKey, mintKp: Keypair, whitelist: boolean) {
         if (mintKp.publicKey.toString() !== this.mint.toString()) {
             throw new Error("wrong mintKp provided");
         }
@@ -102,8 +102,27 @@ export class CurveSDK {
         console.log("user ===>>>", user);
         console.log("identity ===>>>", this.umi.identity.publicKey);
 
-        // Combine all instructions
+        // Create lookup table builder
+        const slot = await this.umi.rpc.getSlot();
+        const [lutBuilder, lutAddress] = createLut(this.umi, {
+            recentSlot: slot,
+            authority: this.umi.identity,
+
+            addresses: [
+                this.PumpScience.globalPda[0],
+                this.bondingCurvePda[0],
+                this.bondingCurveTokenAccount[0],
+                this.bondingCurveSolEscrow[0],
+                this.mintMetaPda[0],
+                this.whitelistPda[0],
+                SPL_ASSOCIATED_TOKEN_PROGRAM_ID,
+                // Add any other frequently used addresses
+            ],
+        });
+              // Combine all instructions
         return new TransactionBuilder()
+            .setAddressLookupTables([lutAddress])
+            .add(lutBuilder)
             .add(setComputeUnitLimit(this.umi, { units: 600_000 }))
             .add(createBondingCurve(this.umi, {
                 global: this.PumpScience.globalPda[0],
@@ -117,7 +136,8 @@ export class CurveSDK {
                 associatedTokenProgram: SPL_ASSOCIATED_TOKEN_PROGRAM_ID,
                 ...params,
                 whitelist: whitelist ? this.whitelistPda[0] : undefined
-            }));
+            }))
+            ;
     }
 
     getUserTokenAccount(user: PublicKey) {

@@ -148,7 +148,7 @@ describe("pump tests", () => {
       const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
 
 
-      const txBuilder = curveSdk.createBondingCurve(
+      const txBuilder = await curveSdk.createBondingCurve(
         SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
         masterKp.publicKey,
         mintKp,
@@ -184,7 +184,7 @@ describe("pump tests", () => {
 
   it("swap: buy", async () => {
     const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
-    const curveTxBuilder = curveSdk.createBondingCurve(
+    const curveTxBuilder = await curveSdk.createBondingCurve(
       SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
       masterKp.publicKey,
       mintKp,

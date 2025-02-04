@@ -92,7 +92,7 @@ importers:
         version: 9.2.2
       prettier:
         specifier: ^2.6.2
-        version: 2.8.8
+        version: 3.4.2
       solana-bankrun:
         specifier: ^0.3.0
         version: 0.3.1(bufferutil@4.0.8)(utf-8-validate@5.0.10)
@@ -1335,11 +1335,6 @@ packages:
   possible-typed-array-names@1.0.0:
     resolution: {integrity: sha512-d7Uw+eZoloe0EHDIYoe+bQ5WXnGMOpmiZFTuMWCwpjzzkL2nTjcKiAk4hh8TjnGye2TwWOk3UXucZ+3rbmBa8Q==}
     engines: {node: '>= 0.4'}
-
-  prettier@2.8.8:
-    resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
-    engines: {node: '>=10.13.0'}
-    hasBin: true
 
   prettier@3.4.2:
     resolution: {integrity: sha512-e9MewbtFo+Fevyuxn/4rrcDAaq0IYxPGLvObpQjiZBMAzB9IGmzlnG9RZy3FFas+eBMu2vA0CszMeduow5dIuQ==}
@@ -3202,8 +3197,6 @@ snapshots:
       selective-whitespace: 1.0.4
 
   possible-typed-array-names@1.0.0: {}
-
-  prettier@2.8.8: {}
 
   prettier@3.4.2: {}
 

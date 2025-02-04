@@ -84,6 +84,7 @@ pub struct CreateBondingCurve<'info> {
 }
 
 impl<'info> IntoBondingCurveLockerCtx<'info> for CreateBondingCurve<'info> {
+    #[inline(never)]
     fn into_bonding_curve_locker_ctx(
         &self,
         bonding_curve_bump: u8,
@@ -100,6 +101,7 @@ impl<'info> IntoBondingCurveLockerCtx<'info> for CreateBondingCurve<'info> {
     }
 }
 impl CreateBondingCurve<'_> {
+    #[inline(never)]
     pub fn validate(&self, params: &CreateBondingCurveParams) -> Result<()> {
         let clock = Clock::get()?;
         // validate start time
@@ -128,11 +130,12 @@ impl CreateBondingCurve<'_> {
         Ok(())
     }
 
+    #[inline(never)]
     pub fn handler(
         ctx: Context<CreateBondingCurve>,
         params: CreateBondingCurveParams,
     ) -> Result<()> {
-        let clock = Clock::get()?;
+        let clock = Box::new(Clock::get()?);
         ctx.accounts.bonding_curve.update_from_params(
             ctx.accounts.mint.key(),
             ctx.accounts.creator.key(),
@@ -143,11 +146,9 @@ impl CreateBondingCurve<'_> {
         );
         msg!("CreateBondingCurve::update_from_params: created bonding_curve");
 
-        let mint_k = ctx.accounts.mint.key();
-        let mint_authority_signer = BondingCurve::get_signer(&ctx.bumps.bonding_curve, &mint_k);
+        let mint = ctx.accounts.mint.key();
+        let mint_authority_signer = BondingCurve::get_signer(&ctx.bumps.bonding_curve, &mint);
         let mint_auth_signer_seeds = &[&mint_authority_signer[..]];
-        let mint_authority_info = ctx.accounts.bonding_curve.to_account_info();
-        let mint_info = ctx.accounts.mint.to_account_info();
 
         // Create Token Metadata
         ctx.accounts
@@ -158,9 +159,9 @@ impl CreateBondingCurve<'_> {
             CpiContext::new_with_signer(
                 ctx.accounts.token_program.to_account_info(),
                 MintTo {
-                    authority: mint_authority_info.clone(),
+                    authority: ctx.accounts.bonding_curve.to_account_info().clone(),
                     to: ctx.accounts.bonding_curve_token_account.to_account_info(),
-                    mint: mint_info.clone(),
+                    mint: ctx.accounts.mint.to_account_info().clone(),
                 },
                 mint_auth_signer_seeds,
             ),
@@ -192,6 +193,7 @@ impl CreateBondingCurve<'_> {
         Ok(())
     }
 
+    #[inline(never)]
     pub fn intialize_meta(
         &mut self,
         mint_auth_signer_seeds: &[&[&[u8]]; 1],

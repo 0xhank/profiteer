@@ -41,7 +41,7 @@ export function addWl(
                         input: AddWlInstructionAccounts & AddWlInstructionArgs,
       ): TransactionBuilder {
   // Program ID.
-  const programId = context.programs.getPublicKey('pumpScience', '3f8czWoabRYKVvqeGfM1uKNj5rC7Dudpi8R3TkP1fGQQ');
+  const programId = context.programs.getPublicKey('pumpScience', 'AKsYAeh8GeE2dvhfiPGURaNzC7SEDkNgmbrcDkmf4Qsz');
 
   // Accounts.
   const resolvedAccounts = {

@@ -20,7 +20,8 @@
     "validator:logs": "CI=1 amman logs",
     "validator:stop": "amman stop",
     "test:bankrun": "pnpm ts-mocha -p ./tsconfig.json -t 1000000 ./tests/bankrun.ts",
-    "script": "export ANCHOR_WALLET=./pump_key.json && ts-node ./cli/command.ts"
+    "script": "export ANCHOR_WALLET=./pump_key.json && ts-node ./cli/command.ts",
+    "init:js": "tsx ./clients/js/src/scripts/init.ts"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.29.0",

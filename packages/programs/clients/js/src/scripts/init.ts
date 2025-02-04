@@ -1,7 +1,7 @@
-import { INIT_DEFAULTS } from "src/constants";
+import { INIT_DEFAULTS } from "../../src/constants";
 import * as anchor from "@coral-xyz/anchor";
-import idl from "../idls/pump_science.json";
-import { processTransaction } from "src/confirmTx";
+import idl from "../../src/idls/pump_science.json";
+import { processTransaction } from "../../src/confirmTx";
 import { PumpScienceSDK } from "../sdk/pump-science";
 import dotenv from "dotenv";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
@@ -10,23 +10,22 @@ import { Program } from "@coral-xyz/anchor";
 import { Wallet } from "@coral-xyz/anchor";
 import { Connection } from "@solana/web3.js";
 import { toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
-import { PUMP_SCIENCE_PROGRAM_ID } from "src/generated";
-import { PumpScience } from "src/idls/pump_science";
+import { PUMP_SCIENCE_PROGRAM_ID } from "../../src/generated";
+import { PumpScience } from "../../src/idls/pump_science";
 import { Keypair as Web3JsKeypair } from "@solana/web3.js";
 import path from "path";
 import { keypairIdentity } from "@metaplex-foundation/umi";
 
-dotenv.config({ path: "../../../../../../.env" });
 
 const privateKeyUrl = path.resolve(
-  process.env.HOME || "~",
-  ".config/solana/id.json"
+  __dirname,
+  "../../../../pump_test.json"
 );
 
 const loadProviders = () => {
   // convert the private key to a string
 
-    const rpcUrl = process.env.RPC_URL;
+  const rpcUrl = "https://cosmological-wild-dew.solana-devnet.quiknode.pro/5c3ba882408038ec82100344e3c50147ace8fd51"
     console.log({rpcUrl, privateKeyUrl});
     if (!rpcUrl) {
         throw new Error("RPC_URL is not set");
@@ -75,6 +74,7 @@ export const initProtocol = async () => {
       try {
         global = await adminSdk.PumpScience.fetchGlobalData();
         console.log("global already initialized");
+        console.log(global);
       } catch (error) {
         const txBuilder = adminSdk.initialize(INIT_DEFAULTS);
         await processTransaction(umi, txBuilder);
