@@ -1,17 +1,16 @@
 import { initTRPC } from "@trpc/server";
-import { observable } from "@trpc/server/observable";
 import { Token } from "shared/src/types/token";
 import { z } from "zod";
-import supabase from "./sbClient";
 import { PumpService } from "./services/PumpService";
 import { WikiService } from "./services/WikiService";
 import { createBondingCurveInputSchema, swapInputSchema } from "./types";
-import env from "../bin/env";
+import { Env } from "@bin/envSchema";
 
 export type AppContext = {
     pumpService: PumpService;
     jwtToken: string;
     wikiService: WikiService;
+    env: Env;
 };
 
 // Initialize Supabase client
@@ -28,7 +27,7 @@ export function createAppRouter() {
         }),
 
         getChainType: t.procedure.query(async ({ ctx }) => {
-            const rpc = env.RPC_URL
+            const rpc = ctx.env.RPC_URL
             if (rpc.includes("localhost")) {
                 return "local";
             } else if (rpc.includes("devnet")) {
@@ -45,7 +44,7 @@ export function createAppRouter() {
         getAirdrop: t.procedure
             .input(z.object({ address: z.string() }))
             .mutation(async ({ ctx, input }) => {
-                if (!env.RPC_URL.includes("localhost")) {
+                if (!ctx.env.RPC_URL.includes("localhost")) {
                     throw new Error("Airdrop is not available on this chain");
                 }
                 return ctx.pumpService.sendAirdrop(input.address);
@@ -86,66 +85,7 @@ export function createAppRouter() {
                 return ctx.pumpService.getAllUserTokenBalances(input.address);
             }),
 
-        /**
-         * Fetches all users from the database
-         * @returns Array of user objects
-         */
-        getTokens: t.procedure.query(async (): Promise<Token[]> => {
-            const { data, error } = await supabase
-                .from("token_metadata")
-                .select("*");
-
-            if (error) {
-                throw new Error(`Failed to fetch tokens: ${error.message}`);
-            }
-            if (data.length === 0) {
-                return [];
-            }
-            return data.map((token) => ({
-                mint: token.mint,
-                createdAt: token.created_at,
-                priceUsd: 0,
-                metadata: {
-                    name: token.name,
-                    symbol: token.symbol,
-                    imageUri: token.uri,
-                    startSlot: token.start_slot,
-                    supply: token.supply / 1e5,
-                    decimals: 6,
-                },
-            }));
-        }),
-
-        getTokenByMint: t.procedure
-            .input(z.object({ tokenMint: z.string() }))
-            .query(async ({ input }): Promise<Token | null> => {
-                const { data, error } = await supabase
-                    .from("token_metadata")
-                    .select("*")
-                    .eq("mint", input.tokenMint);
-
-                if (error) {
-                    return null;
-                }
-                const rawToken = data[0];
-                if (!rawToken) {
-                    return null;
-                }
-                return {
-                    ...rawToken,
-                    createdAt: rawToken.created_at,
-                    priceUsd: 0,
-                    metadata: {
-                        name: rawToken.name,
-                        symbol: rawToken.symbol,
-                        imageUri: rawToken.uri,
-                        startSlot: rawToken.start_slot,
-                        supply: rawToken.supply / 1e5,
-                        decimals: 6,
-                    },
-                    complete: rawToken.complete ?? undefined,
-                };
-            }),
+           
 
         createBondingCurveTx: t.procedure
             .input(createBondingCurveInputSchema)
