@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { useServer } from "../../hooks/useServer";
+import { VersionedTransaction } from "@solana/web3.js";
 
 export const CreateToken = ({
     articleName,
@@ -132,21 +133,22 @@ const CreateTokenButton = (props: {
     const { wallet } = usePortfolio();
 
     const onSendTransaction = async () => {
+        console.log("onSendTransaction", wallet);
         if (!wallet) {
             return;
         }
         try {
-            const {txMessage} = await createBondingCurveTx.mutate({
+            const {txMessage, txId} = await createBondingCurveTx.mutate({
                 ...props,
                 userPublicKey: wallet.address,
             });
-            const txMessageUint8Array = base64ToUint8Array(txMessage);
-            const signature = await wallet.signMessage(txMessageUint8Array);
+            const serializedTx = Buffer.from(txMessage, "base64");
+            const tx = VersionedTransaction.deserialize(serializedTx);
+            const signedTx = await wallet.signTransaction(tx);
 
             await sendCreateBondingCurveTx.mutate({
-                userPublicKey: wallet.address,
-                txMessage: txMessage,
-                signature: uint8ArrayToBase64(signature),
+                txId,
+                txMessage: uint8ArrayToBase64(signedTx.serialize()),
             });
 
             props.refresh();
@@ -171,9 +173,4 @@ const uint8ArrayToBase64 = (uint8Array: Uint8Array): string => {
     return btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
 };
 
-const base64ToUint8Array = (base64: string): Uint8Array => {
-    const binaryString = atob(base64);
-    return new Uint8Array(
-        binaryString.split("").map((char) => char.charCodeAt(0))
-    );
-};
+

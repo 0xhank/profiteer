@@ -69,7 +69,7 @@ export class CurveSDK {
         return fetchBondingCurve(this.umi, this.bondingCurvePda[0], options);
     }
 
-    swap(params: {
+    async swap(params: {
         direction: "buy" | "sell",
         user: PublicKey,
     } & Pick<SwapInstructionArgs, "exactInAmount" | "minOutAmount">) {
@@ -92,7 +92,17 @@ export class CurveSDK {
             associatedTokenProgram: SPL_ASSOCIATED_TOKEN_PROGRAM_ID,
             ...this.PumpScience.evtAuthAccs,
         }));
-        return txBuilder;
+        const blockhash = await this.PumpScience.provider.connection.getLatestBlockhash();
+        const instructions = txBuilder.getInstructions().map(ix => toWeb3JsInstruction(ix))
+
+            const message = new TransactionMessage({
+                payerKey: toWeb3JsPublicKey(params.user),
+                recentBlockhash: blockhash.blockhash,
+                instructions: [...instructions],
+            }).compileToV0Message();
+
+        const tx = new VersionedTransaction(message);
+        return tx;
     }
 
     async createMint(user: PublicKey, mintKp: Keypair) {
@@ -143,6 +153,7 @@ export class CurveSDK {
             const blockhash = await this.PumpScience.provider.connection.getLatestBlockhash();
             const instructions = createBondingCurveBuilder.getInstructions().map(ix => toWeb3JsInstruction(ix))
 
+            console.log("payer and user:", user)
             const message = new TransactionMessage({
                 payerKey: toWeb3JsPublicKey(user),
                 recentBlockhash: blockhash.blockhash,
