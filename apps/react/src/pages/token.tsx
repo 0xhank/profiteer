@@ -60,6 +60,7 @@ export default function Token() {
             }
         };
         const id = params.id;
+        console.log("id", id);
         if (!id) {
             navigate("/404");
             return;
