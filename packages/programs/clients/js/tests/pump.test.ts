@@ -196,8 +196,8 @@ describe("pump tests", () => {
     );
     // Initialize feeReceiver's Solana ATA
 
-    const tx = await connection.sendTransaction(curveTxBuilder);
-    await confirmTransaction(connection, tx);
+    const createTx = await connection.sendTransaction(curveTxBuilder);
+    await confirmTransaction(connection, createTx);
 
     const bondingCurveData = await curveSdk.fetchData({
       commitment: "confirmed",
@@ -223,14 +223,15 @@ describe("pump tests", () => {
       Number(startSlot)
     );
 
-    const txBuilder = curveSdk.swap({
+    const tx = curveSdk.swap({
       direction: "buy",
       user: masterKp.publicKey,
       exactInAmount: solAmountWithFee,
       minOutAmount: (minBuyTokenAmount * 975n) / 1000n,
     });
 
-    const txRes = await processTransaction(umi, txBuilder);
+
+    const txRes = await connection.sendTransaction(tx);
     const signatureBs58 = bs58.encode(txRes.signature);
 
     await confirmTransaction(connection, signatureBs58);

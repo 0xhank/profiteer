@@ -107,6 +107,24 @@ export type Database = {
           },
         ]
       }
+      slot: {
+        Row: {
+          created_at: string
+          id: number
+          slot: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          slot: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          slot?: number
+        }
+        Relationships: []
+      }
       sol_price_usd: {
         Row: {
           created_at: string

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useServer } from "../../hooks/useServer";
 import { cn } from "../../utils/cn";
+import { useSlot } from "../../hooks/useSlot";
 
 export default function ServerStatus() {
     const [serverStatus, setServerStatus] = useState<{
@@ -8,6 +9,7 @@ export default function ServerStatus() {
         color: string;
     }>({ status: "Unknown", color: "grey" });
     const server = useServer();
+    const { slot } = useSlot();
 
     useEffect(() => {
         getServerStatus();
@@ -38,6 +40,8 @@ export default function ServerStatus() {
             )}
         >
             Server {serverStatus.status}
+            <br />
+            Slot {slot}
         </div>
     );
 }

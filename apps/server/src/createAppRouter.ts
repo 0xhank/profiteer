@@ -37,10 +37,6 @@ export function createAppRouter() {
             }
         }),
 
-        getSlot: t.procedure.query(async ({ ctx }) => {
-            return ctx.pumpService.getSlot();
-        }),
-
         getAirdrop: t.procedure
             .input(z.object({ address: z.string() }))
             .mutation(async ({ ctx, input }) => {
