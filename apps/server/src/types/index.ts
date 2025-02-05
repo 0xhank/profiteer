@@ -5,7 +5,6 @@ export const createBondingCurveInputSchema = z.object({
     userPublicKey: z.string(),
     name: z.string(),
     symbol: z.string(),
-    description: z.string(),
     uri: z.string(),
 });
 

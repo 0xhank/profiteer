@@ -181,14 +181,13 @@ export const createPumpService = () => {
             kp: mintKp,
             createdAt: Date.now(),
             name: input.name,
-            description: input.description,
         });
         return returnObject;
     };
 
     const mintKpRegistry = new Map<
         string,
-        { kp: Keypair; createdAt: number; name: string; description: string }
+        { kp: Keypair; createdAt: number; name: string }
     >();
 
     const sendCreateBondingCurveTx = async ({
@@ -206,7 +205,7 @@ export const createPumpService = () => {
                 throw new Error("Mint Kp not found");
             }
             const txMessage = Buffer.from(txInput, "base64");
-            const { kp, name, description } = entry;
+            const { kp, name } = entry;
             const pubKey = new PublicKey(userPublicKey);
             console.log("pubKey ===>>>", pubKey);
             // Convert base64 signature to Uint8Array first
@@ -242,7 +241,6 @@ export const createPumpService = () => {
                     mint: createEvent.mint.toBase58(),
                     creator: createEvent.creator.toBase58(),
                     name: name,
-                    description: description,
                     symbol: createEvent.symbol,
                     uri: createEvent.uri,
                     start_slot: createEvent.startSlot.toNumber(),
@@ -269,9 +267,9 @@ export const createPumpService = () => {
                 .from("curve_data")
                 .insert({
                     mint: createEvent.mint.toBase58(),
-                    real_sol_reserves: Number(createEvent.virtualSolReserves),
+                    real_sol_reserves: Number(createEvent.realSolReserves),
                     real_token_reserves: Number(
-                        createEvent.virtualTokenReserves
+                        createEvent.realTokenReserves
                     ),
                     virtual_sol_reserves: Number(
                         createEvent.virtualSolReserves

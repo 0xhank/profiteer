@@ -42,8 +42,9 @@ export default function Token() {
         }
         return data[0];
     };
-    useEffect(() => {
-        setLoading(true);
+
+    const refresh = async () => {
+setLoading(true);
         const isBs58 = (id: string) => {
             try {
                 bs58.decode(id);
@@ -52,10 +53,8 @@ export default function Token() {
                 return false;
             }
         };
-        const setIdAndName = async () => {
-            const id = params.id;
-            console.log(id);
-            if (!id) {
+        const id = params.id;
+        if (!id) {
                 navigate("/404");
                 return;
             }
@@ -68,9 +67,11 @@ export default function Token() {
                 setMint(id);
                 setArticleName(articleName?.article_name || null);
             }
-            setLoading(false);
-        };
-        setIdAndName();
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        refresh();
     }, [params]);
 
     if (loading) {
@@ -79,15 +80,17 @@ export default function Token() {
     if (!params.id || !articleName) {
         return <Navigate to="/404" replace />;
     }
-    return <PageContent mint={mint} articleName={articleName} />;
+    return <PageContent mint={mint} articleName={articleName} refresh={refresh} />;
 }
 
 function PageContent({
     mint,
     articleName,
+    refresh,
 }: {
     mint: string | null;
     articleName: string;
+    refresh: () => void;
 }) {
     const [article, setArticle] = useState<string | null>(null);
 
@@ -124,6 +127,7 @@ function PageContent({
                     <CreateToken
                         articleName={articleName}
                         articleContent={article}
+                        refresh={refresh}
                     />
                 )}
             </div>

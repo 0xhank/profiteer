@@ -5,9 +5,11 @@ import { useServer } from "../../hooks/useServer";
 export const CreateToken = ({
     articleName,
     articleContent,
+    refresh,
 }: {
     articleName: string;
     articleContent: string | null;
+    refresh: () => void;
 }) => {
     const imageUri = useMemo(() => {
         if (!articleContent) {
@@ -23,7 +25,6 @@ export const CreateToken = ({
     const { getArticleSymbolOptions } = useServer();
 
     const [symbols, setSymbols] = useState<string[]>([]);
-    const [description, setDescription] = useState<string>("");
     const [selectedSymbol, setSelectedSymbol] = useState<string>("");
     const [isLoading, setIsLoading] = useState(false);
 
@@ -38,13 +39,11 @@ export const CreateToken = ({
     const handleGetSymbols = async (hardRefresh: boolean = false) => {
         setIsLoading(true);
         try {
-            const { symbols, description } =
-                await getArticleSymbolOptions.query({
-                    articleName,
-                    hardRefresh,
+            const symbols = await getArticleSymbolOptions.query({
+                articleName,
+                hardRefresh,
                 });
             setSymbols(symbols.map((s) => "n" + s));
-            setDescription(description);
         } finally {
             setIsLoading(false);
         }
@@ -69,18 +68,6 @@ export const CreateToken = ({
                 <div>
                     <p className="label">Name</p>
                     <p>{articleName.replace(/_/g, " ")}</p>
-                </div>
-
-                <div>
-                    <p className="label">Description</p>
-                    <textarea
-                        className="textarea textarea-bordered w-full"
-                        placeholder="loading..."
-                        rows={3}
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        disabled
-                    />
                 </div>
 
                 <div>
@@ -125,8 +112,8 @@ export const CreateToken = ({
                 name={articleName}
                 symbol={effectiveSymbol}
                 uri={imageUri ?? `https://api.news.fun/${articleName}`}
-                description={description}
                 disabled={!effectiveSymbol}
+                refresh={refresh}
             />
         </div>
     );
@@ -136,8 +123,8 @@ const CreateTokenButton = (props: {
     name: string;
     symbol: string;
     uri: string;
-    description: string;
     disabled: boolean;
+    refresh: () => void;
 }) => {
     const { createBondingCurveTx, sendCreateBondingCurveTx } = useServer();
     const { wallet } = usePortfolio();
@@ -159,6 +146,8 @@ const CreateTokenButton = (props: {
                 txMessage: txMessage,
                 signature: uint8ArrayToBase64(signature),
             });
+
+            props.refresh();
 
         } catch (error) {
             console.error(error);
