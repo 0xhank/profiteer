@@ -8,7 +8,7 @@ import {
 } from "@solana/web3.js";
 
 export async function processTransaction(umi: Umi, txBuilder: TransactionBuilder) {
-    const tx = await txBuilder.sendAndConfirm(umi, {
+  const tx = await txBuilder.sendAndConfirm(umi, {
     confirm: {
       commitment: "confirmed",
     },

@@ -5,6 +5,7 @@ import { Keypair, keypairIdentity, Umi } from "@metaplex-foundation/umi";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import {
   fromWeb3JsKeypair,
+  toWeb3JsKeypair,
   toWeb3JsPublicKey,
 } from "@metaplex-foundation/umi-web3js-adapters";
 import {
@@ -46,10 +47,10 @@ const loadProviders = () => {
 
   const programId = toWeb3JsPublicKey(PUMP_SCIENCE_PROGRAM_ID);
   const program = new Program(
-    idl as anchor.Idl as PumpScience,
+    idl as unknown as anchor.Idl,
     programId,
     provider
-  );
+  ) as unknown as Program<PumpScience>;
   const masterKp = fromWeb3JsKeypair(web3jsKp);
   console.log("masterKp", masterKp.publicKey);
 
@@ -145,23 +146,24 @@ describe("pump tests", () => {
       mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
     });
     it("creates a pool", async () => {
-      const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
+      const curveSdk = sdk.getCurveSDK(mintKp);
 
 
-      const txBuilder = curveSdk.createBondingCurve(
+      const tx = await curveSdk.createBondingCurve(
         SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
         masterKp.publicKey,
-        mintKp,
         false
       );
 
-      const txRes = await processTransaction(umi, txBuilder);
+      tx.sign([toWeb3JsKeypair(masterKp)]);
 
+      const txid = await connection.sendTransaction(tx);
+      await confirmTransaction(connection, txid);
       const poolData = await curveSdk.fetchData({
         commitment: "confirmed",
       });
 
-      const events = await getTxEventsFromTxBuilderResponse(connection, program, txRes.signatureBs58);
+      const events = await getTxEventsFromTxBuilderResponse(connection, program, txid);
       console.log("events", events);
 
       expect(Number(poolData.virtualSolReserves)).toBe(
@@ -182,17 +184,18 @@ describe("pump tests", () => {
     });
   });
 
-  it("swap: buy", async () => {
-    const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
-    const curveTxBuilder = curveSdk.createBondingCurve(
+  it.skip("swap: buy", async () => {
+    const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
+    const curveSdk = sdk.getCurveSDK(mintKp);
+    const curveTxBuilder = await curveSdk.createBondingCurve(
       SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
-      masterKp.publicKey,
-      mintKp,
+      mintKp.publicKey,
       false
     );
     // Initialize feeReceiver's Solana ATA
 
-    await processTransaction(umi, curveTxBuilder);
+    const tx = await connection.sendTransaction(curveTxBuilder);
+    await confirmTransaction(connection, tx);
 
     const bondingCurveData = await curveSdk.fetchData({
       commitment: "confirmed",

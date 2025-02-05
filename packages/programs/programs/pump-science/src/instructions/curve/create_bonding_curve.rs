@@ -20,8 +20,7 @@ use crate::state::bonding_curve::locker::{BondingCurveLockerCtx, IntoBondingCurv
 #[instruction(params: CreateBondingCurveParams)]
 pub struct CreateBondingCurve<'info> {
     #[account(
-        init,
-        payer = creator,
+        mut,
         mint::decimals = global.mint_decimals,
         mint::authority = bonding_curve,
         mint::freeze_authority = bonding_curve,

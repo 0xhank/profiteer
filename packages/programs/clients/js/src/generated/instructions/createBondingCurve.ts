@@ -12,7 +12,7 @@ import { ResolvedAccount, ResolvedAccountsWithIndices, getAccountMetasAndSigners
 
 // Accounts.
 export type CreateBondingCurveInstructionAccounts = {
-    mint: Signer;
+    mint: PublicKey | Pda;
     creator: Signer;
     bondingCurve: PublicKey | Pda;
     bondingCurveTokenAccount: PublicKey | Pda;
@@ -52,7 +52,7 @@ export function createBondingCurve(
                         input: CreateBondingCurveInstructionAccounts & CreateBondingCurveInstructionArgs,
       ): TransactionBuilder {
   // Program ID.
-  const programId = context.programs.getPublicKey('pumpScience', '3f8czWoabRYKVvqeGfM1uKNj5rC7Dudpi8R3TkP1fGQQ');
+  const programId = context.programs.getPublicKey('pumpScience', 'BjbuCn9cWxLZFmRc7zQ4hwV45SyqZA5YSMKpvUUeeHvw');
 
   // Accounts.
   const resolvedAccounts = {
