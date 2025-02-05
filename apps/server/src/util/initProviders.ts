@@ -35,5 +35,5 @@ export const initProviders = () => {
   const umi = createUmi(rpcUrl).use(keypairIdentity(masterKp));
   const sdk = new PumpScienceSDK(provider, masterKp);
 
-  return { umi, connection, rpcUrl, sdk, program, masterWallet };
+  return { umi, connection, rpcUrl, sdk, program, masterWallet, masterKp };
 };

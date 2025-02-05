@@ -143,6 +143,18 @@ export const createPumpService = () => {
         return tokenBalances;
     };
 
+    // Clean up stale entries every 30s
+    setInterval(() => {
+        const now = Date.now();
+        for (const [key, value] of mintKpRegistry.entries()) {
+            if (now - value.createdAt > 60000) {
+                // 60s
+                mintKpRegistry.delete(key);
+            }
+        }
+    }, 30000);
+
+
     const createBondingCurveTx = async (input: CreateBondingCurveInput) => {
         const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
         const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
@@ -150,26 +162,18 @@ export const createPumpService = () => {
         const userPublicKey = fromWeb3JsPublicKey(
             new PublicKey(input.userPublicKey)
         );
-        const fakeSigner = {
-            publicKey: userPublicKey,
-        } as Signer;
-        let txBuilder = new TransactionBuilder().add(
-            curveSdk.createBondingCurve(
-                { ...input, name: name.slice(0, 32), startSlot: null },
-                fromWeb3JsPublicKey(new PublicKey(input.userPublicKey)),
-                mintKp,
-                false
-            )
+
+        console.log("userPublicKey ===>>>", input.userPublicKey);
+
+        let tx = await curveSdk.createBondingCurve(
+            { ...input, name: name.slice(0, 32), startSlot: null },
+            mintKp,
+            userPublicKey,
+            false
         );
-        const blockhash = await connection.getLatestBlockhash();
-        txBuilder = txBuilder.setBlockhash(blockhash.blockhash);
-        const { serializedMessage } = txBuilder.build({
-            ...umi,
-            payer: fakeSigner,
-        });
         // log the signers of the tx
-        const txMessageBase64 =
-            Buffer.from(serializedMessage).toString("base64");
+        console.log("signers ===>>>", tx.message.header.numRequiredSignatures);
+        const txMessageBase64 = Buffer.from(tx.message.serialize()).toString("base64");
         const returnObject = {
             txMessage: txMessageBase64,
         };
@@ -186,17 +190,6 @@ export const createPumpService = () => {
         string,
         { kp: Keypair; createdAt: number; name: string; description: string }
     >();
-
-    // Clean up stale entries every 30s
-    setInterval(() => {
-        const now = Date.now();
-        for (const [key, value] of mintKpRegistry.entries()) {
-            if (now - value.createdAt > 60000) {
-                // 60s
-                mintKpRegistry.delete(key);
-            }
-        }
-    }, 30000);
 
     const sendCreateBondingCurveTx = async ({
         userPublicKey,
@@ -215,6 +208,7 @@ export const createPumpService = () => {
             const txMessage = Buffer.from(txInput, "base64");
             const { kp, name, description } = entry;
             const pubKey = new PublicKey(userPublicKey);
+            console.log("pubKey ===>>>", pubKey);
             // Convert base64 signature to Uint8Array first
             const signatureUint8 = Uint8Array.from(
                 Buffer.from(signature, "base64")
@@ -223,10 +217,13 @@ export const createPumpService = () => {
 
             const transaction = new VersionedTransaction(message);
 
+            console.log("signatures ===>>>", transaction.signatures.length, transaction.signatures);
+            console.log("numRequiredSignatures ===>>>", transaction.message.header.numRequiredSignatures);
             transaction.sign([toWeb3JsKeypair(kp)]);
             transaction.addSignature(pubKey, signatureUint8);
 
             const txId = await connection.sendTransaction(transaction);
+
             const events = await getTxEventsFromTxBuilderResponse(
                 connection,
                 // @ts-ignore TODO: fix this

@@ -56,7 +56,7 @@ export class PumpScienceSDK {
         return new AdminSDK(this);
     }
 
-    getCurveSDK(mint: Keypair) {
+    getCurveSDK(mint: PublicKey) {
         return new CurveSDK(this, mint);
     }
 

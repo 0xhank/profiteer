@@ -29,7 +29,7 @@ export class CurveSDK {
     PumpScience: PumpScienceSDK;
     umi: Umi;
 
-    mint: Keypair;
+    mint: PublicKey;
     bondingCurvePda: Pda;
     bondingCurveTokenAccount: Pda;
     bondingCurveSolEscrow: Pda;
@@ -37,21 +37,21 @@ export class CurveSDK {
     mintMetaPda: Pda;
     payer: PublicKey;
 
-    constructor(sdk: PumpScienceSDK, mint: Keypair) {
+    constructor(sdk: PumpScienceSDK, mint: PublicKey) {
         this.PumpScience = sdk;
         this.umi = sdk.umi;
         this.mint = mint;
 
         this.bondingCurvePda = findBondingCurvePda(this.umi, {
-            mint: this.mint.publicKey,
+            mint: this.mint,
         });
         this.bondingCurveTokenAccount = findAssociatedTokenPda(this.umi, {
-            mint: this.mint.publicKey,
+            mint: this.mint,
             owner: this.bondingCurvePda[0],
         });
         this.bondingCurveSolEscrow = this.umi.eddsa.findPda(PUMP_SCIENCE_PROGRAM_ID, [
             string({ size: 'variable' }).serialize('sol-escrow'),
-            publicKeySerializer().serialize(this.mint.publicKey),
+            publicKeySerializer().serialize(this.mint),
         ]);
 
         this.mintMetaPda = this.umi.eddsa.findPda(tokenMetadataProgramId, [
@@ -82,7 +82,7 @@ export class CurveSDK {
             baseIn: params.direction !== "buy",
             exactInAmount: params.exactInAmount,
             minOutAmount: params.minOutAmount,
-            mint: this.mint.publicKey,
+            mint: this.mint,
             bondingCurve: this.bondingCurvePda[0],
             bondingCurveTokenAccount: this.bondingCurveTokenAccount[0],
             bondingCurveSolEscrow: this.bondingCurveSolEscrow[0],
@@ -118,18 +118,18 @@ export class CurveSDK {
 
     return createMintInstructions;
     }
-    async createBondingCurve(params: CreateBondingCurveInstructionDataArgs, user: PublicKey, whitelist: boolean) {
-        if (this.mint.publicKey.toString() !== this.mint.publicKey.toString()) {
+    async createBondingCurve(params: CreateBondingCurveInstructionDataArgs, mintKp: Keypair, user: PublicKey, whitelist: boolean) {
+        if (this.mint.toString() !== mintKp.publicKey.toString()) {
             throw new Error("wrong mintKp provided");
         }
-        const mintInstructions = await this.createMint(user, this.mint);
+        const mintInstructions = await this.createMint(user, mintKp);
 
         const createBondingCurveBuilder = new TransactionBuilder()
             .add(setComputeUnitLimit(this.umi, { units: 600_000 }))
             .add(createBondingCurve(this.umi, {
                 global: this.PumpScience.globalPda[0],
                 creator: user as unknown as Signer,
-                mint: this.mint.publicKey,
+                mint: this.mint,
                 bondingCurve: this.bondingCurvePda[0],
                 bondingCurveTokenAccount: this.bondingCurveTokenAccount[0],
                 bondingCurveSolEscrow: this.bondingCurveSolEscrow,
@@ -144,12 +144,13 @@ export class CurveSDK {
             const instructions = createBondingCurveBuilder.getInstructions().map(ix => toWeb3JsInstruction(ix))
 
             const message = new TransactionMessage({
-                payerKey: toWeb3JsPublicKey(this.payer),
+                payerKey: toWeb3JsPublicKey(user),
                 recentBlockhash: blockhash.blockhash,
                 instructions: [...mintInstructions, ...instructions],
             }).compileToV0Message();
+
             const tx = new VersionedTransaction(message);
-            tx.sign([toWeb3JsKeypair(this.mint)]);
+            tx.sign([toWeb3JsKeypair(mintKp)]);
 
             return tx
 
@@ -157,14 +158,13 @@ export class CurveSDK {
 
     getUserTokenAccount(user: PublicKey) {
         return findAssociatedTokenPda(this.umi, {
-            mint: this.mint.publicKey,
+            mint: this.mint,
             owner: user,
         });
     }
 
 
     async migrate() {
-        console.log("migrating")
         // get the vault program
         const vaultProgram = new Program<VaultIdlType>(VaultIdl, VAULT_PROGRAM_ID, this.PumpScience.provider);
         const meteoraProgram = new Program<Amm>(AmmIdl, AMM_PROGRAM_ID, this.PumpScience.provider);

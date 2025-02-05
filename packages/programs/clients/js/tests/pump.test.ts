@@ -146,11 +146,12 @@ describe("pump tests", () => {
       mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
     });
     it("creates a pool", async () => {
-      const curveSdk = sdk.getCurveSDK(mintKp);
+      const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
 
 
       const tx = await curveSdk.createBondingCurve(
         SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
+        mintKp,
         masterKp.publicKey,
         false
       );
@@ -186,10 +187,11 @@ describe("pump tests", () => {
 
   it.skip("swap: buy", async () => {
     const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
-    const curveSdk = sdk.getCurveSDK(mintKp);
+    const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
     const curveTxBuilder = await curveSdk.createBondingCurve(
       SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
-      mintKp.publicKey,
+      mintKp,
+      masterKp.publicKey,
       false
     );
     // Initialize feeReceiver's Solana ATA
