@@ -1,10 +1,10 @@
-import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { PageLayout } from "../components/common/page-layout";
-import WikiArticle from "../components/token/wiki-article";
 import bs58 from "bs58";
 import { useEffect, useState } from "react";
-import { TokenContent } from "../components/token/token-content";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { PageLayout } from "../components/common/page-layout";
 import { CreateToken } from "../components/token/create-token";
+import { TokenContent } from "../components/token/token-content";
+import WikiArticle from "../components/token/wiki-article";
 import supabase from "../sbClient";
 
 export default function Token() {
@@ -38,13 +38,19 @@ export default function Token() {
             .limit(1);
 
         if (error) {
-            throw new Error(`Failed to fetch article token: ${error.message}`);
+            console.error(error);
+            return null;
+        }
+        if (data.length === 0) {
+            console.error("No data found");
+            return null;
         }
         return data[0];
     };
 
     const refresh = async () => {
-setLoading(true);
+        console.log("refreshing", params);
+        setLoading(true);
         const isBs58 = (id: string) => {
             try {
                 bs58.decode(id);
@@ -54,23 +60,25 @@ setLoading(true);
             }
         };
         const id = params.id;
+        console.log("id", id);
         if (!id) {
-                navigate("/404");
-                return;
-            }
-            if (!isBs58(id)) {
-                const mint = await getArticleMint(id);
-                setArticleName(id);
-                setMint(mint?.mint || null);
-            } else {
-                const articleName = await getArticleName(id);
-                setMint(id);
-                setArticleName(articleName?.article_name || null);
-            }
+            navigate("/404");
+            return;
+        }
+        if (!isBs58(id)) {
+            const mint = await getArticleMint(id);
+            setArticleName(id);
+            setMint(mint?.mint || null);
+        } else {
+            const articleName = await getArticleName(id);
+            setMint(id);
+            setArticleName(articleName?.article_name || null);
+        }
         setLoading(false);
     };
 
     useEffect(() => {
+        if (!params) return;
         refresh();
     }, [params]);
 
@@ -80,7 +88,9 @@ setLoading(true);
     if (!params.id || !articleName) {
         return <Navigate to="/404" replace />;
     }
-    return <PageContent mint={mint} articleName={articleName} refresh={refresh} />;
+    return (
+        <PageContent mint={mint} articleName={articleName} refresh={refresh} />
+    );
 }
 
 function PageContent({

@@ -44,6 +44,8 @@ export const CreateToken = ({
                 hardRefresh,
                 });
             setSymbols(symbols.map((s) => "n" + s));
+        } catch (error) {
+            console.error(error);
         } finally {
             setIsLoading(false);
         }
