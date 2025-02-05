@@ -39,7 +39,7 @@ export const TokenTradeForm = ({
         }
         setIsLoading(true);
         const decimals = isBuyMode ? 9 : tokenData.metadata.decimals;
-        const amountIn = BigInt(Math.round(amount)) * BigInt(10 ** decimals);
+        const amountIn = BigInt(amount * 10 ** decimals);
         const minAmountOut =
             amountIn * BigInt(Math.round(100 - maxSlippagePct / 10000));
 
