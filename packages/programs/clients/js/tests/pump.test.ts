@@ -5,6 +5,7 @@ import { Keypair, keypairIdentity, Umi } from "@metaplex-foundation/umi";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import {
   fromWeb3JsKeypair,
+  toWeb3JsKeypair,
   toWeb3JsPublicKey,
 } from "@metaplex-foundation/umi-web3js-adapters";
 import {
@@ -30,8 +31,8 @@ import idl from "../src/idls/pump_science.json";
 const privateKeyUrl = path.resolve(__dirname, "../../../pump_test.json");
 const loadProviders = () => {
   // convert the private key to a string
-  // const rpcUrl = "https://api.devnet.solana.com";
-  const rpcUrl = "http://localhost:8899";
+  const rpcUrl = "https://api.devnet.solana.com";
+  // const rpcUrl = "http://localhost:8899";
   const web3jsKp = Web3JsKeypair.fromSecretKey(
     Uint8Array.from(require(privateKeyUrl))
   );
@@ -147,9 +148,11 @@ describe("pump tests", () => {
 
       const tx = await curveSdk.createBondingCurve(
         SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
-        mintKp.publicKey,
+        masterKp.publicKey,
         false
       );
+
+      tx.sign([toWeb3JsKeypair(masterKp)]);
 
       const txid = await connection.sendTransaction(tx);
       await confirmTransaction(connection, txid);

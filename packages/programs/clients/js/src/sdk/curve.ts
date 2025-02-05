@@ -95,13 +95,13 @@ export class CurveSDK {
         return txBuilder;
     }
 
-    async createMint(mintKp: Keypair) {
+    async createMint(user: PublicKey, mintKp: Keypair) {
     const lamports = await getMinimumBalanceForRentExemptMint(this.PumpScience.provider.connection);
 
     const createMintInstructions = 
          [
             SystemProgram.createAccount({
-                fromPubkey: toWeb3JsPublicKey(this.payer),
+                fromPubkey: toWeb3JsPublicKey(user),
                 newAccountPubkey: toWeb3JsPublicKey(mintKp.publicKey),
                 space: MINT_SIZE,
                 lamports,
@@ -122,13 +122,13 @@ export class CurveSDK {
         if (this.mint.publicKey.toString() !== this.mint.publicKey.toString()) {
             throw new Error("wrong mintKp provided");
         }
-        const mintInstructions = await this.createMint(this.mint);
+        const mintInstructions = await this.createMint(user, this.mint);
 
         const createBondingCurveBuilder = new TransactionBuilder()
             .add(setComputeUnitLimit(this.umi, { units: 600_000 }))
             .add(createBondingCurve(this.umi, {
                 global: this.PumpScience.globalPda[0],
-                creator: this.umi.identity,
+                creator: user as unknown as Signer,
                 mint: this.mint.publicKey,
                 bondingCurve: this.bondingCurvePda[0],
                 bondingCurveTokenAccount: this.bondingCurveTokenAccount[0],
@@ -149,7 +149,7 @@ export class CurveSDK {
                 instructions: [...mintInstructions, ...instructions],
             }).compileToV0Message();
             const tx = new VersionedTransaction(message);
-            tx.sign([toWeb3JsKeypair(this.PumpScience.masterKp), toWeb3JsKeypair(this.mint)]);
+            tx.sign([toWeb3JsKeypair(this.mint)]);
 
             return tx
 
