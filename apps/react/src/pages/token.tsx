@@ -1,10 +1,10 @@
-import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { PageLayout } from "../components/common/page-layout";
-import WikiArticle from "../components/token/wiki-article";
 import bs58 from "bs58";
 import { useEffect, useState } from "react";
-import { TokenContent } from "../components/token/token-content";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { PageLayout } from "../components/common/page-layout";
 import { CreateToken } from "../components/token/create-token";
+import { TokenContent } from "../components/token/token-content";
+import WikiArticle from "../components/token/wiki-article";
 import supabase from "../sbClient";
 
 export default function Token() {
@@ -38,7 +38,12 @@ export default function Token() {
             .limit(1);
 
         if (error) {
-            throw new Error(`Failed to fetch article token: ${error.message}`);
+            console.error(error);
+            return null;
+        }
+        if (data.length === 0) {
+            console.error("No data found");
+            return null;
         }
         return data[0];
     };
@@ -72,7 +77,7 @@ export default function Token() {
     };
 
     useEffect(() => {
-        if(!params) return
+        if (!params) return;
         refresh();
     }, [params]);
 

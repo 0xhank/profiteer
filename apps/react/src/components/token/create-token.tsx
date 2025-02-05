@@ -39,7 +39,6 @@ export const CreateToken = ({
     const handleGetSymbols = async (hardRefresh: boolean = false) => {
         setIsLoading(true);
         try {
-            console.log("getting symbols");
             const symbols = await getArticleSymbolOptions.query({
                 articleName,
                 hardRefresh,
