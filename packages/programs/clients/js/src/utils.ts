@@ -1,15 +1,12 @@
 import * as anchor from "@coral-xyz/anchor";
 import { BN, Program } from "@coral-xyz/anchor";
 import { IdlEvent } from "@coral-xyz/anchor/dist/cjs/idl";
-import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { fetchToken } from "@metaplex-foundation/mpl-toolbox";
 import {
   Commitment,
   Context,
   Pda,
   PublicKey,
-  RpcConfirmTransactionResult,
-  TransactionSignature,
   Umi,
 } from "@metaplex-foundation/umi";
 import { toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";

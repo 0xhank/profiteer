@@ -58,7 +58,7 @@ impl CreateBondingCurve {
     ) -> solana_program::instruction::Instruction {
         let mut accounts = Vec::with_capacity(15 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
-            self.mint, true,
+            self.mint, false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
             self.creator,
@@ -165,7 +165,7 @@ pub struct CreateBondingCurveInstructionArgs {
 ///
 /// ### Accounts:
 ///
-///   0. `[writable, signer]` mint
+///   0. `[writable]` mint
 ///   1. `[writable, signer]` creator
 ///   2. `[writable]` bonding_curve
 ///   3. `[writable]` bonding_curve_token_account
@@ -520,7 +520,7 @@ impl<'a, 'b> CreateBondingCurveCpi<'a, 'b> {
         let mut accounts = Vec::with_capacity(15 + remaining_accounts.len());
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.mint.key,
-            true,
+            false,
         ));
         accounts.push(solana_program::instruction::AccountMeta::new(
             *self.creator.key,
@@ -638,7 +638,7 @@ impl<'a, 'b> CreateBondingCurveCpi<'a, 'b> {
 ///
 /// ### Accounts:
 ///
-///   0. `[writable, signer]` mint
+///   0. `[writable]` mint
 ///   1. `[writable, signer]` creator
 ///   2. `[writable]` bonding_curve
 ///   3. `[writable]` bonding_curve_token_account

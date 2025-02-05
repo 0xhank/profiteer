@@ -443,7 +443,7 @@ export type PumpScience = {
         {
           "name": "mint",
           "isMut": true,
-          "isSigner": true
+          "isSigner": false
         },
         {
           "name": "creator",
@@ -1717,7 +1717,7 @@ export const IDL: PumpScience = {
         {
           "name": "mint",
           "isMut": true,
-          "isSigner": true
+          "isSigner": false
         },
         {
           "name": "creator",

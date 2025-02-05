@@ -30,7 +30,8 @@ import idl from "../src/idls/pump_science.json";
 const privateKeyUrl = path.resolve(__dirname, "../../../pump_test.json");
 const loadProviders = () => {
   // convert the private key to a string
-  const rpcUrl = "http://127.0.0.1:8899";
+  // const rpcUrl = "https://api.devnet.solana.com";
+  const rpcUrl = "http://localhost:8899";
   const web3jsKp = Web3JsKeypair.fromSecretKey(
     Uint8Array.from(require(privateKeyUrl))
   );
@@ -43,10 +44,10 @@ const loadProviders = () => {
 
   const programId = toWeb3JsPublicKey(PUMP_SCIENCE_PROGRAM_ID);
   const program = new Program(
-    idl as anchor.Idl as PumpScience,
+    idl as unknown as anchor.Idl,
     programId,
     provider
-  );
+  ) as unknown as Program<PumpScience>;
   const masterKp = fromWeb3JsKeypair(web3jsKp);
 
   const umi = createUmi(rpcUrl);
@@ -77,6 +78,8 @@ describe("pump tests", () => {
       umi: preumi,
       connection: preConnection,
       program: preProgram,
+      provider,
+      rpcUrl,
     } = loadProviders();
 
     masterKp = preMasterKp;
@@ -84,12 +87,14 @@ describe("pump tests", () => {
     connection = preConnection;
     program = preProgram;
     umi = preumi.use(keypairIdentity(masterKp));
-    sdk = new PumpScienceSDK(umi);
-    const tx = await preConnection.requestAirdrop(
-      web3jsKp.publicKey,
-      100 * LAMPORTS_PER_SOL
-    );
-    await confirmTransaction(preConnection, tx);
+    sdk = new PumpScienceSDK(provider, masterKp);
+    if (rpcUrl.includes("localnet")) {
+      const tx = await preConnection.requestAirdrop(
+        web3jsKp.publicKey,
+        100 * LAMPORTS_PER_SOL
+      );
+      await confirmTransaction(preConnection, tx);
+    }
     console.log("Airdropped SOL to master keypair");
 
 
@@ -137,22 +142,22 @@ describe("pump tests", () => {
   describe("create pool", () => {
     const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
     it("creates a pool", async () => {
-      const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
+      const curveSdk = sdk.getCurveSDK(mintKp);
 
 
-      const txBuilder = curveSdk.createBondingCurve(
+      const tx = await curveSdk.createBondingCurve(
         SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
-        mintKp,
+        mintKp.publicKey,
         false
       );
 
-      const txRes = await processTransaction(umi, txBuilder);
-
+      const txid = await connection.sendTransaction(tx);
+      await confirmTransaction(connection, txid);
       const poolData = await curveSdk.fetchData({
         commitment: "confirmed",
       });
 
-      const events = await getTxEventsFromTxBuilderResponse(connection, program, txRes);
+      const events = await getTxEventsFromTxBuilderResponse(connection, program, txid);
       console.log("events", events);
 
       expect(Number(poolData.virtualSolReserves)).toBe(
@@ -175,15 +180,16 @@ describe("pump tests", () => {
 
   it.skip("swap: buy", async () => {
     const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
-    const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
-    const curveTxBuilder = curveSdk.createBondingCurve(
+    const curveSdk = sdk.getCurveSDK(mintKp);
+    const curveTxBuilder = await curveSdk.createBondingCurve(
       SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
-      mintKp,
+      mintKp.publicKey,
       false
     );
     // Initialize feeReceiver's Solana ATA
 
-    await processTransaction(umi, curveTxBuilder);
+    const tx = await connection.sendTransaction(curveTxBuilder);
+    await confirmTransaction(connection, tx);
 
     const bondingCurveData = await curveSdk.fetchData({
       commitment: "confirmed",
@@ -213,6 +219,7 @@ describe("pump tests", () => {
 
     const txBuilder = curveSdk.swap({
       direction: "buy",
+      user: masterKp.publicKey,
       exactInAmount: solAmountWithFee,
       minOutAmount: (minBuyTokenAmount * 975n) / 1000n,
     });

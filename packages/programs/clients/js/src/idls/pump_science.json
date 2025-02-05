@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": "0.1.0",
   "name": "pump_science",
   "instructions": [
     {
@@ -443,7 +443,7 @@
         {
           "name": "mint",
           "isMut": true,
-          "isSigner": true
+          "isSigner": false
         },
         {
           "name": "creator",
@@ -1271,7 +1271,7 @@
     }
   ],
   "metadata": {
-    "address": "3f8czWoabRYKVvqeGfM1uKNj5rC7Dudpi8R3TkP1fGQQ",
+    "address": "BjbuCn9cWxLZFmRc7zQ4hwV45SyqZA5YSMKpvUUeeHvw",
     "origin": "anchor",
     "binaryVersion": "0.29.0",
     "libVersion": "0.29.0"

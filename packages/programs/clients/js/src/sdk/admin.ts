@@ -1,10 +1,9 @@
 import { SPL_SYSTEM_PROGRAM_ID } from "@metaplex-foundation/mpl-toolbox";
-import { PublicKey, Umi } from "@metaplex-foundation/umi";
-import { createPool, CreatePoolInstructionAccounts, GlobalSettingsInputArgs } from "..";
+import { Umi } from "@metaplex-foundation/umi";
+import { GlobalSettingsInputArgs } from "..";
 import { setParams, SetParamsInstructionAccounts } from '../generated/instructions/setParams';
 import { initialize, } from '../generated/instructions/initialize';
 import { PumpScienceSDK } from "./pump-science";
-import { createProgram } from "@mercurial-finance/dynamic-amm-sdk/dist/cjs/src/amm/utils";
 
 export type SetParamsInput = GlobalSettingsInputArgs & Partial<SetParamsInstructionAccounts>;
 
