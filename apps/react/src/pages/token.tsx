@@ -44,7 +44,8 @@ export default function Token() {
     };
 
     const refresh = async () => {
-setLoading(true);
+        console.log("refreshing", params);
+        setLoading(true);
         const isBs58 = (id: string) => {
             try {
                 bs58.decode(id);
@@ -55,22 +56,23 @@ setLoading(true);
         };
         const id = params.id;
         if (!id) {
-                navigate("/404");
-                return;
-            }
-            if (!isBs58(id)) {
-                const mint = await getArticleMint(id);
-                setArticleName(id);
-                setMint(mint?.mint || null);
-            } else {
-                const articleName = await getArticleName(id);
-                setMint(id);
-                setArticleName(articleName?.article_name || null);
-            }
+            navigate("/404");
+            return;
+        }
+        if (!isBs58(id)) {
+            const mint = await getArticleMint(id);
+            setArticleName(id);
+            setMint(mint?.mint || null);
+        } else {
+            const articleName = await getArticleName(id);
+            setMint(id);
+            setArticleName(articleName?.article_name || null);
+        }
         setLoading(false);
     };
 
     useEffect(() => {
+        if(!params) return
         refresh();
     }, [params]);
 
@@ -80,7 +82,9 @@ setLoading(true);
     if (!params.id || !articleName) {
         return <Navigate to="/404" replace />;
     }
-    return <PageContent mint={mint} articleName={articleName} refresh={refresh} />;
+    return (
+        <PageContent mint={mint} articleName={articleName} refresh={refresh} />
+    );
 }
 
 function PageContent({

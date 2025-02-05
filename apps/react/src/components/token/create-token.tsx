@@ -39,11 +39,14 @@ export const CreateToken = ({
     const handleGetSymbols = async (hardRefresh: boolean = false) => {
         setIsLoading(true);
         try {
+            console.log("getting symbols");
             const symbols = await getArticleSymbolOptions.query({
                 articleName,
                 hardRefresh,
                 });
             setSymbols(symbols.map((s) => "n" + s));
+        } catch (error) {
+            console.error(error);
         } finally {
             setIsLoading(false);
         }
