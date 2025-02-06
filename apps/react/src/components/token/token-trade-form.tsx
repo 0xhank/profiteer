@@ -4,17 +4,11 @@ import { useFee } from "../../hooks/useFee";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { useServer } from "../../hooks/useServer";
 import { useTokenBalance } from "../../hooks/useTokenBalance";
+import { VersionedTransaction } from "@solana/web3.js";
 
 // Add these utility functions at the top level
 const uint8ArrayToBase64 = (uint8Array: Uint8Array): string => {
     return btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
-};
-
-const base64ToUint8Array = (base64: string): Uint8Array => {
-    const binaryString = atob(base64);
-    return new Uint8Array(
-        binaryString.split("").map((char) => char.charCodeAt(0))
-    );
 };
 
 export const TokenTradeForm = ({
@@ -45,7 +39,7 @@ export const TokenTradeForm = ({
 
         try {
             const pubKey = wallet.address;
-            const { txMessage } = await createSwapTx.query({
+            const { txId, txMessage } = await createSwapTx.query({
                 userPublicKey: pubKey,
                 mint: tokenData.mint,
                 amount: amountIn.toString(),
@@ -53,13 +47,13 @@ export const TokenTradeForm = ({
                 direction: isBuyMode ? "buy" : "sell",
             });
 
-            const txMessageUint8Array = base64ToUint8Array(txMessage);
-            const signature = await wallet.signMessage(txMessageUint8Array);
+            const serializedTx = Buffer.from(txMessage, "base64");
+            const tx = VersionedTransaction.deserialize(serializedTx);
+            const signedTx = await wallet.signTransaction(tx);
 
             await sendSwapTx.mutate({
-                userPublicKey: pubKey,
-                txMessage,
-                signature: uint8ArrayToBase64(signature),
+                txId,
+                txMessage: uint8ArrayToBase64(signedTx.serialize()),
             });
 
             // dont await this

@@ -84,7 +84,6 @@ ${articleContent}<|eot_id|><|start_header_id|>assistant<|end_header_id|>`;
         });
 
         const responseText = response.results[0]?.generated_text;
-        console.log(responseText);
         if (!responseText) {
             throw new Error("No response from model");
         }
@@ -98,6 +97,8 @@ ${articleContent}<|eot_id|><|start_header_id|>assistant<|end_header_id|>`;
                     )
                     .trim()
                     .match(/\[[\s\S]*\]/)?.[0] || "[]";
+
+            console.log("clean response:", cleanResponse);
             const data: string[] = JSON.parse(cleanResponse);
             const ret = Array.isArray(data) ? data : [];
             return ret;

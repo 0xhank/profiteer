@@ -90,12 +90,11 @@ export function createAppRouter() {
             }),
 
         sendCreateBondingCurveTx: t.procedure
-            .input(z.object({ userPublicKey: z.string(), txMessage: z.string(), signature: z.string() }))
+            .input(z.object({ txId: z.string(), txMessage: z.string() }))
             .mutation(async ({ input, ctx }) => {
                 return await ctx.pumpService.sendCreateBondingCurveTx({
-                    userPublicKey: input.userPublicKey,
+                    txId: input.txId,
                     txMessage: input.txMessage,
-                    signature: input.signature,
                 });
             }),
 
@@ -106,7 +105,7 @@ export function createAppRouter() {
             }),
 
         sendSwapTx: t.procedure
-            .input(z.object({ userPublicKey: z.string(), txMessage: z.string(), signature: z.string() }))
+            .input(z.object({ txId: z.string(), txMessage: z.string() }))
             .mutation(async ({ input, ctx }) => {
                 return ctx.pumpService.sendSwapTx(input);
             }),
