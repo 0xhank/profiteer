@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { LoadingPane } from "../common/loading";
 
 export function NewsStories() {
     const [article, setArticle] = useState<string | null>(null);
@@ -87,7 +88,7 @@ export function NewsStories() {
     }, []);
 
     if (!article) {
-        return null;
+        return <LoadingPane className="h-[600px]" />;
     }
 
     return <div dangerouslySetInnerHTML={{ __html: article }} />;

@@ -23,8 +23,8 @@ export const TokenList = () => {
     }
 
     return (
-        <div className="flex flex-col">
-            <h2 className="text-2xl font-bold">Top Memes</h2>
+        <div className="flex flex-col gap-1">
+            <h2 className="text-2xl font-bold">Top Stories</h2>
         <div className="grid grid-cols-1 gap-4">
             {Object.entries(tokens).map(([key, token]) => (
                 <TokenCard key={key} token={token} />

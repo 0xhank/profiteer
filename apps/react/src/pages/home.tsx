@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PageLayout } from "../components/common/page-layout";
 import { NewsStories } from "../components/home/news-stories";
 import { TokenList } from "../components/home/token-list";
@@ -96,7 +96,10 @@ export default function Home() {
                             </svg>
                         </div>
                         <ul
-                            className={cn("absolute text-left bg-white rounded rounded-md w-full z-10 list-none border border-base-300", suggestions.length > 0 ? "block" : "hidden")}
+                            className={cn(
+                                "absolute text-left bg-white rounded rounded-md w-full z-10 list-none border border-base-300",
+                                suggestions.length > 0 ? "block" : "hidden"
+                            )}
                             style={{
                                 listStyleType: "none",
                                 MozMarginStart: "0",
@@ -118,10 +121,12 @@ export default function Home() {
                         </ul>
                     </div>
                 </div>
+                
+              
             </div>
             <div className="grid grid-cols-3 gap-12">
                 <div className="col-span-2">
-                    <NewsStories />
+                    <NewsStories /> 
                 </div>
                 <div className="col-span-1">
                     <TokenList />
