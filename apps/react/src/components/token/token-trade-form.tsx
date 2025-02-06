@@ -28,13 +28,14 @@ export const TokenTradeForm = ({
     const { balance: tokenBalance } = useTokenBalance(tokenData.mint);
     const { fee } = useFee(tokenData.mint);
     const { wallet } = usePortfolio();
+
     const handleExecute = async () => {
         if (!wallet) {
             return;
         }
         setIsLoading(true);
         const decimals = isBuyMode ? 9 : tokenData.metadata.decimals;
-        const amountIn = BigInt(amount * 10 ** decimals);
+        const amountIn = BigInt(Math.round(amount * 10 ** decimals));
         const minAmountOut =
             amountIn * BigInt(Math.round(100 - maxSlippagePct / 10000));
 
