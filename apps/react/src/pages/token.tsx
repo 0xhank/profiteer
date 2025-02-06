@@ -1,6 +1,7 @@
 import bs58 from "bs58";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { LoadingPane } from "../components/common/loading";
 import { PageLayout } from "../components/common/page-layout";
 import { CreateToken } from "../components/token/create-token";
 import { TokenContent } from "../components/token/token-content";
@@ -49,7 +50,6 @@ export default function Token() {
     };
 
     const refresh = async () => {
-        console.log("refreshing", params);
         setLoading(true);
         const isBs58 = (id: string) => {
             try {
@@ -60,7 +60,6 @@ export default function Token() {
             }
         };
         const id = params.id;
-        console.log("id", id);
         if (!id) {
             navigate("/404");
             return;
@@ -70,8 +69,8 @@ export default function Token() {
             setArticleName(id);
             setMint(mint?.mint || null);
         } else {
-            const articleName = await getArticleName(id);
             setMint(id);
+            const articleName = await getArticleName(id);
             setArticleName(articleName?.article_name || null);
         }
         setLoading(false);
@@ -83,7 +82,7 @@ export default function Token() {
     }, [params]);
 
     if (loading) {
-        return <PageLayout>Loading...</PageLayout>;
+        return <PageLayout>{null}</PageLayout>;
     }
     if (!params.id || !articleName) {
         return <Navigate to="/404" replace />;
@@ -103,10 +102,12 @@ function PageContent({
     refresh: () => void;
 }) {
     const [article, setArticle] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchArticle = async ({ title }: { title: string }) => {
             try {
+                setIsLoading(true);
                 const response = await fetch(
                     `https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&section=0&page=${title}&origin=*`
                 );
@@ -117,6 +118,8 @@ function PageContent({
                 setArticle(blurb.innerHTML);
             } catch (error) {
                 console.error("Error fetching the article:", error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -125,11 +128,13 @@ function PageContent({
 
     return (
         <PageLayout>
-            <div className="max-w-[1200px] h-full grid grid-cols-1 md:grid-cols-3 gap-8 items-start mt-12">
+            <div className="w-[1200px] h-full grid grid-cols-1 md:grid-cols-3 gap-8 items-start mt-12">
                 {/* Wiki Article on the left */}
-                <div className="col-span-2 overflow-y-auto h-full">
-                    {article && <WikiArticle articleHtml={article} />}
-                    {!article && <div>Loading...</div>}
+                <div className="col-span-2 h-full"> 
+                    {article && !isLoading && (
+                        <WikiArticle articleHtml={article} />
+                    )}
+                    {isLoading && <LoadingPane className="h-[600px]" />}
                 </div>
                 {/* Rest of the content */}
                 {mint && <TokenContent mint={mint} />}
