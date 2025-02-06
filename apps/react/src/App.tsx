@@ -14,8 +14,12 @@ import Token from "./pages/token";
 import { PrivyClientProvider } from "./providers/privy-client-provider";
 import { ServerProvider } from "./providers/server-provider";
 import Admin from "./pages/admin";
+import Maintenance from "./pages/maintenance";
 
 function App() {
+    if (import.meta.env.VITE_MAINTENANCE) {
+        return <Maintenance />;
+    }
     return (
         <Router>
             <PrivyClientProvider>
