@@ -4,14 +4,20 @@ import { useTokenData } from "./useTokenData";
 
 export const useFee = (mint: string) => {
     const [fee, setFee] = useState<number>(0);
-    const {slot} = useSlot();
+    const {slot, start, stop, running} = useSlot();
     const tokenData = useTokenData(mint);
 
     useEffect(() => {
         if(tokenData == null || slot == null) return 
+        const fee = calculateFee(slot, tokenData.metadata.startSlot);
+        if (fee > 0.01 && !running) {
+            start();
+        } else if (fee <= 0.01 && running) {
+            stop();
+        }
 
         setFee(calculateFee(slot, tokenData.metadata.startSlot));
-    }, [slot, tokenData]);
+    }, [slot, tokenData, running]);
 
     return { fee, setFee };
 };

@@ -4,7 +4,6 @@ import { Disclaimer } from "./components/common/disclaimer";
 import ServerStatus from "./components/home/server-status";
 import TopBar from "./components/top-bar/top-bar";
 import { PortfolioProvider } from "./contexts/PortfolioContext";
-import { SlotProvider } from "./contexts/SlotContext";
 import { SolPriceProvider } from "./contexts/SolPriceContext";
 import { TokenProvider } from "./contexts/TokenProvider";
 import { Page404 } from "./pages/404";
@@ -20,11 +19,9 @@ function App() {
                 <TokenProvider>
                     <ServerProvider>
                         <SolPriceProvider>
-                            <SlotProvider>
                                 <PortfolioProvider>
                                     <_App />
                                 </PortfolioProvider>
-                            </SlotProvider>
                         </SolPriceProvider>
                     </ServerProvider>
                 </TokenProvider>

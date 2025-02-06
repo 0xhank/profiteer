@@ -6,7 +6,6 @@ import supabase from "../../sbClient";
 import TokenCard from "../common/token-card";
 import { LineChart } from "./line-chart";
 import { TokenBalance } from "./token-balance";
-import { useServer } from "../../hooks/useServer";
 
 export const TokenContent = ({ mint }: { mint: string }) => {
     const tokenData = useTokenData(mint);
@@ -14,12 +13,8 @@ export const TokenContent = ({ mint }: { mint: string }) => {
         { time: string; value: number }[]
     >([]);
     const [loading, setLoading] = useState(true);
-    const [reserveData, setReserveData] = useState<{
-        virtual_token_reserves: number;
-        virtual_sol_reserves: number;
-    } | null>(null);
+
     const [complete, setComplete] = useState<boolean | null>(null);
-    const { migrate } = useServer();
 
     useEffect(() => {
         if (tokenData) {
@@ -60,7 +55,6 @@ export const TokenContent = ({ mint }: { mint: string }) => {
     const progress = useMemo(() => {
         if (curveLiquidity == null) return null;
         const initialLiquidity = 793_100_000_000_000;
-        console.log({curveLiquidity, initialLiquidity});
         return (initialLiquidity - curveLiquidity) / initialLiquidity;
     }, [curveLiquidity]);
 
@@ -79,7 +73,6 @@ export const TokenContent = ({ mint }: { mint: string }) => {
         } else {
             setCurveLiquidity(data[0].real_token_reserves);
             setComplete(data[0].complete);
-            setReserveData(data[0]);
         }
     };
 
