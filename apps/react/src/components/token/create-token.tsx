@@ -1,7 +1,7 @@
+import { VersionedTransaction } from "@solana/web3.js";
 import { useEffect, useMemo, useState } from "react";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { useServer } from "../../hooks/useServer";
-import { VersionedTransaction } from "@solana/web3.js";
 
 export const CreateToken = ({
     articleName,
@@ -43,7 +43,7 @@ export const CreateToken = ({
             const symbols = await getArticleSymbolOptions.query({
                 articleName,
                 hardRefresh,
-                });
+            });
             setSymbols(symbols.map((s) => "n" + s));
         } catch (error) {
             console.error(error);
@@ -131,14 +131,13 @@ const CreateTokenButton = (props: {
 }) => {
     const { createBondingCurveTx, sendCreateBondingCurveTx } = useServer();
     const { wallet } = usePortfolio();
+    const [isLoading, setIsLoading] = useState(false);
 
     const onSendTransaction = async () => {
-        console.log("onSendTransaction", wallet);
-        if (!wallet) {
-            return;
-        }
+        if (!wallet) return;
+        setIsLoading(true);
         try {
-            const {txMessage, txId} = await createBondingCurveTx.mutate({
+            const { txMessage, txId } = await createBondingCurveTx.mutate({
                 ...props,
                 userPublicKey: wallet.address,
             });
@@ -152,9 +151,10 @@ const CreateTokenButton = (props: {
             });
 
             props.refresh();
-
         } catch (error) {
             console.error(error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -162,9 +162,9 @@ const CreateTokenButton = (props: {
         <button
             onClick={onSendTransaction}
             className="btn btn-primary"
-            disabled={props.disabled}
+            disabled={props.disabled || isLoading}
         >
-            Create Token
+            {isLoading ? "Creating..." : "Create Token"}
         </button>
     );
 };
@@ -172,5 +172,3 @@ const CreateTokenButton = (props: {
 const uint8ArrayToBase64 = (uint8Array: Uint8Array): string => {
     return btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
 };
-
-
