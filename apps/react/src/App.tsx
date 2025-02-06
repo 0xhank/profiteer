@@ -13,6 +13,7 @@ import Home from "./pages/home";
 import Token from "./pages/token";
 import { PrivyClientProvider } from "./providers/privy-client-provider";
 import { ServerProvider } from "./providers/server-provider";
+import Admin from "./pages/admin";
 
 function App() {
     return (
@@ -47,6 +48,7 @@ function _App() {
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/wiki/:id" element={<Token />} />
+                    <Route path="/admin" element={<Admin />} />
                     <Route path="/*" element={<Page404 />} />
                 </Routes>
             </div>
