@@ -89,6 +89,12 @@ export const TokenTradeForm = ({
             {isBuyMode && (
                 <div className="flex space-x-2 mt-2">
                     <button
+                        onClick={() => setAmount(0.1)}
+                        className="btn btn-outline"
+                    >
+                        0.1 SOL
+                    </button>
+                    <button
                         onClick={() => setAmount(1)}
                         className="btn btn-outline"
                     >

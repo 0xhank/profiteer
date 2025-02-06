@@ -8,30 +8,39 @@ import supabase from "./sbclient";
 /* --------------------------------- START --------------------------------- */
 const SOL_PRICE_UPDATE_INTERVAL = 1000 * 60; // 15 seconds
 export const start = async () => {
-    updateSolPriceCron();
-
+    const stopPriceUpdate = updateSolPriceCron();
     const connection = new Connection(env.RPC_URL, "confirmed");
-    // add a slot listener
+
     const slotListener = connection.onSlotChange(async (slotInfo) => {
-        console.log("slot", slotInfo.slot);
-        await supabase
-            .from("slot")
-            .upsert(
-                { slot: slotInfo.slot, id: 1 },
-            );
+        await supabase.from("slot").upsert({ slot: slotInfo.slot, id: 1 });
     });
-    return {
-        stop: () => {
-            connection.removeSlotChangeListener(slotListener);
-        },
+
+    // Handle process shutdown
+    const cleanup = () => {
+        connection.removeSlotChangeListener(slotListener);
+        stopPriceUpdate();
     };
+
+    process.on("SIGINT", cleanup);
+    process.on("SIGTERM", cleanup);
+
+    return { stop: cleanup };
 };
 
-const updateSolPriceCron = async () => {
-    while (true) {
-        await updateSolPrice();
-        await new Promise((resolve) =>
-            setTimeout(resolve, SOL_PRICE_UPDATE_INTERVAL)
-        );
-    }
+const updateSolPriceCron = () => {
+    let running = true;
+
+    const loop = async () => {
+        while (running) {
+            await updateSolPrice();
+            await new Promise((resolve) =>
+                setTimeout(resolve, SOL_PRICE_UPDATE_INTERVAL)
+            );
+        }
+    };
+
+    loop();
+    return () => {
+        running = false;
+    };
 };

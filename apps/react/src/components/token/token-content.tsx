@@ -6,13 +6,11 @@ import supabase from "../../sbClient";
 import TokenCard from "../common/token-card";
 import { LineChart } from "./line-chart";
 import { TokenBalance } from "./token-balance";
+import { useTokenPrices } from "../../hooks/useTokenPrices";
 
 export const TokenContent = ({ mint }: { mint: string }) => {
     const tokenData = useTokenData(mint);
-    const [tokenPrices, setTokenPrices] = useState<
-        { time: string; value: number }[]
-    >([]);
-    const [loading, setLoading] = useState(true);
+    const { tokenPrices, loading } = useTokenPrices(mint);
 
     const [complete, setComplete] = useState<boolean | null>(null);
 
@@ -21,35 +19,11 @@ export const TokenContent = ({ mint }: { mint: string }) => {
             setComplete(tokenData.complete ?? false);
         }
     }, [tokenData]);
+
     const [curveLiquidity, setCurveLiquidity] = useState<number | null>(null);
 
     const onSwap = () => {
         fetchCurveLiquidity();
-        fetchTokenPrices();
-    };
-    // todo: subscribe to the token price as updates come in
-    // todo: only fetch prices from a certain window
-    // todo: convert the prices into candles
-    const fetchTokenPrices = async () => {
-        // const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-        const { data, error } = await supabase
-            .from("token_price_usd")
-            .select("price_usd, created_at")
-            .eq("mint", mint)
-            // .gte("created_at", oneHourAgo)
-            .order("created_at", { ascending: true });
-
-        if (error) {
-            console.error(error);
-        } else {
-            setTokenPrices(
-                data.map((price) => ({
-                    time: price.created_at,
-                    value: price.price_usd,
-                }))
-            );
-            setLoading(false);
-        }
     };
 
     const progress = useMemo(() => {
@@ -77,7 +51,6 @@ export const TokenContent = ({ mint }: { mint: string }) => {
     };
 
     useEffect(() => {
-        fetchTokenPrices();
         fetchCurveLiquidity();
     }, [mint]);
 
