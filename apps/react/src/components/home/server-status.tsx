@@ -27,8 +27,7 @@ export default function ServerStatus() {
             }
 
             setServerStatus({ status: status.status, color });
-        } catch (error) {
-            console.error("Error fetching server status", error);
+        } catch {
             setServerStatus({ status: "400", color: "bg-red-500" });
         }
     };

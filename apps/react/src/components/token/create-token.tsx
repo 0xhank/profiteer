@@ -2,6 +2,7 @@ import { VersionedTransaction } from "@solana/web3.js";
 import { useEffect, useMemo, useState } from "react";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { useServer } from "../../hooks/useServer";
+import { toast } from "react-toastify";
 
 export const CreateToken = ({
     articleName,
@@ -46,6 +47,7 @@ export const CreateToken = ({
             });
             setSymbols(symbols.map((s) => "n" + s));
         } catch (error) {
+            toast.error("Error generating symbols");
             console.error(error);
         } finally {
             setIsLoading(false);
@@ -150,8 +152,10 @@ const CreateTokenButton = (props: {
                 txMessage: uint8ArrayToBase64(signedTx.serialize()),
             });
 
+            toast.success("Token created");
             props.refresh();
         } catch (error) {
+            toast.error("Error creating token");
             console.error(error);
         } finally {
             setIsLoading(false);

@@ -10,11 +10,11 @@ import {
 import { Token } from "shared/src/types/token";
 import supabase from "../sbClient";
 import { formatToken } from "../utils/formatToken";
+import { toast } from "react-toastify";
 
 interface TokenListContextType {
     tokens: Record<string, Token>;
     isReady: boolean;
-    error: Error | null;
     refreshTokens: () => void;
     getTokenByMint: (mint: string) => Promise<Token | null>;
 }
@@ -26,7 +26,6 @@ export const TokenListContext = createContext<TokenListContextType | undefined>(
 export function TokenProvider({ children }: { children: ReactNode }) {
     const [tokens, setTokens] = useState<Record<string, Token>>({});
     const [isReady, setIsReady] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
 
     const sub = useRef<RealtimeChannel | null>(null);
 
@@ -50,6 +49,7 @@ export function TokenProvider({ children }: { children: ReactNode }) {
                 .from("token_metadata")
                 .select("*");
             if (error) {
+                toast.error("Error fetching tokens");
                 throw new Error(error?.message);
             }
             if (!data) {
@@ -77,7 +77,6 @@ export function TokenProvider({ children }: { children: ReactNode }) {
             });
         } catch (error) {
             console.error("Error fetching data:", error);
-            setError(error as Error);
         } finally {
             setIsReady(true);
         }
@@ -157,7 +156,7 @@ export function TokenProvider({ children }: { children: ReactNode }) {
 
     return (
         <TokenListContext.Provider
-            value={{ tokens, isReady, refreshTokens, error, getTokenByMint }}
+            value={{ tokens, isReady, refreshTokens, getTokenByMint }}
         >
             {children}
         </TokenListContext.Provider>

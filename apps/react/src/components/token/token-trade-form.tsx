@@ -5,6 +5,7 @@ import { usePortfolio } from "../../hooks/usePortfolio";
 import { useServer } from "../../hooks/useServer";
 import { useTokenBalance } from "../../hooks/useTokenBalance";
 import { VersionedTransaction } from "@solana/web3.js";
+import { toast } from "react-toastify";
 
 // Add these utility functions at the top level
 const uint8ArrayToBase64 = (uint8Array: Uint8Array): string => {
@@ -55,11 +56,13 @@ export const TokenTradeForm = ({
                 txId,
                 txMessage: uint8ArrayToBase64(signedTx.serialize()),
             });
+            toast.success("Swap successful");
 
             // dont await this
             refreshPortfolio();
             onSwap();
         } catch (error) {
+            toast.error(`Swap failed: ${error}`);
             console.error(error);
         } finally {
             setIsLoading(false);

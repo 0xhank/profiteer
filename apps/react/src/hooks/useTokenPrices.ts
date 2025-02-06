@@ -1,6 +1,7 @@
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import supabase from "../sbClient";
+import { toast } from "react-toastify";
 
 export const useTokenPrices = (mint: string) => {
     const [tokenPrices, setTokenPrices] = useState<
@@ -56,6 +57,7 @@ export const useTokenPrices = (mint: string) => {
             .order("created_at", { ascending: true });
 
         if (error) {
+            toast.error("Error fetching token prices");
             console.error(error);
         } else {
             setTokenPrices(

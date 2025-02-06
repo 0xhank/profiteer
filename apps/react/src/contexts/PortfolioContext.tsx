@@ -13,7 +13,6 @@ interface PortfolioContextType {
     wallet: ConnectedSolanaWallet | null;
     solBalance: number;
     isLoading: boolean;
-    error: string | null;
     tokenBalances: Record<string, number>;
     refreshPortfolio: () => Promise<void>;
     hasEnoughBalance: (requiredAmount: number) => boolean;
@@ -31,7 +30,6 @@ export const PortfolioProvider = ({
     const embeddedWallet = useEmbeddedWallet();
 
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const { getSolBalance, getAllTokenBalances } = useServer();
     const [solBalance, setSolBalance] = useState<number>(0);
     const [tokenBalances, setTokenBalances] = useState<Record<string, number>>(
@@ -55,11 +53,8 @@ export const PortfolioProvider = ({
             const walletBalance = await getSolBalance.query({
                 address: wallet.address,
             });
-            console.log("walletBalance ===>>>", walletBalance);
             setSolBalance(walletBalance / 1e9 );
-            setError(null);
         } catch (err) {
-            setError("Error fetching balance");
             console.error("Error fetching balance:", err);
             setSolBalance(0);
         } finally {
@@ -104,7 +99,6 @@ export const PortfolioProvider = ({
                 wallet,
                 solBalance,
                 isLoading,
-                error,
                 tokenBalances,
                 refreshPortfolio,
                 hasEnoughBalance,

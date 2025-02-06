@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { LoadingPane } from "../common/loading";
-
+import { toast } from "react-toastify";
 export function NewsStories() {
     const [article, setArticle] = useState<string | null>(null);
 
@@ -80,6 +80,7 @@ export function NewsStories() {
                     ${eventsBlurb.innerHTML}
                 `);
             } catch (error) {
+                toast.error("Error fetching content:");
                 console.error("Error fetching content:", error);
             }
         };

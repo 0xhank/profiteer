@@ -1,4 +1,6 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 import { Disclaimer } from "./components/common/disclaimer";
 import ServerStatus from "./components/home/server-status";
@@ -19,9 +21,13 @@ function App() {
                 <TokenProvider>
                     <ServerProvider>
                         <SolPriceProvider>
-                                <PortfolioProvider>
-                                    <_App />
-                                </PortfolioProvider>
+                            <PortfolioProvider>
+                                <_App />
+                                <ToastContainer
+                                    position="bottom-right"
+                                    theme="dark"
+                                />
+                            </PortfolioProvider>
                         </SolPriceProvider>
                     </ServerProvider>
                 </TokenProvider>
@@ -34,7 +40,10 @@ function _App() {
     return (
         <div className="flex flex-col items-center relative h-screen w-screen absolute top-0 left-0 right-0 z-50 bg-base-100">
             <TopBar className="absolute top-0 left-0 right-0 z-50" />
-            <div className="flex items-center justify-center overflow-y-auto w-full h-full pt-16" style = {{scrollbarGutter: "stable"}}>
+            <div
+                className="flex items-center justify-center overflow-y-auto w-full h-full pt-16"
+                style={{ scrollbarGutter: "stable" }}
+            >
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/wiki/:id" element={<Token />} />

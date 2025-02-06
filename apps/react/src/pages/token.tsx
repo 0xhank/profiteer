@@ -7,6 +7,7 @@ import { CreateToken } from "../components/token/create-token";
 import { TokenContent } from "../components/token/token-content";
 import WikiArticle from "../components/token/wiki-article";
 import supabase from "../sbClient";
+import { toast } from "react-toastify";
 
 export default function Token() {
     const params = useParams();
@@ -23,6 +24,7 @@ export default function Token() {
             .limit(1);
 
         if (error) {
+            toast.error(`Article does not exist`);
             throw new Error(`Failed to fetch article token: ${error.message}`);
         }
         if (data.length === 0) {
@@ -65,9 +67,14 @@ export default function Token() {
             return;
         }
         if (!isBs58(id)) {
+            try {
             const mint = await getArticleMint(id);
             setArticleName(id);
             setMint(mint?.mint || null);
+            } catch {
+                toast.error(`Article does not exist`);
+                navigate("/404");
+            }
         } else {
             setMint(id);
             const articleName = await getArticleName(id);

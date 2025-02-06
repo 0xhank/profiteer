@@ -5,13 +5,11 @@ import supabase from "../sbClient";
 interface SolanaPriceContextType {
     priceUSD: number;
     isReady: boolean;
-    error: string | null;
 }
 
 export const SolPriceContext = createContext<SolanaPriceContextType>({
     priceUSD: 0, // Default fallback value
     isReady: false,
-    error: null,
 });
 
 export const SolPriceProvider = ({
@@ -21,7 +19,6 @@ export const SolPriceProvider = ({
 }) => {
     const [priceUSD, setPriceUSD] = useState(0);
     const [isReady, setIsReady] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
     // Listen to inserts
     const handleInserts = (payload: { new: { price_usd: number } }) => {
@@ -45,7 +42,7 @@ export const SolPriceProvider = ({
                 }
                 setPriceUSD(data[0].price_usd);
             } catch {
-                setError("Error getting initial value");
+                setPriceUSD(0);
             }
         };
 
@@ -66,7 +63,7 @@ export const SolPriceProvider = ({
     }, []);
 
     return (
-        <SolPriceContext.Provider value={{ priceUSD, isReady, error }}>
+        <SolPriceContext.Provider value={{ priceUSD, isReady }}>
             {children}
         </SolPriceContext.Provider>
     );
