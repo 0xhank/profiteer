@@ -1,13 +1,13 @@
 import bs58 from "bs58";
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import { LoadingPane } from "../components/common/loading";
 import { PageLayout } from "../components/common/page-layout";
 import { CreateToken } from "../components/token/create-token";
 import { TokenContent } from "../components/token/token-content";
 import WikiArticle from "../components/token/wiki-article";
 import supabase from "../sbClient";
-import { toast } from "react-toastify";
 
 export default function Token() {
     const params = useParams();
@@ -55,22 +55,24 @@ export default function Token() {
         setLoading(true);
         const isBs58 = (id: string) => {
             try {
-                bs58.decode(id);
-                return true;
+                const decoded = bs58.decode(id);
+                return decoded.length === 32; // Solana addresses are 32 bytes
             } catch {
                 return false;
             }
         };
         const id = params.id;
+        console.log("id", id);
         if (!id) {
             navigate("/404");
             return;
         }
         if (!isBs58(id)) {
+            console.log("getting article name", id);
             try {
-            const mint = await getArticleMint(id);
-            setArticleName(id);
-            setMint(mint?.mint || null);
+                const mint = await getArticleMint(id);
+                setArticleName(id);
+                setMint(mint?.mint || null);
             } catch {
                 toast.error(`Article does not exist`);
                 navigate("/404");
@@ -137,7 +139,7 @@ function PageContent({
         <PageLayout>
             <div className="w-[1200px] h-full grid grid-cols-1 md:grid-cols-3 gap-8 items-start mt-12">
                 {/* Wiki Article on the left */}
-                <div className="col-span-2 h-full"> 
+                <div className="col-span-2 h-full">
                     {article && !isLoading && (
                         <WikiArticle articleHtml={article} />
                     )}
