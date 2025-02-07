@@ -4,30 +4,15 @@ import { PageLayout } from "../components/common/page-layout";
 import { NewsStories } from "../components/home/news-stories";
 import { TokenList } from "../components/home/token-list";
 import { cn } from "../utils/cn";
+import { getWikipediaAutocomplete } from "../utils/getWikiAutocomplete";
 
 export default function Home() {
     const navigate = useNavigate();
 
     const [query, setQuery] = useState("");
-    const [suggestions, setSuggestions] = useState([]);
+    const [suggestions, setSuggestions] = useState<string[]>([]);
 
-    async function getWikipediaAutocomplete(query: string) {
-        const endpoint = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(
-            query
-        )}&limit=10&namespace=0&format=json&origin=*`;
 
-        try {
-            const response = await fetch(endpoint);
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-            const data = await response.json();
-            return data[1]; // The second element contains the list of suggestions
-        } catch (error) {
-            console.error("Error fetching Wikipedia autocomplete:", error);
-            return [];
-        }
-    }
 
     const handleSearchChange = async (
         event: React.ChangeEvent<HTMLInputElement>
@@ -38,7 +23,12 @@ export default function Home() {
         if (newQuery.length > 2) {
             // Fetch suggestions for queries longer than 2 characters
             const results = await getWikipediaAutocomplete(newQuery);
-            setSuggestions(results);
+            // right now the results are an array with /wiki/Donald%20Trump
+            // how can i replace the %20 with an underscore?
+            const suggestions = results.map((result) =>
+                result.replace("%20", "_")
+            );
+            setSuggestions(suggestions);
         } else {
             setSuggestions([]);
         }

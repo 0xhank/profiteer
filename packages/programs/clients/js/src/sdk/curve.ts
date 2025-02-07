@@ -197,7 +197,6 @@ export class CurveSDK {
                 toWeb3JsPublicKey(AMM_PROGRAM_ID),
             )
 
-
         const { vaultPda: aVault, tokenVaultPda: aTokenVault, lpMintPda: aVaultLpMint }= getVaultPdas(tokenAMint, toWeb3JsPublicKey(VAULT_PROGRAM_ID));
         const { vaultPda: bVault, tokenVaultPda: bTokenVault, lpMintPda: bVaultLpMint }= getVaultPdas(tokenBMint, toWeb3JsPublicKey(VAULT_PROGRAM_ID));
 
@@ -206,8 +205,6 @@ export class CurveSDK {
             vaultProgram.account.vault.fetchNullable(aVault),
             vaultProgram.account.vault.fetchNullable(bVault),
         ]);
-        aVaultAccount
-        bVaultAccount
         const preInstructions: Array<TransactionInstruction> = [];
         if (!aVaultAccount) {
             const createVaultAIx = await VaultImpl.createPermissionlessVaultInstruction(this.PumpScience.provider.connection, toWeb3JsPublicKey(signer.publicKey), tokenAMint);

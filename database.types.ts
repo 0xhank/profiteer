@@ -107,6 +107,30 @@ export type Database = {
           },
         ]
       }
+      news_story: {
+        Row: {
+          article_names: string[] | null
+          content: string
+          created_at: string
+          id: number
+          image_id: string | null
+        }
+        Insert: {
+          article_names?: string[] | null
+          content: string
+          created_at?: string
+          id?: number
+          image_id?: string | null
+        }
+        Update: {
+          article_names?: string[] | null
+          content?: string
+          created_at?: string
+          id?: number
+          image_id?: string | null
+        }
+        Relationships: []
+      }
       slot: {
         Row: {
           created_at: string
