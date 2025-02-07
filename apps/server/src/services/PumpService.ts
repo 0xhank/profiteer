@@ -11,7 +11,7 @@ import {
     getAssociatedTokenAddressSync,
     TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 import {
     MessageV0,
@@ -22,7 +22,7 @@ import {
 import { getTxEventsFromTxBuilderResponse, processTransaction } from "programs";
 
 export const createPumpService = () => {
-    const { umi, sdk, connection, program, masterWallet } = initProviders();
+    const { umi, sdk, connection, program, masterKp } = initProviders();
 
     const slotSubscribers = new Map<string, (slot: number) => void>();
     let pollInterval: NodeJS.Timeout | null = null;
@@ -151,7 +151,6 @@ export const createPumpService = () => {
         { kp: Keypair; createdAt: number; name: string }
     >();
 
-
     setInterval(() => {
         const now = Date.now();
         for (const [key, value] of createBondingCurveRegistry.entries()) {
@@ -161,7 +160,6 @@ export const createPumpService = () => {
             }
         }
     }, 30000);
-
 
     const createBondingCurveTx = async (input: CreateBondingCurveInput) => {
         const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
@@ -180,7 +178,7 @@ export const createPumpService = () => {
         // log the signers of the tx
         const txBase64 = Buffer.from(tx.serialize()).toString("base64");
         const txId = uuidv4();
-        
+
         createBondingCurveRegistry.set(txId, {
             kp: mintKp,
             createdAt: Date.now(),
@@ -207,7 +205,7 @@ export const createPumpService = () => {
             }
             const txSerialized = Buffer.from(txInput, "base64");
             const tx = VersionedTransaction.deserialize(txSerialized);
-            console.log("tx:", tx.signatures)
+            console.log("tx:", tx.signatures);
             const { kp, name } = entry;
 
             const sig = await connection.sendTransaction(tx);
@@ -258,9 +256,7 @@ export const createPumpService = () => {
                 .insert({
                     mint: createEvent.mint.toBase58(),
                     real_sol_reserves: Number(createEvent.realSolReserves),
-                    real_token_reserves: Number(
-                        createEvent.realTokenReserves
-                    ),
+                    real_token_reserves: Number(createEvent.realTokenReserves),
                     virtual_sol_reserves: Number(
                         createEvent.virtualSolReserves
                     ),
@@ -400,20 +396,34 @@ export const createPumpService = () => {
         }
     };
 
-
-
     const migrate = async (mint: string) => {
         const mintKp = new PublicKey(mint);
         const curveSdk = sdk.getCurveSDK(fromWeb3JsPublicKey(mintKp));
-        const txBuilder = await curveSdk.migrate();
-        try {
-            const preTx = await processTransaction(umi, txBuilder.preTxBuilder);
-            const tx = await processTransaction(umi, txBuilder.txBuilder);
-            return preTx;
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
+        const txBuilder = await curveSdk.migrate(masterKp);
+
+        const { blockhash, lastValidBlockHeight } =
+            await connection.getLatestBlockhash();
+        const preMigrateSig = await connection.sendTransaction(
+            txBuilder.preTx,
+            { preflightCommitment: "confirmed" }
+        );
+        await connection.confirmTransaction(
+            { signature: preMigrateSig, blockhash, lastValidBlockHeight },
+            "confirmed"
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        const migrateSig = await connection.sendTransaction(txBuilder.tx, {
+            preflightCommitment: "confirmed",
+        });
+        await connection.confirmTransaction(
+            { signature: migrateSig, blockhash, lastValidBlockHeight },
+            "confirmed"
+        );
+        const txData = await connection.getTransaction(migrateSig, {
+            maxSupportedTransactionVersion: 0,
+            commitment: "confirmed",
+        });
     };
 
     return {
