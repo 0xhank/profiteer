@@ -37,7 +37,6 @@ export const PortfolioProvider = ({
     const { authenticated,   } = usePrivy();
 
     const wallet = useMemo(() => {
-        console.log({wallets, ready});
         if (wallets.length === 0) 
             return null; 
         return wallets[0]

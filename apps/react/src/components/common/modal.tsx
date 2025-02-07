@@ -39,6 +39,7 @@ export const Modal: React.FC<ModalProps> & {
   }, [blockClose, isOpen, onClose]);
 
   useEffect(() => {
+
     // use a dom listener to keep esc in any case
     const closeOnEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") {

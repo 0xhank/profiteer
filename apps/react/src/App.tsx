@@ -31,13 +31,16 @@ function App() {
                                 <ToastContainer
                                     position="bottom-right"
                                     theme="dark"
-                                />      <div id="modal-root" className="fixed top-0 pointer-events-auto z-50" />
+                                />
+                                <div
+                                    id="modal-root"
+                                    className="fixed top-0 pointer-events-auto z-50"
+                                />
                             </PortfolioProvider>
                         </SolPriceProvider>
                     </ServerProvider>
                 </TokenProvider>
             </PrivyClientProvider>
-
         </Router>
     );
 }
