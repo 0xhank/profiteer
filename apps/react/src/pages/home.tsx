@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageLayout } from "../components/common/page-layout";
-import { NewsStories } from "../components/home/news-stories";
+import { CurrentNews, NewsStories } from "../components/home/current-news";
 import { TokenList } from "../components/home/token-list";
 import { cn } from "../utils/cn";
 import { getWikipediaAutocomplete } from "../utils/getWikiAutocomplete";
+import { LatestNews } from "../components/home/latest-news";
 
 export default function Home() {
     const navigate = useNavigate();
@@ -115,8 +116,9 @@ export default function Home() {
               
             </div>
             <div className="grid grid-cols-3 gap-12">
-                <div className="col-span-2">
-                    <NewsStories /> 
+                <div className="col-span-2 space-y-4">
+                    <LatestNews />
+                    <CurrentNews />
                 </div>
                 <div className="col-span-1">
                     <TokenList />
