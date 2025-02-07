@@ -156,7 +156,7 @@ const ArticleForm = () => {
                             htmlFor="article"
                             className="block text-lg font-medium mb-2"
                         >
-                            Article Content
+                            Headline Content
                         </label>
                         <textarea
                             ref={textareaRef}
@@ -165,7 +165,7 @@ const ArticleForm = () => {
                             onChange={handleArticleChange}
                             className="w-full px-4 py-3 border rounded-md min-h-[400px] resize-y text-lg"
                             required
-                            placeholder="Write your article here... Use @ to link Wikipedia articles"
+                            placeholder="Write your headline here... Use @ to link Wikipedia articles"
                         />
                         {suggestions.length > 0 && (
                             <div className="absolute z-10 w-64 mt-1 bg-white border rounded-md shadow-lg">
@@ -199,7 +199,7 @@ const ArticleForm = () => {
                 <div className="w-[400px] space-y-6">
                     <div className="w-full">
                         <label className="block text-lg font-medium mb-2">
-                            Article Image
+                            Headline Image
                         </label>
                         <div
                             {...getRootProps()}

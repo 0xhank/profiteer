@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { LoadingPane } from "../common/loading";
 import { toast } from "react-toastify";
-export function NewsStories() {
+
+export function CurrentNews() {
     const [article, setArticle] = useState<string | null>(null);
 
     useEffect(() => {
@@ -29,59 +30,39 @@ export function NewsStories() {
                     months[yesterday.getMonth()]
                 }_${yesterday.getDate()}`;
                 const eventsUrl = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=revisions&titles=Portal%3ACurrent%20events%2F${formattedDate}&formatversion=2&rvprop=content&rvparse=1&origin=*`;
-                const newsUrl = `https://en.wikipedia.org/w/api.php?action=parse&format=json&page=Main_Page&prop=text&section=0&origin=*`;
 
                 // Fetch both in parallel
-                const [eventsResponse, newsResponse] = await Promise.all([
-                    fetch(eventsUrl),
-                    fetch(newsUrl),
-                ]);
+                const eventsResponse = await fetch(eventsUrl);
 
-                const [eventsData, newsData] = await Promise.all([
-                    eventsResponse.json(),
-                    newsResponse.json(),
-                ]);
+                const eventsData = await eventsResponse.json();
 
                 const eventsMarkup =
                     eventsData.query.pages[0].revisions[0].content;
-                const newsMarkup = newsData.parse.text["*"];
 
                 const eventsBlurb = document.createElement("div");
-                const newsBlurb = document.createElement("div");
 
                 eventsBlurb.innerHTML = eventsMarkup;
-                newsBlurb.innerHTML = newsMarkup;
-
-                const newsSection = newsBlurb.querySelector("#mp-itn");
 
                 // Remove links around images but keep the images
-                [eventsBlurb, newsBlurb].forEach((element) => {
-                    element.querySelectorAll("a > img").forEach((img) => {
-                        const link = img.parentElement;
-                        if (link?.tagName === "A") {
+                eventsBlurb.querySelectorAll("a > img").forEach((img) => {
+                    const link = img.parentElement;
+                    if (link?.tagName === "A") {
                             link.replaceWith(img);
                         }
                     });
 
                     // Convert Portal links to divs
-                    element
-                        .querySelectorAll('a[href^="/wiki/Portal:"]')
-                        .forEach((link) => {
-                            const div = document.createElement("span");
-                            div.innerHTML = link.innerHTML;
-                            link.replaceWith(div);
-                        });
-                });
+                    eventsBlurb.querySelectorAll('a[href^="/wiki/Portal:"]').forEach((link) => {
+                        const div = document.createElement("span");
+                        div.innerHTML = link.innerHTML;
+                        link.replaceWith(div);
+                    });
 
-                setArticle(`
-                    <h2>In The News</h2>
-                    ${newsSection?.innerHTML || "No news available"}
-                    <h2>Current Events</h2>
-                    ${eventsBlurb.innerHTML}
-                `);
+                    setArticle(eventsBlurb.innerHTML);
             } catch (error) {
-                toast.error("Error fetching content:");
-                console.error("Error fetching content:", error);
+                const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+                toast.error(`Error fetching news content: ${errorMessage}`);
+                console.error("Error fetching news content:", error);
             }
         };
 
@@ -92,6 +73,8 @@ export function NewsStories() {
         return <LoadingPane className="h-[600px]" />;
     }
 
-    return <div dangerouslySetInnerHTML={{ __html: article }} />;
-    // ... existing code ...
+    return <div>
+        <h2>Current Events</h2>
+        <div dangerouslySetInnerHTML={{ __html: article }} />
+    </div>;
 }
