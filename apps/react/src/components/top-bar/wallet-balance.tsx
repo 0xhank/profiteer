@@ -1,6 +1,5 @@
 import {
     usePrivy,
-    useSolanaWallets,
 } from "@privy-io/react-auth";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { useSolPrice } from "../../hooks/useSolPrice";
@@ -12,7 +11,6 @@ export const WalletBalance = () => {
         usePortfolio();
     const { login, logout, authenticated, ready } = usePrivy();
 
-    const { createWallet } = useSolanaWallets();
 
     const { priceUSD } = useSolPrice();
 
@@ -31,11 +29,6 @@ export const WalletBalance = () => {
     return (
         <>
         <div className="flex h-full items-center gap-6 sm:gap-4 px-3 py-1">
-            {!wallet && (
-                <button className="btn btn-primary mr-4" onClick={createWallet}>
-                    <div className="text-gray-500">Connect</div>
-                </button>
-            )}
             {wallet && (
                 <div className="flex flex-row items-center gap-12">
                     <p>{wallet.address}</p>

@@ -1,11 +1,7 @@
 
 import { PrivyProvider } from '@privy-io/react-auth'; // TODO: make sure oslana walllets are loaded in
-import {toSolanaWalletConnectors} from '@privy-io/react-auth/solana';
 
-const solanaConnectors = toSolanaWalletConnectors({
-    // By default, shouldAutoConnect is enabled
-    shouldAutoConnect: false,
-  });
+
 
 export function PrivyClientProvider({
   children,
@@ -21,11 +17,6 @@ export function PrivyClientProvider({
           accentColor: '#16ff00',
           walletChainType: 'solana-only',
         }, 
-        externalWallets: {
-            solana: {
-                connectors: solanaConnectors,
-            },
-        },
       }}
     > 
       {children}

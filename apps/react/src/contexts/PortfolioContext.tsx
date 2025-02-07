@@ -5,9 +5,8 @@ import {
     useCallback,
     useMemo,
 } from "react";
-import { ConnectedSolanaWallet, useSolanaWallets } from "@privy-io/react-auth";
+import { ConnectedSolanaWallet, usePrivy, useSolanaWallets } from "@privy-io/react-auth";
 import { useServer } from "../hooks/useServer";
-import { useEmbeddedWallet } from "../hooks/useEmbeddedWallet";
 
 interface PortfolioContextType {
     wallet: ConnectedSolanaWallet | null;
@@ -27,7 +26,6 @@ export const PortfolioProvider = ({
 }: {
     children: React.ReactNode;
 }) => {
-    const embeddedWallet = useEmbeddedWallet();
 
     const [isLoading, setIsLoading] = useState(true);
     const { getSolBalance, getAllTokenBalances } = useServer();
@@ -35,13 +33,15 @@ export const PortfolioProvider = ({
     const [tokenBalances, setTokenBalances] = useState<Record<string, number>>(
         {}
     );
-    const { wallets } = useSolanaWallets();
+    const { wallets,ready } = useSolanaWallets();
+    const { authenticated,   } = usePrivy();
 
     const wallet = useMemo(() => {
+        console.log({wallets, ready});
         if (wallets.length === 0) 
             return null; 
         return wallets[0]
-    }, [embeddedWallet]);
+    }, [wallets, ready]);
 
     const fetchSolBalance = useCallback(async () => {
         if (!wallet) {
@@ -92,6 +92,9 @@ export const PortfolioProvider = ({
             setIsLoading(false);
         }
     }, [wallet]); // Only depend on ready state and wallet address
+
+    useEffect(() => {
+    }, [wallet, authenticated]);
 
     return (
         <PortfolioContext.Provider
