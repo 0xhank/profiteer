@@ -5,6 +5,7 @@ import {
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { useSolPrice } from "../../hooks/useSolPrice";
 import { Airdrop } from "./airdrop";
+import { Account } from "./account";
 
 export const WalletBalance = () => {
     const { solBalance, isLoading, wallet, refreshPortfolio } =
@@ -28,6 +29,7 @@ export const WalletBalance = () => {
     }
 
     return (
+        <>
         <div className="flex h-full items-center gap-6 sm:gap-4 px-3 py-1">
             {!wallet && (
                 <button className="btn btn-primary mr-4" onClick={createWallet}>
@@ -38,6 +40,8 @@ export const WalletBalance = () => {
                 <div className="flex flex-row items-center gap-12">
                     <p>{wallet.address}</p>
                     <Airdrop />
+
+                    <Account />
                     <div className="flex flex-row items-center bg-primary rounded-full px-4">
                         <button
                             onClick={refreshPortfolio}
@@ -76,5 +80,6 @@ export const WalletBalance = () => {
                 Logout
             </button>
         </div>
+       </> 
     );
 };
