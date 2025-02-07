@@ -70,13 +70,14 @@ pub struct InitializePoolWithConfig<'info> {
     )]
     pub a_token_vault: Box<Account<'info, TokenAccount>>,
 
+    /// CHECK: Token vault account for token B
     #[account(
         mut,
         seeds = [TOKEN_VAULT_SEED.as_bytes(), b_vault.key.as_ref()],
         bump,
         seeds::program = vault_program.key()
     )]
-    pub b_token_vault: Box<Account<'info, TokenAccount>>,
+    pub b_token_vault: UncheckedAccount<'info>,
 
     #[account(mut)]
     /// CHECK: Vault LP accounts and mints for token A

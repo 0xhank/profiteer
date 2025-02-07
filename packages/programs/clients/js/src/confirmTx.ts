@@ -23,7 +23,7 @@ export async function confirmTransaction(
 ): Promise<RpcResponseAndContext<SignatureStatus>> {
   let attempt = 0;
 
-  for (let i = 0; i < 15; i++) {
+  for (let i = 0; i < 30; i++) {
     try {
       const status = await connection.getSignatureStatus(txid, {
         searchTransactionHistory: true,

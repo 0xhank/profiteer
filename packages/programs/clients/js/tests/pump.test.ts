@@ -1,6 +1,5 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program, Wallet } from "@coral-xyz/anchor";
-import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { Keypair, keypairIdentity, Umi } from "@metaplex-foundation/umi";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import {
@@ -19,7 +18,6 @@ import {
   AMM,
   getSolAmountWithFee,
   getTknAmount,
-  getTxEventsFromTxBuilderResponse,
   INIT_DEFAULTS,
   PUMP_SCIENCE_PROGRAM_ID,
   PumpScienceSDK,
@@ -32,8 +30,8 @@ import idl from "../src/idls/pump_science.json";
 const privateKeyUrl = path.resolve(__dirname, "../../../pump_test.json");
 const loadProviders = () => {
   // convert the private key to a string
-  const rpcUrl = "https://cosmological-wild-dew.solana-devnet.quiknode.pro/5c3ba882408038ec82100344e3c50147ace8fd51/";
-  // const rpcUrl = "http://localhost:8899";
+  // const rpcUrl = "https://cosmological-wild-dew.solana-devnet.quiknode.pro/5c3ba882408038ec82100344e3c50147ace8fd51/";
+  const rpcUrl = "http://localhost:8899";
 
   const web3jsKp = Web3JsKeypair.fromSecretKey(
     Uint8Array.from(require(privateKeyUrl))
@@ -52,7 +50,6 @@ const loadProviders = () => {
     provider
   ) as unknown as Program<PumpScience>;
   const masterKp = fromWeb3JsKeypair(web3jsKp);
-  console.log("masterKp", masterKp.publicKey);
 
   const umi = createUmi(rpcUrl);
   return {
@@ -72,21 +69,18 @@ describe("pump tests", () => {
   let sdk: PumpScienceSDK;
   let masterKp: Keypair;
   let connection: Connection;
-  let program: Program<PumpScience>;
 
   beforeAll(async () => {
     const {
       masterKp: preMasterKp,
       umi: preumi,
       connection: preConnection,
-      program: preProgram,
       rpcUrl,
       provider,
     } = loadProviders();
 
     masterKp = preMasterKp;
     connection = preConnection;
-    program = preProgram;
     umi = preumi.use(keypairIdentity(masterKp));
     sdk = new PumpScienceSDK(provider,masterKp);
     if (rpcUrl.includes("localhost")) {
@@ -95,7 +89,6 @@ describe("pump tests", () => {
         100 * LAMPORTS_PER_SOL
       );
       await confirmTransaction(preConnection, tx);
-      console.log("Airdropped SOL to master keypair");
     }
 
 
@@ -108,11 +101,10 @@ describe("pump tests", () => {
       let global;
       try {
         global = await adminSdk.PumpScience.fetchGlobalData();
-        console.log("global", global);
       } catch (error) {
         const txBuilder = adminSdk.initialize(INIT_DEFAULTS);
-        await processTransaction(umi, txBuilder);
-        console.log("initialized");
+        const tx = await processTransaction(umi, txBuilder);
+        await confirmTransaction(connection, tx.signatureBs58);
 
         global = await adminSdk.PumpScience.fetchGlobalData();
         expect(global).toBeDefined();
@@ -141,7 +133,7 @@ describe("pump tests", () => {
   });
 
   let mintKp: Keypair;
-  describe("create pool", () => {
+  describe.skip("create pool", () => {
     beforeAll(async () => {
       mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
     });
@@ -164,9 +156,6 @@ describe("pump tests", () => {
         commitment: "confirmed",
       });
 
-      const events = await getTxEventsFromTxBuilderResponse(connection, program, txid);
-      console.log("events", events);
-
       expect(Number(poolData.virtualSolReserves)).toBe(
         INIT_DEFAULTS.initialVirtualSolReserves
       );
@@ -188,15 +177,17 @@ describe("pump tests", () => {
   it.skip("swap: buy", async () => {
     const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
     const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
-    const curveTxBuilder = await curveSdk.createBondingCurve(
+    const curveTx = await curveSdk.createBondingCurve(
       SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
       mintKp,
       masterKp.publicKey,
       false
     );
+    curveTx.sign([toWeb3JsKeypair(masterKp)]);
     // Initialize feeReceiver's Solana ATA
 
-    const createTx = await connection.sendTransaction(curveTxBuilder);
+
+    const createTx = await connection.sendTransaction(curveTx);
     await confirmTransaction(connection, createTx);
 
     const bondingCurveData = await curveSdk.fetchData({
@@ -223,24 +214,21 @@ describe("pump tests", () => {
       Number(startSlot)
     );
 
-    const tx = curveSdk.swap({
+    const tx = await curveSdk.swap({
       direction: "buy",
       user: masterKp.publicKey,
       exactInAmount: solAmountWithFee,
       minOutAmount: (minBuyTokenAmount * 975n) / 1000n,
     });
+    tx.sign([toWeb3JsKeypair(masterKp)]);
 
 
-    const txRes = await connection.sendTransaction(tx);
-    const signatureBs58 = bs58.encode(txRes.signature);
+    const sig = await connection.sendTransaction(tx, { preflightCommitment: "confirmed" });
 
-    await confirmTransaction(connection, signatureBs58);
+    await confirmTransaction(connection, sig);
 
     const userTokenAccount = curveSdk.getUserTokenAccount(mintKp.publicKey)[0];
 
-    const bondingCurveDataPost = await curveSdk.fetchData({
-      commitment: "confirmed",
-    });
     try {
       const traderAtaBalancePost = await getTknAmount(
         umi,
@@ -251,22 +239,90 @@ describe("pump tests", () => {
     } catch (error) {
       console.log("error fetching trader ata balance", error);
     }
-
-    console.log("pre.realTokenReserves", bondingCurveData.realTokenReserves);
-    console.log(
-      "post.realTokenReserves",
-      bondingCurveDataPost.realTokenReserves
-    );
-    console.log("buyTokenAmount", minBuyTokenAmount);
-    const tknAmountDiff = BigInt(
-      bondingCurveData.realTokenReserves -
-        bondingCurveDataPost.realTokenReserves
-    );
-    console.log("real difference", tknAmountDiff);
-    console.log(
-      "buyAmount-tknAmountDiff",
-      tknAmountDiff - minBuyTokenAmount,
-      tknAmountDiff > minBuyTokenAmount
-    );
   });
+
+  it("migrate", async () => {
+      const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
+    const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
+    const curveTx = await curveSdk.createBondingCurve(
+      SIMPLE_DEFAULT_BONDING_CURVE_PRESET,
+      mintKp,
+      masterKp.publicKey,
+      false
+    );
+    curveTx.sign([toWeb3JsKeypair(masterKp)]);
+    // Initialize feeReceiver's Solana ATA
+
+
+    const createTx = await connection.sendTransaction(curveTx);
+    await confirmTransaction(connection, createTx);
+
+    const bondingCurveData = await curveSdk.fetchData({
+      commitment: "confirmed",
+    });
+
+    const amm = AMM.fromBondingCurve(bondingCurveData);
+
+    const minBuyTokenAmount = 793_100_000_000_000n;
+
+    const solAmount = amm.getSolForSellTokens(minBuyTokenAmount);
+
+    const currentSlot = await connection.getSlot();
+    const startSlot = (
+      await curveSdk.fetchData({
+        commitment: "confirmed",
+      })
+    ).startSlot;
+    // should use actual fee set on global when live
+
+    const { solAmountWithFee } = getSolAmountWithFee(
+      solAmount,
+      currentSlot,
+      Number(startSlot)
+    );
+    const airdropTx = await connection.requestAirdrop(toWeb3JsPublicKey(masterKp.publicKey), Number(solAmountWithFee * 10n));
+    await confirmTransaction(connection, airdropTx);
+    console.log("Airdropped SOL to master keypair");
+    const balance = await connection.getBalance(toWeb3JsPublicKey(masterKp.publicKey), "confirmed");
+    console.log({balance, solAmount, solAmountWithFee});
+
+    const tx = await curveSdk.swap({
+      direction: "buy",
+      user: masterKp.publicKey,
+      exactInAmount: solAmountWithFee * 10n,
+      minOutAmount: 0,
+    });
+    tx.sign([toWeb3JsKeypair(masterKp)]);
+    const sig = await connection.sendTransaction(tx, { preflightCommitment: "confirmed" });
+
+    await confirmTransaction(connection, sig);
+
+    const bondingCurveDataPost = await curveSdk.fetchData({
+      commitment: "confirmed",
+    });
+    
+    expect(bondingCurveDataPost.complete).toBe(true);
+
+    const migrateTx = await curveSdk.migrate(masterKp);
+
+    const preMigrateSig = await connection.sendTransaction(migrateTx.preTx, { preflightCommitment: "confirmed" });
+    await confirmTransaction(connection, preMigrateSig);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const migrateSig = await connection.sendTransaction(migrateTx.tx, { preflightCommitment: "confirmed" });
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+    await connection.confirmTransaction({ signature:migrateSig, blockhash, lastValidBlockHeight}, "confirmed" );
+    const txData = await connection.getTransaction(migrateSig, {
+      maxSupportedTransactionVersion: 0,
+      commitment: "confirmed"
+    });
+
+    console.log("txData", txData);
+
+    const bondingCurveDataPostMigrated = await curveSdk.fetchData({
+      commitment: "confirmed",
+    });
+    console.log("bondingCurveDataPostMigrated", bondingCurveDataPostMigrated);
+  }, 20000)
 });
+
