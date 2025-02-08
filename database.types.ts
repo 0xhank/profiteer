@@ -9,6 +9,24 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      alpha_crew: {
+        Row: {
+          address: string
+          created_at: string
+          id: number
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
       article_symbol_options: {
         Row: {
           article_name: string
@@ -106,6 +124,30 @@ export type Database = {
             referencedColumns: ["mint"]
           },
         ]
+      }
+      news_story: {
+        Row: {
+          article_names: string[] | null
+          content: string
+          created_at: string
+          id: number
+          image_id: string | null
+        }
+        Insert: {
+          article_names?: string[] | null
+          content: string
+          created_at?: string
+          id?: number
+          image_id?: string | null
+        }
+        Update: {
+          article_names?: string[] | null
+          content?: string
+          created_at?: string
+          id?: number
+          image_id?: string | null
+        }
+        Relationships: []
       }
       slot: {
         Row: {
