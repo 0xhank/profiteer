@@ -15,9 +15,9 @@ export const TopicView = ({
 
     return (
         <div className="w-full">
-            <div className="flex border-b border-gray-200">
+            <div className="flex border-b border-black/30">
                 <button
-                    className={`px-4 py-2 ${
+                    className={`cursor-pointer px-4 py-2 ${
                         activeTab === "news"
                             ? "border-b-2 border-accent text-accent"
                             : "text-gray-500 hover:text-gray-700"
@@ -27,9 +27,9 @@ export const TopicView = ({
                     News
                 </button>
                 <button
-                    className={`px-4 py-2 ${
+                    className={`cursor-pointer px-4 py-2 ${
                         activeTab === "wiki"
-                            ? "border-b-2 border-blue-500 text-blue-600"
+                            ? "border-b-2 border-accent text-accent"
                             : "text-gray-500 hover:text-gray-700"
                     }`}
                     onClick={() => setActiveTab("wiki")}

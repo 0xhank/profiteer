@@ -58,7 +58,7 @@ export const CreateToken = ({
         return null;
     }
     return (
-        <div className="border border-black p-4 space-y-6">
+        <div className="border border-black/30 p-4 space-y-6">
             <div className="card-title">Create a token for this topic</div>
             {imageUri && (
                 <div className="flex justify-center mb-6">
