@@ -102,8 +102,8 @@ export const TokenItem = ({
             )}
             {!hasImage && (
                 <p className="indent-4 text-xs uppercase">
-                    {token.metadata.name.slice(0, 40).replace(/_/g, " ") +
-                        (token.metadata.name.length > 40 ? "..." : "")}
+                    {token.metadata.name.slice(0, 50).replace(/_/g, " ") +
+                        (token.metadata.name.length > 50 ? "..." : "")}
                 </p>
             )}
             {hasImage && (
