@@ -30,6 +30,7 @@ h2 {
 }
 
 .current-events-main {
+	margin: 0 !important;
 	border: 1px solid black !important;
 }
 
