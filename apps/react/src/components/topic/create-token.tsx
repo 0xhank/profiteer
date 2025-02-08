@@ -1,8 +1,8 @@
 import { VersionedTransaction } from "@solana/web3.js";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { useServer } from "../../hooks/useServer";
-import { toast } from "react-toastify";
 
 export const CreateToken = ({
     articleName,
@@ -54,17 +54,16 @@ export const CreateToken = ({
         }
     };
 
+    if (!articleContent) {
+        return null;
+    }
     return (
-        <div className="card bg-base-200 p-4 shadow-sm rounded rounded-sm space-y-6">
-            <div className="card-title">Create a token</div>
+        <div className="border border-black p-4 space-y-6">
+            <div className="card-title">Create a token for this topic</div>
             {imageUri && (
                 <div className="flex justify-center mb-6">
                     <div className="relative">
-                        <img
-                            src={imageUri}
-                            alt="Profile"
-                            className="shadow-lg"
-                        />
+                        <img src={imageUri} alt="Profile" className="h-48" />
                     </div>
                 </div>
             )}
@@ -80,33 +79,33 @@ export const CreateToken = ({
                         <p className="label">Ticker</p>
                         <button
                             onClick={() => handleGetSymbols(true)}
-                            className="btn btn-sm btn-outline"
+                            className="btn btn-sm btn-outline rounded-none"
                             disabled={isLoading}
                         >
-                            {isLoading ? "Loading..." : "Regenerate"}
+                            Regenerate
+                            <img
+                                src="https://imgs.search.brave.com/GbWrfYb7yqHRy-Nn1tZ8-Qv1CZ9UBGjGlAm6jEJ0m8E/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9yZWdp/c3RyeS5ucG1taXJy/b3IuY29tL0Bsb2Jl/aHViL2ljb25zLXN0/YXRpYy1wbmcvbGF0/ZXN0L2ZpbGVzL2Rh/cmsvZGVlcHNlZWst/Y29sb3IucG5n"
+                                className="w-4 h-4"
+                            />
                         </button>
                     </div>
 
                     {isLoading ? (
-                        <div className="opacity-50">Loading...</div>
+                        <div className="opacity-50 h-20">Generating...</div>
                     ) : (
-                        <div className="space-y-2">
+                        <div className="flex flex-wrap gap-2 h-20">
                             {symbols.map((symbol) => (
-                                <label
+                                <button
                                     key={symbol}
-                                    className="flex items-center space-x-2"
+                                    onClick={() => setSelectedSymbol(symbol)}
+                                    className={`btn btn-sm rounded-none ${
+                                        selectedSymbol === symbol
+                                            ? "btn-accent"
+                                            : "btn-outline"
+                                    }`}
                                 >
-                                    <input
-                                        type="radio"
-                                        value={symbol}
-                                        checked={selectedSymbol === symbol}
-                                        onChange={(e) =>
-                                            setSelectedSymbol(e.target.value)
-                                        }
-                                        className="radio radio-primary"
-                                    />
-                                    <span>{symbol}</span>
-                                </label>
+                                    {symbol}
+                                </button>
                             ))}
                         </div>
                     )}
@@ -165,7 +164,7 @@ const CreateTokenButton = (props: {
     return (
         <button
             onClick={onSendTransaction}
-            className="btn btn-primary"
+            className="btn btn-primary btn-block rounded-none"
             disabled={props.disabled || isLoading}
         >
             {isLoading ? "Creating..." : "Create Token"}

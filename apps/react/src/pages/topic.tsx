@@ -1,19 +1,23 @@
 import bs58 from "bs58";
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { LoadingPane } from "../components/common/loading";
 import { PageLayout } from "../components/common/page-layout";
-import { CreateToken } from "../components/token/create-token";
-import { TokenContent } from "../components/token/token-content";
-import WikiArticle from "../components/token/wiki-article";
+import { CreateToken } from "../components/topic/create-token";
+import { TokenContent } from "../components/topic/token-content";
 import supabase from "../sbClient";
+import { TopicView } from "../components/topic/topic-view";
+import {
+    checkValidWikiLink,
+    cleanWikiArticle,
+} from "../utils/cleanWikiArticle";
 
-export default function Token() {
+export default function Topic() {
     const params = useParams();
     const [mint, setMint] = useState<string | null>(null);
     const [articleName, setArticleName] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const [invalidLink, setInvalidLink] = useState(false);
     const navigate = useNavigate();
 
     const getArticleName = async (mint: string) => {
@@ -62,9 +66,11 @@ export default function Token() {
             }
         };
         const id = params.id;
-        console.log("id", id);
-        if (!id) {
-            navigate("/404");
+        if (!id || !checkValidWikiLink(id)) {
+            setInvalidLink(true);
+            setArticleName(null);
+            setMint(null);
+            setLoading(false);
             return;
         }
         if (!isBs58(id)) {
@@ -75,7 +81,7 @@ export default function Token() {
                 setMint(mint?.mint || null);
             } catch {
                 toast.error(`Article does not exist`);
-                navigate("/404");
+                setInvalidLink(true);
             }
         } else {
             setMint(id);
@@ -90,11 +96,22 @@ export default function Token() {
         refresh();
     }, [params]);
 
+    const goBack = () => {
+        navigate(-1);
+    };
+
     if (loading) {
         return <PageLayout>{null}</PageLayout>;
     }
-    if (!params.id || !articleName) {
-        return <Navigate to="/404" replace />;
+    if (invalidLink || !articleName) {
+        return (
+            <PageLayout className="flex ">
+                <p>This page doesn't exist.</p>
+                <button onClick={() => goBack()} className="btn btn-primary">
+                    Go back
+                </button>
+            </PageLayout>
+        );
     }
     return (
         <PageContent mint={mint} articleName={articleName} refresh={refresh} />
@@ -111,12 +128,10 @@ function PageContent({
     refresh: () => void;
 }) {
     const [article, setArticle] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchArticle = async ({ title }: { title: string }) => {
             try {
-                setIsLoading(true);
                 const response = await fetch(
                     `https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&section=0&page=${title}&origin=*`
                 );
@@ -124,11 +139,9 @@ function PageContent({
                 const markup = data.parse.text["*"];
                 const blurb = document.createElement("div");
                 blurb.innerHTML = markup;
-                setArticle(blurb.innerHTML);
+                setArticle(cleanWikiArticle(blurb.innerHTML));
             } catch (error) {
                 console.error("Error fetching the article:", error);
-            } finally {
-                setIsLoading(false);
             }
         };
 
@@ -140,10 +153,10 @@ function PageContent({
             <div className="w-[1200px] h-full grid grid-cols-1 md:grid-cols-3 gap-8 items-start mt-12">
                 {/* Wiki Article on the left */}
                 <div className="col-span-2 h-full">
-                    {article && !isLoading && (
-                        <WikiArticle articleHtml={article} />
-                    )}
-                    {isLoading && <LoadingPane className="h-[600px]" />}
+                    <TopicView
+                        articleName={articleName}
+                        articleContent={article}
+                    />
                 </div>
                 {/* Rest of the content */}
                 {mint && <TokenContent mint={mint} />}

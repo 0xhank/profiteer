@@ -10,7 +10,7 @@ import { SolPriceProvider } from "./contexts/SolPriceContext";
 import { TokenProvider } from "./contexts/TokenProvider";
 import { Page404 } from "./pages/404";
 import Home from "./pages/home";
-import Token from "./pages/token";
+import Token from "./pages/topic";
 import { PrivyClientProvider } from "./providers/privy-client-provider";
 import { ServerProvider } from "./providers/server-provider";
 import Admin from "./pages/admin";
