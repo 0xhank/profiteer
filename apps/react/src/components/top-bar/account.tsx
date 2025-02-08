@@ -23,7 +23,7 @@ export function Account() {
     // show accounts
     return (
         <Modal>
-            <Modal.Button className="btn btn-secondary btn-sm rounded-none">
+            <Modal.Button className="btn btn-accent btn-sm rounded-none">
                 <div className="flex flex-col items-end">
                     <p className="text-lg text-gray-200 font-semibold">
                         {solBalance > 0 ? `${formatNumber(solBalance)} SOL`: "Deposit"} 

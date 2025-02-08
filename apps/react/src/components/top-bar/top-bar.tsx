@@ -17,7 +17,14 @@ export default function TopBar({ className }: { className?: string }) {
                                 "text-2xl font-bold font-serif text-white"
                             )}
                         >
-                            Profiteer
+                            Profiteer{" "}
+                        </span>
+                        <span
+                            className={cn(
+                                "text-2xl font-bold font-script text-accent"
+                            )}
+                        >
+                            News
                         </span>
                         <span className="absolute top-0 right-0 text-[0.5rem] text-white/70">
                             Beta

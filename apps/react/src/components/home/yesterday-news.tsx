@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { LoadingPane } from "../common/loading";
 import { toast } from "react-toastify";
+import { cn } from "../../utils/cn";
 
-export function CurrentNews() {
+export function YesterdayNews() {
     const [article, setArticle] = useState<string | null>(null);
 
     useEffect(() => {
@@ -74,7 +75,16 @@ export function CurrentNews() {
     }
 
     return <div>
-        <h3 className="text-lg font-bold">Yesterday</h3>
+        <h3 className="text-lg font-bold">Yesterday's{" "} 
+           <span
+                    className={cn(
+                        "text-xl font-bold font-script !text-accent",
+                        "text-shadow-[2px_2px_0_black,_-2px_-2px_0_black,_2px_-2px_0_black,_-2px_2px_0_black]"
+                    )}
+                >
+                    News
+                </span>
+            </h3>
         <div dangerouslySetInnerHTML={{ __html: article }} />
     </div>;
 }

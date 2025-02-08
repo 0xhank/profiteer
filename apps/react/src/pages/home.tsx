@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageLayout } from "../components/common/page-layout";
-import { CurrentNews } from "../components/home/current-news";
-import { LatestNews } from "../components/home/latest-news";
+import { BreakingNews } from "../components/home/breaking-news";
 import { TokenList } from "../components/home/token-list";
+import { YesterdayNews } from "../components/home/yesterday-news";
 import { cn } from "../utils/cn";
 import { getWikipediaAutocomplete } from "../utils/getWikiAutocomplete";
 
@@ -51,10 +51,8 @@ export default function Home() {
         <PageLayout>
             <div className="flex flex-col animation gap-4 text-center animate-fade-in">
                 <div className="space-y-4 flex flex-col items-center">
-
                     <TokenList />
-                    <div className="relative w-full max-w-md">
-
+                    <div className="relative max-w-md">
                         <input
                             ref={inputRef}
                             type="text"
@@ -68,7 +66,7 @@ export default function Home() {
                                 }, 200);
                             }}
                             placeholder="Search"
-                            className="input focus:outline-none focus:scale-105 bg-slate-100 w-full min-w-96 pr-10 text-lg h-14"
+                            className="input focus:outline-none focus:scale-105 rounded-none bg-slate-100 w-full min-w-96 pr-10 text-lg h-14"
                         />
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                             <svg
@@ -112,12 +110,12 @@ export default function Home() {
                     </div>
                 </div>
             </div>
-            <div className="grid grid-cols-3 gap-12">
+            <div className="grid grid-cols-3 gap-6 pt-2 border-t-4 border-double border-black">
                 <div className="col-span-2 space-y-4">
-                    <LatestNews />
+                    <BreakingNews />
                 </div>
                 <div className="col-span-1 space-y-4">
-                    <CurrentNews />
+                    <YesterdayNews />
                 </div>
             </div>
         </PageLayout>
