@@ -53,8 +53,8 @@ export function SearchBar({ focusOnMount = false, secondary = false }: { focusOn
                 }}
                 placeholder=""
                 className={cn(
-                    "input focus:outline-none rounded-none bg-slate-100 w-full min-w-96 pr-10 pl-8 text-lg h-14",
-                    secondary ? "bg-transparent border-none text-white" : "bg-slate-100"
+                    "input focus:outline-none rounded-none bg-gray-100 w-full min-w-96 pr-10 pl-8 text-lg h-14",
+                    secondary ? "bg-transparent border-none text-white" : "bg-gray-100"
                 )}
             />
             <div className="absolute inset-y-0 left-2 flex items-center py-3 pointer-events-none">

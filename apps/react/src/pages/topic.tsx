@@ -5,8 +5,9 @@ import { toast } from "react-toastify";
 import { PageLayout } from "../components/common/page-layout";
 import { CreateToken } from "../components/topic/create-token";
 import { TokenContent } from "../components/topic/token-content";
-import supabase from "../sbClient";
 import { TopicView } from "../components/topic/topic-view";
+import { useTokenData } from "../hooks/useTokenData";
+import supabase from "../sbClient";
 import {
     checkValidWikiLink,
     cleanWikiArticle,
@@ -128,6 +129,7 @@ function PageContent({
     refresh: () => void;
 }) {
     const [article, setArticle] = useState<string | null>(null);
+    const image = useTokenData(mint ?? "")?.metadata.imageUri;
 
     useEffect(() => {
         const fetchArticle = async ({ title }: { title: string }) => {
@@ -150,14 +152,26 @@ function PageContent({
 
     return (
         <PageLayout>
-            <div className="w-[1200px] h-full grid grid-cols-1 md:grid-cols-3 gap-8 items-start mt-12">
-                {/* Wiki Article on the left */}
-                <div className="col-span-2 h-full">
-                    <TopicView
-                        articleName={articleName}
-                        articleContent={article}
-                    />
+            <div className="flex gap-4 pl-16 items-center">
+                {image && (
+                    <img src={image} className="h-20 w-auto object-contain" />
+                )}
+                <div className="flex flex-col gap-2 ">
+                    <p className="font-serif text-2xl font-bold">
+                        {articleName.replace(/_/g, " ")}
+                    </p>
+                    {mint ? (
+                        <input
+                            className="cursor-pointer w-[410px] border-black/30"
+                            value={mint}
+                        />
+                    ) : (
+                        <p>Waiting for launch...</p>
+                    )}
                 </div>
+            </div>
+            <hr className="border-t-4 border-double border-black w-full" />
+            <div className="w-[1200px] h-full grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
                 {/* Rest of the content */}
                 {mint && <TokenContent mint={mint} />}
                 {!mint && (
@@ -167,6 +181,13 @@ function PageContent({
                         refresh={refresh}
                     />
                 )}
+                {/* Wiki Article on the left */}
+                <div className="col-span-2 h-full">
+                    <TopicView
+                        articleName={articleName}
+                        articleContent={article}
+                    />
+                </div>
             </div>
         </PageLayout>
     );

@@ -1,4 +1,6 @@
 import { Token } from "shared/src/types/token";
+import { usePortfolio } from "../../hooks/usePortfolio";
+import { useSolPrice } from "../../hooks/useSolPrice";
 import { useTokenBalance } from "../../hooks/useTokenBalance";
 import { useTokenData } from "../../hooks/useTokenData";
 
@@ -12,16 +14,40 @@ export const TokenBalance = ({ token }: TokenBalanceProps) => {
     const mostRecentPrice = tokenData?.priceUsd;
 
     return (
-        <div className="card bg-white w-full p-4 shadow-sm rounded rounded-sm space-y-2">
-            <div className="flex justify-between items-center">
-                <p className="card-title text-primary">YOU OWN</p>
+        <div className="w-full">
+            <div className="relative flex justify-between items-center pt-1">
+                <p className="card-title text-primary">
+                    {tokenData?.metadata.symbol} Balance
+                </p>
                 <div className="text-right">
-                    <p className="text-2xl font-extrabold">
+                    <p className="text-lg font-extrabold">
                         {balance.toFixed(2)}
                     </p>
                     {mostRecentPrice && (
-                        <p className="text-sm font-bold opacity-80">
+                        <p className="absolute right-0 -top-1 text-xs font-bold opacity-70">
                             ${(balance * mostRecentPrice).toFixed(2)}
+                        </p>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export const SolBalance = () => {
+    const { solBalance } = usePortfolio();
+    const { priceUsd } = useSolPrice();
+    return (
+        <div className="w-full">
+            <div className="relative flex justify-between items-center pt-1">
+                <p className="card-title text-primary">SOL Balance</p>
+                <div className="text-right">
+                    <p className="text-lg font-extrabold">
+                        {solBalance.toFixed(5)}
+                    </p>
+                    {priceUsd && (
+                        <p className="absolute right-0 -top-1 text-xs font-bold opacity-70">
+                            ${(solBalance * priceUsd).toFixed(2)}
                         </p>
                     )}
                 </div>

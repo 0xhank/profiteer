@@ -3,12 +3,12 @@ import { createContext, useState, useEffect } from "react";
 import supabase from "../sbClient";
 
 interface SolanaPriceContextType {
-    priceUSD: number;
+    priceUsd: number;
     isReady: boolean;
 }
 
 export const SolPriceContext = createContext<SolanaPriceContextType>({
-    priceUSD: 0, // Default fallback value
+    priceUsd: 0, // Default fallback value
     isReady: false,
 });
 
@@ -17,12 +17,12 @@ export const SolPriceProvider = ({
 }: {
     children: React.ReactNode;
 }) => {
-    const [priceUSD, setPriceUSD] = useState(0);
+    const [priceUsd, setPriceUsd] = useState(0);
     const [isReady, setIsReady] = useState(false);
 
     // Listen to inserts
     const handleInserts = (payload: { new: { price_usd: number } }) => {
-        setPriceUSD(payload.new.price_usd);
+        setPriceUsd(payload.new.price_usd);
         if (!isReady) {
             setIsReady(true);
         }
@@ -40,9 +40,9 @@ export const SolPriceProvider = ({
                 if (error) {
                     throw error;
                 }
-                setPriceUSD(data[0].price_usd);
+                setPriceUsd(data[0].price_usd);
             } catch {
-                setPriceUSD(0);
+                setPriceUsd(0);
             }
         };
 
@@ -63,7 +63,7 @@ export const SolPriceProvider = ({
     }, []);
 
     return (
-        <SolPriceContext.Provider value={{ priceUSD, isReady }}>
+        <SolPriceContext.Provider value={{ priceUsd, isReady }}>
             {children}
         </SolPriceContext.Provider>
     );

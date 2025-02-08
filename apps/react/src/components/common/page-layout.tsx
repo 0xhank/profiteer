@@ -9,10 +9,8 @@ interface PageLayoutProps {
 
 export const PageLayout = ({ children, className }: PageLayoutProps) => {
   return (
-    <div className={cn("h-full grid grid-rows-[auto_1fr_20px] max-w-[1200px] items-center justify-items-center", className)}>
-      <main className="flex flex-col gap-4 items-center w-full pt-4 px-4">
+    <div className={cn("flex flex-col gap-4 max-w-[1200px] pt-8", className)}>
         {children}
-      </main>
     </div>
   );
 };

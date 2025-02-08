@@ -8,7 +8,7 @@ export const useFee = (mint: string) => {
     const tokenData = useTokenData(mint);
 
     useEffect(() => {
-        if(tokenData == null || slot == null) return 
+        if(tokenData == null || slot == null) return;
         const fee = calculateFee(slot, tokenData.metadata.startSlot);
         if (fee > 0.01 && !running) {
             start();
