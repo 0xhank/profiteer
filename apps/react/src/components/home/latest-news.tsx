@@ -30,7 +30,7 @@ export function LatestNews() {
     }
 
     return <div>
-        <h2>In the news</h2>
+        <h3>Breaking</h3>
         {articles.map((article) => (
             <ul key={article.id}>
                 <Article article={article} />
@@ -41,7 +41,6 @@ export function LatestNews() {
 
 function Article({ article }: { article: Article }) {
     const [image, setImage] = useState<string | null>(null);
-    const fallbackImage = 'https://static.thenounproject.com/png/3482632-200.png';
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -62,17 +61,17 @@ function Article({ article }: { article: Article }) {
         fetchImage();
     }, [article.image_id]);
 
+
     return <li className="flex flex-row gap-4 items-center justify-start">
-        <img 
-            src={image ?? fallbackImage}
+        {image && <img 
+            src={image }
             className="w-8 h-8 rounded-md" 
             alt={article.article_names?.[0]}
             onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                target.src = fallbackImage;
                 target.onerror = null;
             }}
-        />
+        />}
         <ReactMarkdown rehypePlugins={[rehypeRaw]}>
             {`${article.content} <span class="text-sm text-gray-500">[${formatDate(article.created_at)}]</span>`}
         </ReactMarkdown>

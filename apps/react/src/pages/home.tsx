@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageLayout } from "../components/common/page-layout";
-import { CurrentNews, NewsStories } from "../components/home/current-news";
+import { CurrentNews } from "../components/home/current-news";
+import { LatestNews } from "../components/home/latest-news";
 import { TokenList } from "../components/home/token-list";
 import { cn } from "../utils/cn";
 import { getWikipediaAutocomplete } from "../utils/getWikiAutocomplete";
-import { LatestNews } from "../components/home/latest-news";
 
 export default function Home() {
     const navigate = useNavigate();
@@ -13,7 +13,13 @@ export default function Home() {
     const [query, setQuery] = useState("");
     const [suggestions, setSuggestions] = useState<string[]>([]);
 
+    // Add ref for the input
+    const inputRef = useRef<HTMLInputElement>(null);
 
+    // Add useEffect to focus on mount
+    useEffect(() => {
+        inputRef.current?.focus();
+    }, []);
 
     const handleSearchChange = async (
         event: React.ChangeEvent<HTMLInputElement>
@@ -44,20 +50,13 @@ export default function Home() {
     return (
         <PageLayout>
             <div className="flex flex-col animation gap-4 text-center animate-fade-in">
-                <h4 className="w-full text-right opacity-70">devnet</h4>
-                <h1 className="text-[100pt] -mt-20 -mb-16">
-                    <span className="font-serif font-semibold">Profiteer</span>
-                </h1>
-                <p
-                    className={
-                        "px-4 text-2xl opacity-70 text-primary font-bold w-full text-left"
-                    }
-                >
-                    Everything is a meme.
-                </p>
                 <div className="space-y-4 flex flex-col items-center">
+
+                    <TokenList />
                     <div className="relative w-full max-w-md">
+
                         <input
+                            ref={inputRef}
                             type="text"
                             value={query}
                             onChange={handleSearchChange}
@@ -68,8 +67,8 @@ export default function Home() {
                                     setSuggestions([]);
                                 }, 200);
                             }}
-                            placeholder="Search for news..."
-                            className="input input-bordered w-full pr-10 text-xl h-14"
+                            placeholder="Search"
+                            className="input focus:outline-none focus:scale-105 bg-slate-100 w-full min-w-96 pr-10 text-lg h-14"
                         />
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                             <svg
@@ -101,7 +100,7 @@ export default function Home() {
                             {suggestions.map((suggestion, index) => (
                                 <li
                                     key={index}
-                                    className=" px-8 p-2 bg-base-100 hover:bg-base-300 border-y border-base-300 cursor-pointer"
+                                    className=" px-8 p-2 hover:bg-base-300 border-y border-base-300 cursor-pointer"
                                     onClick={() =>
                                         handleSuggestionClick(suggestion)
                                     }
@@ -112,16 +111,13 @@ export default function Home() {
                         </ul>
                     </div>
                 </div>
-                
-              
             </div>
             <div className="grid grid-cols-3 gap-12">
                 <div className="col-span-2 space-y-4">
                     <LatestNews />
-                    <CurrentNews />
                 </div>
-                <div className="col-span-1">
-                    <TokenList />
+                <div className="col-span-1 space-y-4">
+                    <CurrentNews />
                 </div>
             </div>
         </PageLayout>

@@ -74,7 +74,7 @@ export function CurrentNews() {
     }
 
     return <div>
-        <h2>Current Events</h2>
+        <h3 className="text-lg font-bold">Yesterday</h3>
         <div dangerouslySetInnerHTML={{ __html: article }} />
     </div>;
 }

@@ -47,7 +47,7 @@ function App() {
 
 function _App() {
     return (
-        <div className="flex flex-col items-center relative h-screen w-screen absolute top-0 left-0 right-0 z-50 bg-base-100">
+        <div className="flex flex-col items-center relative h-screen w-screen absolute top-0 left-0 right-0 z-50 bg-white">
             <TopBar className="absolute top-0 left-0 right-0 z-50" />
             <div
                 className="flex items-center justify-center overflow-y-auto w-full h-full pt-16"

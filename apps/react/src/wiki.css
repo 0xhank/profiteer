@@ -29,6 +29,21 @@ h2 {
 	font-size: var(--text-2xl)
 }
 
+.current-events-main {
+	border: 1px solid black !important;
+}
+
+.current-events-heading {
+	background-color: black !important;
+	color: white !important;
+}
+
+.current-events-title {
+	font-weight: var(--font-weight-bold);
+	font-size: var(--text-md);
+	background-color: var(--background-color-base-100);
+}
+
 /* thumbnail */
 .itn-img {
 	padding: 10px;
