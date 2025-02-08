@@ -15,10 +15,10 @@ export const WalletBalance = () => {
             {authenticated && <Account />}
             {!authenticated && (
                 <button
-                    className="btn btn-ghost text-black w-fit rounded-none"
+                    className="btn btn-accent text-white w-fit rounded-none"
                     onClick={login}
                 >
-                    <div className="text-gray-500">Login</div>
+                    Login
                 </button>
             )}
         </div>

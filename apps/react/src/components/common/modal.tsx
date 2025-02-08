@@ -121,7 +121,7 @@ Modal.Content = function ModalContent({ children, className }) {
             <p className="font-bold uppercase pr-2 text-accent">{title}</p>
             {!blockClose && (
               <button onClick={handleClose} className="btn-sm ghost">
-                x
+                X
               </button>
             )}
           </div>

@@ -12,11 +12,11 @@ export const cleanWikiArticle = (articleHtml: string) => {
     // go through each a and turn it into a div if the href is not a wiki link
     const links = doc.querySelectorAll("a");
     links.forEach((link) => {
-        // if (!checkValidWikiLink(link.href)) {
-        //     const div = document.createElement("span");
-        //     div.innerHTML = link.innerHTML;
-        //     link.replaceWith(div);
-        // }
+        if (!checkValidWikiLink(link.href)) {
+            const div = document.createElement("span");
+            div.innerHTML = link.innerHTML;
+            link.replaceWith(div);
+        }
     });
     return doc.body.innerHTML;
 };

@@ -6,12 +6,12 @@ import { SearchBar } from "../common/search-bar";
 export default function TopBar({ className }: { className?: string }) {
     return (
         <div
-            className={`grid grid-cols-[1fr_auto_1fr] items-center h-16 bg-black/30 backdrop-blur-sm px-4 ${className}`}
+            className={`grid grid-cols-[1fr_auto_1fr] items-center h-16 bg-black/70 backdrop-blur-sm px-4 ${className}`}
         >
             {/* <ThemeController /> */}
             <SearchBar secondary={true} />
             <Link to="/">
-                <div className="flex items-center gap-2 ml-2 px-1 justify-center w-fit bg-black hover:bg-slate-800">
+                <div className="flex items-center gap-2 ml-2 px-1 justify-center w-fit hover:bg-slate-800/20">
                     <h1 className="relative">
                         <span
                             className={cn(
