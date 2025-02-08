@@ -32,7 +32,7 @@ export default function MaintenancePage() {
                 style={{ backgroundImage: 'url("/cloud-bg.webp")' }}
             />
             <div className="relative flex min-h-screen flex-col items-center justify-center gap-4">
-                <h1 className="text-[100pt] -mb-8">
+                <h1 className="text-[80pt] lg:text-[100pt] -mb-8">
                     <span className="font-serif font-semibold -mb-8">Profiteer</span>
                 </h1>
                         <p className="text-sm text-red-500 h-4">
@@ -58,7 +58,7 @@ export default function MaintenancePage() {
                     // disabled={address === "" || !isValid}
                     disabled={true}
                 >
-                    Waitlist closed
+                    Alpha crew closed
                 </button>
                 <a
                     href="https://x.com/profiteernews"
