@@ -6,6 +6,8 @@ export const cleanWikiArticle = (articleHtml: string) => {
     divs.forEach((div) => {
         if (div.className.includes("box-Missing_information")) {
             div.remove();
+        } else if (div.className.includes("box-Multiple_issues")) {
+            div.remove();
         }
     });
 
@@ -14,6 +16,7 @@ export const cleanWikiArticle = (articleHtml: string) => {
     links.forEach((link) => {
         if (!checkValidWikiLink(link.href)) {
             const div = document.createElement("span");
+            div.className = "text-align-center";
             div.innerHTML = link.innerHTML;
             link.replaceWith(div);
         }

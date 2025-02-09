@@ -15,6 +15,7 @@ import { PrivyClientProvider } from "./providers/privy-client-provider";
 import { ServerProvider } from "./providers/server-provider";
 import Admin from "./pages/admin";
 import Maintenance from "./pages/maintenance";
+import { PreviewProvider } from "./contexts/PreviewContext";
 
 function App() {
     if (import.meta.env.VITE_MAINTENANCE) {
@@ -27,15 +28,17 @@ function App() {
                     <ServerProvider>
                         <SolPriceProvider>
                             <PortfolioProvider>
-                                <_App />
-                                <ToastContainer
-                                    position="bottom-right"
-                                    theme="dark"
-                                />
-                                <div
-                                    id="modal-root"
-                                    className="fixed top-0 pointer-events-auto z-50"
-                                />
+                                <PreviewProvider>
+                                    <_App />
+                                    <ToastContainer
+                                        position="bottom-right"
+                                        theme="dark"
+                                    />
+                                    <div
+                                        id="modal-root"
+                                        className="fixed top-0 pointer-events-auto z-50"
+                                    />
+                                </PreviewProvider>
                             </PortfolioProvider>
                         </SolPriceProvider>
                     </ServerProvider>

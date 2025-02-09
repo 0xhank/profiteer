@@ -166,7 +166,7 @@ function PageContent({
                             value={mint}
                         />
                     ) : (
-                        <p>Waiting for launch...</p>
+                        <p></p>
                     )}
                 </div>
             </div>

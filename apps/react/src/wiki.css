@@ -16,6 +16,7 @@ q {
 a {
     text-decoration: underline;
     color: var(--color-accent);
+	white-space: nowrap;
 }
 
 a:where(:not([role='button'])) {
@@ -27,6 +28,10 @@ a:where(:not([role='button'])) {
 h2 {
 	font-weight: var(--font-weight-bold);
 	font-size: var(--text-2xl)
+}
+
+.text-align-center {
+	text-align: center;
 }
 
 .current-events-main {
@@ -46,6 +51,14 @@ h2 {
 }
 
 /* thumbnail */
+.img {
+	vertical-align: middle;
+}
+
+.infobox td {
+	text-align: center;
+}
+
 .itn-img {
 	padding: 10px;
 	width: fit-content;
@@ -551,4 +564,8 @@ span.texhtml span.texhtml {
 
 .current-events-nav {
 	display: none;
+}
+
+.mw-content-ltr figure[typeof~='mw:File/Thumb'] {
+    float: right;
 }

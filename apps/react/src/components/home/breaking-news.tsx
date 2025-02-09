@@ -125,7 +125,7 @@ function Article({
                         article.imageUrl ||
                         "https://placehold.co/600x400/gray/white?text=No+Image"
                     }
-                    className={`rounded-md object-cover ${
+                    className={`object-cover ${
                         isFeature ? "w-full h-48" : "w-24 h-24"
                     }`}
                     alt={article.article_names?.[0] || "Article image"}
@@ -140,6 +140,13 @@ function Article({
             <ReactMarkdown
                 className={`${isFeature ? "text-lg" : "text-base"}`}
                 rehypePlugins={[rehypeRaw]}
+                components={{
+                    a: ({ children, href, ...props }) => (
+                        <a href={href || "#"} {...props}>
+                            {children}
+                        </a>
+                    ),
+                }}
             >
                 {`${
                     article.content

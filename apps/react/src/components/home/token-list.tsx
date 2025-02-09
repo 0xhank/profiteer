@@ -45,8 +45,10 @@ export const TokenList = () => {
     );
 
     return (
-        <div className="relative w-full">
-            <button
+        <div className="flex flex-col gap-1">
+            <p className="text-sm font-bold text-left">Today's top stories</p>
+            <div className="relative w-full">
+                <button
                 onClick={handlePrev}
                 disabled={startIndex === 0}
                 className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 z-10 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -73,6 +75,7 @@ export const TokenList = () => {
             >
                 →
             </button>
+            </div>
         </div>
     );
 };

@@ -8,6 +8,10 @@
   themes: light --default, dark --perfersdark;
 }
 
+.group-hover\:visible {
+    transition-delay: 400ms;
+}
+
 @plugin "daisyui/theme" {
   name: "news";
   default: false; /* set as default */
@@ -139,3 +143,4 @@ body {
     padding: 0;
     margin: 0;
 }
+

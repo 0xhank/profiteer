@@ -1,10 +1,40 @@
 import { useEffect, useState } from "react";
-import { LoadingPane } from "../common/loading";
 import { toast } from "react-toastify";
 import { cn } from "../../utils/cn";
+import { ArticlePreview } from "../common/article-preview";
+import { LoadingPane } from "../common/loading";
 
 export function YesterdayNews() {
     const [article, setArticle] = useState<string | null>(null);
+    const [previewData, setPreviewData] = useState<{
+        href: string;
+        rect: DOMRect;
+    } | null>(null);
+
+    const handleMouseEnter = (e: MouseEvent) => {
+        const link = e.target as HTMLAnchorElement;
+        if (link.tagName === "A" && link.href.includes("/wiki/")) {
+            setPreviewData({
+                href: link.href,
+                rect: link.getBoundingClientRect(),
+            });
+        }
+    };
+
+    const handleMouseLeave = () => {
+        setPreviewData(null);
+    };
+
+    useEffect(() => {
+        const newsContainer = document.getElementById("yesterday-news");
+        newsContainer?.addEventListener("mouseover", handleMouseEnter);
+        newsContainer?.addEventListener("mouseout", handleMouseLeave);
+
+        return () => {
+            newsContainer?.removeEventListener("mouseover", handleMouseEnter);
+            newsContainer?.removeEventListener("mouseout", handleMouseLeave);
+        };
+    }, []);
 
     useEffect(() => {
         const fetchArticle = async () => {
@@ -48,20 +78,25 @@ export function YesterdayNews() {
                 eventsBlurb.querySelectorAll("a > img").forEach((img) => {
                     const link = img.parentElement;
                     if (link?.tagName === "A") {
-                            link.replaceWith(img);
-                        }
-                    });
+                        link.replaceWith(img);
+                    }
+                });
 
-                    // Convert Portal links to divs
-                    eventsBlurb.querySelectorAll('a[href^="/wiki/Portal:"]').forEach((link) => {
+                // Convert Portal links to divs
+                eventsBlurb
+                    .querySelectorAll('a[href^="/wiki/Portal:"]')
+                    .forEach((link) => {
                         const div = document.createElement("span");
                         div.innerHTML = link.innerHTML;
                         link.replaceWith(div);
                     });
 
-                    setArticle(eventsBlurb.innerHTML);
+                setArticle(eventsBlurb.innerHTML);
             } catch (error) {
-                const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+                const errorMessage =
+                    error instanceof Error
+                        ? error.message
+                        : "Unknown error occurred";
                 toast.error(`Error fetching news content: ${errorMessage}`);
                 console.error("Error fetching news content:", error);
             }
@@ -74,17 +109,42 @@ export function YesterdayNews() {
         return <LoadingPane className="h-[600px]" />;
     }
 
-    return <div>
-        <h3 className="text-lg font-bold">Yesterday's{" "} 
-           <span
-                    className={cn(
-                        "text-xl font-bold font-script !text-accent",
-                        "text-shadow-[2px_2px_0_black,_-2px_-2px_0_black,_2px_-2px_0_black,_-2px_2px_0_black]"
-                    )}
-                >
-                    News
-                </span>
-            </h3>
-        <div dangerouslySetInnerHTML={{ __html: article }} />
-    </div>;
+    return (
+        <>
+            <div>
+                <h3 className="text-lg font-bold">
+                    Yesterday's{" "}
+                    <span
+                        className={cn(
+                            "text-xl font-bold font-script !text-accent",
+                            "text-shadow-[2px_2px_0_black,_-2px_-2px_0_black,_2px_-2px_0_black,_-2px_2px_0_black]"
+                        )}
+                    >
+                        News
+                    </span>
+                </h3>
+                <div
+                    id="yesterday-news"
+                    dangerouslySetInnerHTML={{ __html: article }}
+                />
+            </div>
+            {previewData && <PreviewOverlay {...previewData} />}
+        </>
+    );
 }
+
+const PreviewOverlay = ({ href, rect }: { href: string; rect: DOMRect }) => {
+    return (
+        <div
+            className="fixed z-50 bg-white shadow-lg rounded p-4 max-w-md"
+            style={{
+                top: `${rect.bottom + 8}px`,
+                left: `${rect.left}px`,
+            }}
+        >
+            <ArticlePreview href={href}>
+                <a href={href}>{href}</a>
+            </ArticlePreview>
+        </div>
+    );
+};
