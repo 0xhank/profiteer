@@ -5,7 +5,8 @@ import { useFee } from "../../hooks/useFee";
 import { useTokenData } from "../../hooks/useTokenData";
 import { useTokenPrices } from "../../hooks/useTokenPrices";
 import supabase from "../../sbClient";
-import { LineChart } from "./line-chart";
+import { CandleChart } from "./candle-chart";
+import { pricesToCandles } from "../../utils/pricesToCandles";
 
 export const TokenContent = ({ mint }: { mint: string }) => {
     const tokenData = useTokenData(mint);
@@ -63,8 +64,8 @@ export const TokenContent = ({ mint }: { mint: string }) => {
                 {loading ? (
                     <div>Loading...</div>
                 ) : tokenPrices.length > 0 ? (
-                    <LineChart
-                        data={tokenPrices}
+                    <CandleChart
+                        data={pricesToCandles(tokenPrices, 10 * 60)}
                         colors={{ lineColor: "red" }}
                         className="w-full"
                     />
