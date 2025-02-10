@@ -73,7 +73,8 @@ function getDecimals(num: number, max = 3): string {
 }
 
 export function formatVolume(volume: number, priceUsd: number) {
-    const val = (volume / 1e9) * priceUsd;
+    console.log(volume, priceUsd);
+    const val = (volume / 1e6) * priceUsd;
     return (
         "$" +
         formatNumber(val, { fractionDigits: val < 1 ? 4 : 0, short: val > 100 })
