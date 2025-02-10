@@ -2,14 +2,14 @@ import { TokenTradeForm } from "./token-trade-form";
 
 import { useEffect, useMemo, useState } from "react";
 import { useFee } from "../../hooks/useFee";
-import { useTokenData } from "../../hooks/useTokenData";
+import { useToken } from "../../hooks/useToken";
 import { useTokenPrices } from "../../hooks/useTokenPrices";
 import supabase from "../../sbClient";
-import { CandleChart } from "./candle-chart";
 import { pricesToCandles } from "../../utils/pricesToCandles";
+import { CandleChart } from "./candle-chart";
 
 export const TokenContent = ({ mint }: { mint: string }) => {
-    const tokenData = useTokenData(mint);
+    const { token: tokenData } = useToken(mint);
     const { tokenPrices, loading } = useTokenPrices(mint);
 
     const [complete, setComplete] = useState<boolean | null>(null);

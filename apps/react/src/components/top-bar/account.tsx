@@ -62,7 +62,7 @@ export function Account() {
                             ["SOL", solBalance],
                             ...Object.entries(tokenBalances),
                         ].map(([token, balance]) => (
-                            <div className="flex items-center justify-between px-2">
+                            <div key={token} className="flex items-center justify-between px-2">
                                 <a href={`/wiki/${token}`}>
                                     {token.slice(0, 6)}
                                 </a>
