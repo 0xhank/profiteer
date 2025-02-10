@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Token } from "shared/src/types/token";
 import { useTokens } from "../../hooks/useTokens";
 import { formatVolume } from "../../utils/formatPrice";
+import { LoadingPane } from "../common/loading";
 
 export interface TokenPriceData {
     priceUsd: number | null;
@@ -15,16 +16,7 @@ export const TokenList = () => {
     const itemsPerPage = 10;
 
     if (!isReady) {
-        return (
-            <div className="animate-pulse space-y-4">
-                {[...Array(5)].map((_, i) => (
-                    <div
-                        key={i}
-                        className="bg-gray-200 dark:bg-gray-700 h-24 rounded-xl"
-                    ></div>
-                ))}
-            </div>
-        );
+        return <LoadingPane className="h-12" />;
     }
 
     const handleNext = () => {
@@ -40,7 +32,7 @@ export const TokenList = () => {
         setStartIndex((prev) => Math.max(prev - itemsPerPage, 0));
     };
 
-    const visibleTokens = Object.entries(tokens).sort((a, b) => (b[1].volume12h ?? 0) - (a[1].volume12h ?? 0)).slice(
+    const visibleTokens = Object.entries(tokens).filter(([key, token]) => token.volume12h && token.volume12h > 0).sort((a, b) => (b[1].volume12h ?? 0) - (a[1].volume12h ?? 0)).slice(
         startIndex,
         startIndex + itemsPerPage
     );

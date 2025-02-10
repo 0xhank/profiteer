@@ -1,10 +1,8 @@
-import { RealtimeChannel } from "@supabase/supabase-js";
 import {
     createContext,
     ReactNode,
     useCallback,
     useEffect,
-    useRef,
     useState,
 } from "react";
 import { toast } from "react-toastify";
@@ -15,7 +13,7 @@ import { formatToken } from "../utils/formatToken";
 interface TokenListContextType {
     tokens: Record<string, Token>;
     isReady: boolean;
-    refreshTokens: () => void;
+    refreshTokens: (mints: string[]) => Promise<void>;
     getTokenByMint: (mint: string) => Promise<Token | null>;
 }
 
@@ -27,27 +25,37 @@ export function TokenProvider({ children }: { children: ReactNode }) {
     const [tokens, setTokens] = useState<Record<string, Token>>({});
     const [isReady, setIsReady] = useState(false);
 
-    const sub = useRef<RealtimeChannel | null>(null);
-
     // initialize the tokens
     useEffect(() => {
-        fetchAllTokens();
-        subscribeToTokenPrices();
-        return () => {
-            if (sub.current) {
-                supabase.removeChannel(sub.current);
-                sub.current = null;
-            }
+        const fetchTopMintsByVolume = async () => {
+            const { data, error } = await supabase
+                .from("trade_volume_12h")
+                .select("mint, total_volume")
+                .order("total_volume", { ascending: false })
+                .limit(20);
+
+            if (error) throw new Error(error?.message);
+            if (!data) throw new Error("No data");
+
+            await fetchTokens(data.map(({ mint }) => mint));
+            setIsReady(true);
         };
+        fetchTopMintsByVolume();
     }, []);
 
     // fetch tokens
-    const fetchAllTokens = useCallback(async () => {
+    const fetchTokens = useCallback(async (mints: string[]) => {
         try {
+            const cachedTokens = Object.keys(tokens);
+            const tokensToFetch = mints.filter(
+                (mint) => !cachedTokens.includes(mint)
+            );
             // Set users immediately
             const { data: metadata, error: metadataError } = await supabase
                 .from("token_metadata")
-                .select("*");
+                .select("*")
+                .in("mint", tokensToFetch);
+
             if (metadataError) {
                 toast.error("Error fetching tokens");
                 throw new Error(metadataError?.message);
@@ -55,77 +63,52 @@ export function TokenProvider({ children }: { children: ReactNode }) {
             if (!metadata) {
                 throw new Error("No data");
             }
-            const formattedTokens = metadata.map(formatToken);
-            const newTokens = formattedTokens.reduce((acc, token) => {
-                acc[token.mint] = token;
+            const formattedTokens = metadata.reduce((acc, token) => {
+                acc[token.mint] = formatToken(token);
                 return acc;
             }, {} as Record<string, Token>);
 
-            const { data: volumeData } = await supabase.from(
-                "trade_volume_12h"
-            ).select("mint, total_volume").in("mint", Object.keys(newTokens));
-            
-            // Update tokens with volume data
+            const newTokens = {
+                ...tokens,
+                ...formattedTokens,
+            };
+
+            const [volumeResponse, priceResponse] = await Promise.all([
+                supabase
+                    .from("trade_volume_12h")
+                    .select("mint, total_volume")
+                    .in("mint", mints),
+                supabase.rpc("get_token_prices", {
+                    mint_array: tokensToFetch,
+                }),
+            ]);
+
+            const { data: volumeData, error: volumeError } = volumeResponse;
+            if (volumeError) throw new Error(volumeError?.message);
+            const { data: priceData, error: priceError } = priceResponse;
+
+            if (priceError) throw new Error(priceError?.message);
+
+            // Update tokens with volume and price data
             volumeData?.forEach(({ mint, total_volume }) => {
                 if (newTokens[mint]) {
                     newTokens[mint].volume12h = total_volume;
                 }
             });
 
-            setTokens(newTokens);
-
-            // Fetch the most recent price for the token
-            const { data: priceData, error: priceError } = await supabase.rpc(
-                "get_latest_prices"
-            );
-
-            if (priceError) throw new Error(priceError?.message);
-
             priceData?.forEach((price) => {
-                const tokens = newTokens;
-                if (!tokens[price.mint]) return;
-                tokens[price.mint].priceUsd = price.price_usd;
-                setTokens(tokens);
+                if (newTokens[price.mint]) {
+                    newTokens[price.mint].priceUsd = price.price_usd;
+                }
             });
+
+            setTokens(newTokens);
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
             setIsReady(true);
         }
-        return () => {
-            if (sub.current) {
-                supabase.removeChannel(sub.current);
-                sub.current = null;
-            }
-        };
-    }, []);
-
-    const refreshTokens = () => {
-        if (!isReady) return;
-        fetchAllTokens();
-    };
-
-    const subscribeToTokenPrices = useCallback(async () => {
-        if (sub.current) {
-            supabase.removeChannel(sub.current);
-            sub.current = null;
-        }
-
-        sub.current = supabase
-            .channel("token_price_usd")
-            .on(
-                "postgres_changes",
-                { event: "INSERT", schema: "public", table: "token_price_usd" },
-                (payload: { new: { mint: string; price_usd: number } }) => {
-                    console.log("token_price_usd", payload);
-                    const newTokens = tokens;
-                    if (!newTokens[payload.new.mint]) return;
-                    newTokens[payload.new.mint].priceUsd =
-                        payload.new.price_usd;
-                    setTokens(newTokens);
-                }
-            )
-            .subscribe();
+        
     }, [tokens]);
 
     const getTokenByMint = useCallback(
@@ -168,7 +151,12 @@ export function TokenProvider({ children }: { children: ReactNode }) {
 
     return (
         <TokenListContext.Provider
-            value={{ tokens, isReady, refreshTokens, getTokenByMint }}
+            value={{
+                tokens,
+                isReady,
+                refreshTokens: fetchTokens,
+                getTokenByMint,
+            }}
         >
             {children}
         </TokenListContext.Provider>

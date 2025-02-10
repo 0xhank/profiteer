@@ -12,6 +12,7 @@ import {
     checkValidWikiLink,
     cleanWikiArticle,
 } from "../utils/cleanWikiArticle";
+import { useTokens } from "../hooks/useTokens";
 
 export default function Topic() {
     const params = useParams();
@@ -130,6 +131,7 @@ function PageContent({
 }) {
     const [article, setArticle] = useState<string | null>(null);
     const image = useTokenData(mint ?? "")?.metadata.imageUri;
+    const { refreshTokens } = useTokens();
 
     useEffect(() => {
         const fetchArticle = async ({ title }: { title: string }) => {
@@ -148,6 +150,7 @@ function PageContent({
         };
 
         fetchArticle({ title: articleName });
+        if (mint) refreshTokens([mint]);
     }, []);
 
     return (
