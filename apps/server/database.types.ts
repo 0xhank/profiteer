@@ -9,6 +9,24 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      alpha_crew: {
+        Row: {
+          address: string
+          created_at: string
+          id: number
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
       article_symbol_options: {
         Row: {
           article_name: string
