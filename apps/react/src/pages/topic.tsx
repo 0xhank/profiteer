@@ -6,7 +6,7 @@ import { PageLayout } from "../components/common/page-layout";
 import { CreateToken } from "../components/topic/create-token";
 import { TokenContent } from "../components/topic/token-content";
 import { TopicView } from "../components/topic/topic-view";
-import { useTokenData } from "../hooks/useTokenData";
+import { useToken } from "../hooks/useToken";
 import supabase from "../sbClient";
 import {
     checkValidWikiLink,
@@ -129,7 +129,9 @@ function PageContent({
     refresh: () => void;
 }) {
     const [article, setArticle] = useState<string | null>(null);
-    const image = useTokenData(mint ?? "")?.metadata.imageUri;
+    const { token: tokenData } = useToken(mint ?? "");
+    const image = tokenData?.metadata.imageUri;
+    const { refreshToken } = useToken(mint ?? "");
 
     useEffect(() => {
         const fetchArticle = async ({ title }: { title: string }) => {
@@ -148,6 +150,7 @@ function PageContent({
         };
 
         fetchArticle({ title: articleName });
+        if (mint) refreshToken();
     }, []);
 
     return (

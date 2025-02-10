@@ -1,8 +1,8 @@
 import { Token } from "shared/src/types/token";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { useSolPrice } from "../../hooks/useSolPrice";
+import { useToken } from "../../hooks/useToken";
 import { useTokenBalance } from "../../hooks/useTokenBalance";
-import { useTokenData } from "../../hooks/useTokenData";
 
 interface TokenBalanceProps {
     token: Token;
@@ -10,7 +10,7 @@ interface TokenBalanceProps {
 
 export const TokenBalance = ({ token }: TokenBalanceProps) => {
     const { balance } = useTokenBalance(token.mint);
-    const tokenData = useTokenData(token.mint);
+    const { token: tokenData } = useToken(token.mint);
     const mostRecentPrice = tokenData?.priceUsd;
 
     return (

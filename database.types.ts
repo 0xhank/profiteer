@@ -304,8 +304,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_latest_prices: {
-        Args: Record<PropertyKey, never>
+      get_token_prices: {
+        Args: {
+          mint_array: string[]
+        }
         Returns: {
           mint: string
           price_usd: number
