@@ -3,7 +3,8 @@ export interface Token {
     createdAt: string;
     priceUsd?: number;
     priceHistory?: number[];
-    complete?: boolean
+    complete?: boolean;
+    volume12h?: number;
 
     metadata: {
         name: string;

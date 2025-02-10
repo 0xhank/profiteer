@@ -276,6 +276,29 @@ export type Database = {
           },
         ]
       }
+      trade_volume_12h: {
+        Row: {
+          mint: string
+          total_volume: number
+        }
+        Insert: {
+          mint: string
+          total_volume: number
+        }
+        Update: {
+          mint?: string
+          total_volume?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trade_volume_12h_mint_fkey"
+            columns: ["mint"]
+            isOneToOne: true
+            referencedRelation: "token_metadata"
+            referencedColumns: ["mint"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -288,13 +311,20 @@ export type Database = {
           price_usd: number
         }[]
       }
-      get_total_trade_volume: {
+      get_total_trade_volume_bulk: {
         Args: {
-          mint_address: string
+          mint_addresses: string[]
           start_date: string
           end_date: string
         }
-        Returns: number
+        Returns: {
+          mint: string
+          total_volume: number
+        }[]
+      }
+      upsert_trade_volume_12h: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {
