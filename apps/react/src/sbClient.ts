@@ -130,4 +130,17 @@ export async function getImage(id: string) {
     }
 }
 
+export async function getTokenDataFromTopic(topic: string) {
+    const { data, error } = await supabase
+        .from("token_metadata")
+        .select("*")
+        .eq("name", topic)
+        .single();
+    if (error) {
+        console.error(error);
+        return null;
+    }
+    return data;
+}
+
 export default supabase;
