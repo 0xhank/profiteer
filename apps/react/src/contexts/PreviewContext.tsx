@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getImage, getTokenDataFromTopic } from "../sbClient";
-import { LoadingPane } from "../components/common/loading";
+import { getTokenDataFromTopic } from "../sbClient";
+import { formatNumber, formatPrice } from "../utils/formatPrice";
+import { useToken } from "../hooks/useToken";
 
 type PreviewData = {
     href: string;
@@ -65,7 +66,8 @@ export const usePreview = () => {
 };
 
 const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
-    const [tokenData, setTokenData] = useState<Awaited<ReturnType<typeof getTokenDataFromTopic>> | null>(null);
+    const [tokenMetadata, setTokenMetadata] = useState<Awaited<ReturnType<typeof getTokenDataFromTopic>> | null>(null);
+    const tokenData = useToken(tokenMetadata?.mint ?? "").token;
     const [loading, setLoading] = useState(true);
 
     const sanitizedTopic = topic
@@ -76,10 +78,12 @@ const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
     useEffect(() => {
         const fetchArticleList = async () => {
             const tokenData = await getTokenDataFromTopic(topic);
-            setTokenData(tokenData);
+            setTokenMetadata(tokenData);
         };
         fetchArticleList().then(() => setLoading(false));
     }, []);
+
+
 
     return (
         <div
@@ -92,19 +96,19 @@ const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
         >
             {loading ? (
                 <span className="text-gray-500">Loading Token Data</span>
-            ) : tokenData ? (
+            ) : tokenMetadata ? (
                 <div className="relative">
-                    <img src={tokenData.uri} alt="Preview" className="w-8 h-8 rounded-sm mb-2" />
+                    <img src={tokenMetadata.uri} alt="Preview" className="h-7 rounded-sm mb-2" />
                     <p className="text-lg font-bold">{sanitizedTopic}</p>
-                    <p className="text-gray-500 text-sm">${tokenData.symbol}</p>
+                    <p className="text-gray-500 text-sm">${tokenMetadata.symbol}</p>
                     <hr className="my-2" />
                     <div className="flex items-center gap-2">
-                        <p className="text-sm font-mono">$69M <span className="text-gray-500 text-xs">VOLUME[24hr]</span></p>
-                        <p className="text-sm font-mono">$420M <span className="text-gray-500 text-xs">MARKET CAP</span></p>
+                        <p className="text-sm font-mono">${formatNumber((tokenData?.volume12h ?? 0) * (tokenData?.priceUsd ?? 0), {short: true, showZero: true, decimals: 9, fractionDigits: 2})} <span className="text-gray-500 text-xs">VOLUME[12HR]</span></p>
+                        <p className="text-sm font-mono">${formatNumber((tokenData?.metadata?.supply ?? 0) * (tokenData?.priceUsd ?? 0), {short: true, showZero: true, decimals: 9, fractionDigits: 2})} <span className="text-gray-500 text-xs">MARKET CAP</span></p>
                     </div>
                     
-                    <p className="absolute top-0 right-0 font-mono text-xs flex flex-col gap-1">
-                        <span className="bg-black px-2 text-white">$0.04</span>
+                    <p className="absolute top-0 right-0 font-mono text-xs flex flex-col gap-1 items-end">
+                        <span className="bg-black px-2 text-white">${formatPrice(tokenData?.priceUsd ?? 0)}</span>
                         <div className="text-green-500 text-xs flex flex-row items-center"><span>10%</span><span className="text-gray-500 text-[.75em]">[12hr]</span></div>
                     </p>
                 </div>

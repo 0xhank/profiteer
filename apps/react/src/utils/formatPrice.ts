@@ -16,6 +16,7 @@ type FormatOptions = {
     short?: boolean;
     showZero?: boolean;
     notLocale?: boolean;
+    decimals?: number;  // e.g., 9 for 1e9, 18 for 1e18
 };
 
 export function formatNumber(
@@ -25,6 +26,15 @@ export function formatNumber(
     const digits =
         options?.fractionDigits === undefined ? 0 : options.fractionDigits;
     if (num === 0 || num === 0n) return options?.showZero ? "0" : "--";
+
+    // Apply decimals division if specified
+    if (options?.decimals) {
+        if (typeof num === "number") {
+            num = num / Math.pow(10, options.decimals);
+        } else if (typeof num === "bigint") {
+            num = Number(num) / Math.pow(10, options.decimals);
+        }
+    }
 
     let ret = "";
     if (typeof num === "number") {
