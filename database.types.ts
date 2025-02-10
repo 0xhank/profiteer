@@ -9,24 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      alpha_crew: {
-        Row: {
-          address: string
-          created_at: string
-          id: number
-        }
-        Insert: {
-          address: string
-          created_at?: string
-          id?: number
-        }
-        Update: {
-          address?: string
-          created_at?: string
-          id?: number
-        }
-        Relationships: []
-      }
       article_symbol_options: {
         Row: {
           article_name: string
@@ -185,6 +167,44 @@ export type Database = {
         }
         Relationships: []
       }
+      swap: {
+        Row: {
+          created_at: string
+          id: number
+          is_buy: boolean
+          mint: string
+          sol_amount: number
+          token_amount: number
+          user_address: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          is_buy: boolean
+          mint: string
+          sol_amount: number
+          token_amount: number
+          user_address: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          is_buy?: boolean
+          mint?: string
+          sol_amount?: number
+          token_amount?: number
+          user_address?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "swap_mint_fkey"
+            columns: ["mint"]
+            isOneToOne: false
+            referencedRelation: "token_metadata"
+            referencedColumns: ["mint"]
+          },
+        ]
+      }
       token_metadata: {
         Row: {
           complete: boolean | null
@@ -267,6 +287,14 @@ export type Database = {
           mint: string
           price_usd: number
         }[]
+      }
+      get_total_trade_volume: {
+        Args: {
+          mint_address: string
+          start_date: string
+          end_date: string
+        }
+        Returns: number
       }
     }
     Enums: {
