@@ -32,7 +32,7 @@ export const TokenList = () => {
         setStartIndex((prev) => Math.max(prev - itemsPerPage, 0));
     };
 
-    const visibleTokens = Object.entries(tokens).filter(([key, token]) => token.volume12h && token.volume12h > 0).sort((a, b) => (b[1].volume12h ?? 0) - (a[1].volume12h ?? 0)).slice(
+    const visibleTokens = Object.entries(tokens).filter(([, token]) => token.volume12h && token.volume12h > 0).sort((a, b) => (b[1].volume12h ?? 0) - (a[1].volume12h ?? 0)).slice(
         startIndex,
         startIndex + itemsPerPage
     );
