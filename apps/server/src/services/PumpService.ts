@@ -210,6 +210,8 @@ export const createPumpService = () => {
 
             const sig = await connection.sendTransaction(tx);
             createBondingCurveRegistry.delete(txId);
+            const {blockhash, lastValidBlockHeight} = await connection.getLatestBlockhash();
+            await connection.confirmTransaction({signature: sig, blockhash, lastValidBlockHeight}, "confirmed");
 
             const events = await getTxEventsFromTxBuilderResponse(
                 connection,
@@ -344,7 +346,9 @@ export const createPumpService = () => {
             const tx = VersionedTransaction.deserialize(txSerialized);
 
             const sig = await connection.sendTransaction(tx);
+            const {blockhash, lastValidBlockHeight} = await connection.getLatestBlockhash();
 
+            await connection.confirmTransaction({signature: sig, blockhash, lastValidBlockHeight}, "confirmed");
             swapRegistry.delete(txId);
 
             const events = await getTxEventsFromTxBuilderResponse(
@@ -360,6 +364,23 @@ export const createPumpService = () => {
             }
 
             const complete = !!events.CompleteEvent?.[0];
+            const { error: swapError } = await supabase
+                .from("swap")
+                .insert({
+                    mint: entry.mint,
+                    user_address: swapEvent.user.toBase58(),
+                    sol_amount: Number(swapEvent.solAmount),
+                    token_amount: Number(swapEvent.tokenAmount),
+                    is_buy: swapEvent.isBuy,
+                });
+
+            if (swapError) {
+                throw new Error(
+                    `Failed to insert swap data: ${swapError.message}`
+                );
+            }
+
+
             const { error: curveError } = await supabase
                 .from("curve_data")
                 .insert({
@@ -373,6 +394,11 @@ export const createPumpService = () => {
                     user: swapEvent.user.toBase58(),
                     complete,
                 });
+            if (curveError) {
+                throw new Error(
+                    `Failed to insert curve data: ${curveError.message}`
+                );
+            }
 
             if (complete) {
                 const { error: priceError } = await supabase
@@ -381,12 +407,6 @@ export const createPumpService = () => {
                         complete: true,
                     })
                     .eq("mint", entry.mint);
-            }
-
-            if (curveError) {
-                throw new Error(
-                    `Failed to insert curve data: ${curveError.message}`
-                );
             }
 
             return txId;

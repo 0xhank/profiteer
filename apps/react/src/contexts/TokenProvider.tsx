@@ -7,10 +7,10 @@ import {
     useRef,
     useState,
 } from "react";
+import { toast } from "react-toastify";
 import { Token } from "shared/src/types/token";
 import supabase from "../sbClient";
 import { formatToken } from "../utils/formatToken";
-import { toast } from "react-toastify";
 
 interface TokenListContextType {
     tokens: Record<string, Token>;
@@ -45,21 +45,33 @@ export function TokenProvider({ children }: { children: ReactNode }) {
     const fetchAllTokens = useCallback(async () => {
         try {
             // Set users immediately
-            const { data, error } = await supabase
+            const { data: metadata, error: metadataError } = await supabase
                 .from("token_metadata")
                 .select("*");
-            if (error) {
+            if (metadataError) {
                 toast.error("Error fetching tokens");
-                throw new Error(error?.message);
+                throw new Error(metadataError?.message);
             }
-            if (!data) {
+            if (!metadata) {
                 throw new Error("No data");
             }
-            const formattedTokens = data.map(formatToken);
+            const formattedTokens = metadata.map(formatToken);
             const newTokens = formattedTokens.reduce((acc, token) => {
                 acc[token.mint] = token;
                 return acc;
             }, {} as Record<string, Token>);
+
+            const { data: volumeData } = await supabase.from(
+                "trade_volume_12h"
+            ).select("mint, total_volume").in("mint", Object.keys(newTokens));
+            
+            // Update tokens with volume data
+            volumeData?.forEach(({ mint, total_volume }) => {
+                if (newTokens[mint]) {
+                    newTokens[mint].volume12h = total_volume;
+                }
+            });
+
             setTokens(newTokens);
 
             // Fetch the most recent price for the token
