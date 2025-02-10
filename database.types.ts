@@ -304,6 +304,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_price_changes: {
+        Args: {
+          target_mints: string[]
+        }
+        Returns: {
+          mint: string
+          current_price: number
+          price_1h: number
+          price_24h: number
+          price_30d: number
+        }[]
+      }
+      get_price_changes_2: {
+        Args: {
+          target_mint: string
+        }
+        Returns: {
+          current_price: number
+          price_change_1h: number
+          price_change_24h: number
+          price_change_30d: number
+        }[]
+      }
       get_token_prices: {
         Args: {
           mint_array: string[]

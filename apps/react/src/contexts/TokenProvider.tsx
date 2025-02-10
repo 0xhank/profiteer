@@ -73,7 +73,7 @@ export function TokenProvider({ children }: { children: ReactNode }) {
                 ...formattedTokens,
             };
 
-            const [volumeResponse, priceResponse] = await Promise.all([
+            const [volumeResponse, priceResponse, priceHistoryResponse] = await Promise.all([
                 supabase
                     .from("trade_volume_12h")
                     .select("mint, total_volume")
@@ -81,15 +81,27 @@ export function TokenProvider({ children }: { children: ReactNode }) {
                 supabase.rpc("get_token_prices", {
                     mint_array: tokensToFetch,
                 }),
+                supabase.rpc("get_price_changes", {
+                    target_mints: tokensToFetch,
+                }),
             ]);
-
-            const { data: volumeData, error: volumeError } = volumeResponse;
-            if (volumeError) throw new Error(volumeError?.message);
             const { data: priceData, error: priceError } = priceResponse;
-
             if (priceError) throw new Error(priceError?.message);
 
+            const { data: volumeData } = volumeResponse;
+            const { data: priceHistoryData } = priceHistoryResponse;
+
             // Update tokens with volume and price data
+            console.log({priceHistoryData});
+            priceHistoryData?.forEach((price) => {
+                if (newTokens[price.mint]) {
+                    newTokens[price.mint].pastPrices = {
+                        price1h: price.price_1h,
+                        price1d: price.price_24h,
+                        price30d: price.price_30d,
+                    };
+                }
+            });
             volumeData?.forEach(({ mint, total_volume }) => {
                 if (newTokens[mint]) {
                     newTokens[mint].volume12h = total_volume;
