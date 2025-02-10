@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { getTokenDataFromTopic } from "../sbClient";
 import { formatNumber, formatPrice } from "../utils/formatPrice";
 import { useToken } from "../hooks/useToken";
@@ -70,7 +70,7 @@ const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
     const tokenData = useToken(tokenMetadata?.mint ?? "").token;
     const [loading, setLoading] = useState(true);
 
-    const sanitizedTopic = topic
+    const sanitizedTopic = decodeURIComponent(topic)
         .split('_')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ');
@@ -83,7 +83,13 @@ const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
         fetchArticleList().then(() => setLoading(false));
     }, []);
 
-
+    const priceChange = useMemo(() => {
+        if (!tokenData?.pastPrices?.price1h || !tokenData?.priceUsd) return [0, 'text-gray-500'];
+        
+        const priceChange = ((tokenData.priceUsd) - (tokenData.pastPrices.price1h)) / (tokenData.pastPrices.price1h);
+        const color = priceChange === 0 ? 'text-gray-500' : priceChange > 0 ? 'text-green-500' : 'text-red-500';
+        return [formatNumber(priceChange * 100, {showZero: true, fractionDigits: 2}), color];
+    }, [tokenData]);
 
     return (
         <div
@@ -107,10 +113,10 @@ const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
                         <p className="text-sm font-mono">${formatNumber((tokenData?.metadata?.supply ?? 0) * (tokenData?.priceUsd ?? 0), {short: true, showZero: true, decimals: 9, fractionDigits: 2})} <span className="text-gray-500 text-xs">MARKET CAP</span></p>
                     </div>
                     
-                    <p className="absolute top-0 right-0 font-mono text-xs flex flex-col gap-1 items-end">
+                    <div className="absolute top-0 right-0 font-mono text-xs flex flex-col gap-1 items-end">
                         <span className="bg-black px-2 text-white">${formatPrice(tokenData?.priceUsd ?? 0)}</span>
-                        <div className="text-green-500 text-xs flex flex-row items-center"><span>10%</span><span className="text-gray-500 text-[.75em]">[12hr]</span></div>
-                    </p>
+                        <div className={`text-xs flex flex-row items-center ${priceChange[1]}`}><span>{priceChange[0]}%</span><span className="text-gray-500 text-[.75em]">[1hr]</span></div>
+                    </div>
                 </div>
             ) : (
                 <div className="flex items-center gap-2">                     
