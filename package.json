@@ -8,7 +8,7 @@
     "dev:react": "pnpm --filter react dev",
     "dev:server": "pnpm --filter server dev",
     "dev:indexer": "pnpm --filter indexer dev",
-    "dev": "run-pty % pnpm dev:server % pnpm dev:react % pnpm dev:indexer",
+    "dev": "run-pty % pnpm dev:server % pnpm dev:react",
     "gen:db-types": "supabase gen types typescript --project-id bkpqenquwivuilvrihip > database.types.ts && cp database.types.ts apps/server/database.types.ts",
     "node": "solana-test-validator --bpf-program metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s packages/programs/dumps/token_metadata.so --bpf-program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA packages/programs/dumps/token.so --reset"
   },

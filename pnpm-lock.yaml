@@ -39,8 +39,8 @@ importers:
   apps/react:
     dependencies:
       '@privy-io/react-auth':
-        specifier: ^2.3.0
-        version: 2.3.0(@solana/web3.js@1.98.0(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10))(@types/react@18.3.18)(bs58@6.0.0)(bufferutil@4.0.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)(use-sync-external-store@1.2.0(react@18.3.1))(utf-8-validate@5.0.10)(zod@3.24.1)
+        specifier: ^2.4.2
+        version: 2.4.2(@solana/web3.js@1.98.0(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10))(@types/react@18.3.18)(bs58@6.0.0)(bufferutil@4.0.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)(use-sync-external-store@1.2.0(react@18.3.1))(utf-8-validate@5.0.10)(zod@3.24.1)
       '@solana/web3.js':
         specifier: ^1.98.0
         version: 1.98.0(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10)
@@ -454,8 +454,8 @@ packages:
     resolution: {integrity: sha512-t8kDRGrKXyp6+tjUh7hw2RLyclsW4TRoRvRHtSyAX9Bb5ldlFh+90YAYY6awRXrlB4G5G2izNeGySpATlFzmOg==}
     engines: {node: '>=6.9.0'}
 
-  '@coinbase/wallet-sdk@4.0.3':
-    resolution: {integrity: sha512-y/OGEjlvosikjfB+wk+4CVb9OxD1ob9cidEBLI5h8Hxaf/Qoob2XoVT1uvhtAzBx34KpGYSd+alKvh/GCRre4Q==}
+  '@coinbase/wallet-sdk@4.3.0':
+    resolution: {integrity: sha512-T3+SNmiCw4HzDm4we9wCHCxlP0pqCiwKe4sOwPH3YAK2KSKjxPRydKu6UQJrdONFVLG7ujXvbd/6ZqmvJb8rkw==}
 
   '@coral-xyz/anchor-errors@0.30.1':
     resolution: {integrity: sha512-9Mkradf5yS5xiLWrl9WrpjqOrAV+/W2RQHDlbnAZBivoGpOs1ECjoDCkVk4aRG8ZdiFiB8zQEVlxf+8fKkmSfQ==}
@@ -1308,8 +1308,8 @@ packages:
     resolution: {integrity: sha512-U++bkJmeXA7IzMU3Y+cUBnExpxwkOERmoD7C2q6C3UPu2getl/bGJMGeoiXPLvxziMRM4FVpQAhXCtj5OVB1iQ==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
 
-  '@privy-io/js-sdk-core@0.42.0':
-    resolution: {integrity: sha512-WAIjtZPLLudTAEmBiNCmMOH1NizSGmoW58D7ubKiIosgvQp/OEwkyCkny7SABTZdAtx/x8uR+bU3DXhA/5kFkw==}
+  '@privy-io/js-sdk-core@0.43.0':
+    resolution: {integrity: sha512-I4iRxO2jXdEGrc830Qi46c44fjSC3X5AhKinbG5Nf+FQ9bvlaewsTE9PkjhJUjuQ82FwYkq73PFp379Ht7BliA==}
     peerDependencies:
       permissionless: ^0.2.10
       viem: ^2.21.36
@@ -1323,8 +1323,8 @@ packages:
     resolution: {integrity: sha512-R5oR7WStdzNEYUC/08ZyzNOR50CQ3beQ8Hu2lQu/DiAlRsOEu2bV1kUdOwmyMVz4Ytkr9FG6XVWgbJm24coVdg==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
 
-  '@privy-io/react-auth@2.3.0':
-    resolution: {integrity: sha512-vU3Ut32lA2xE3TQ5pZs+5aObyI5+kpWbDmY4wyze0U43kZ2qeWi9TuxvaaEKeOIyMt972KscQZwCKAvtpt7yWQ==}
+  '@privy-io/react-auth@2.4.2':
+    resolution: {integrity: sha512-0qn3UPF4Sc3EJ2MpiQeQNrmJyFkyHyynMbM5TyLG7HXJFoYqlVR2scUmUjacHRNTuzq3Iez2OKa+yUjJcOwElA==}
     peerDependencies:
       '@abstract-foundation/agw-client': ^1.0.0
       '@solana/web3.js': ^1.95.8
@@ -3659,10 +3659,6 @@ packages:
     resolution: {integrity: sha512-POQXvpdL69+CluYsillJ7SUhKvytYjW9vG/GKpnf+xP8UWgYEM/RaMzHHofbALDiKbbP1W8UEYmgGl39WkPZsg==}
     engines: {'0': node >= 0.2.0}
 
-  keccak@3.0.4:
-    resolution: {integrity: sha512-3vKuW0jV8J3XNTzvfyicFR5qvxrSAGl7KIhvgOu5cmWwM7tZRj3fMbj/pfIf4be7aznbc+prBWGjywox/g2Y6Q==}
-    engines: {node: '>=10.0.0'}
-
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
@@ -4045,9 +4041,6 @@ packages:
 
   no-case@3.0.4:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
-
-  node-addon-api@2.0.2:
-    resolution: {integrity: sha512-Ntyt4AIXyaLIuMHF6IOoTakB3K+RWxwtsHNRxllEoA6vPwP9o4866g6YWDLUdnucilZhmkxiHwHr11gAENw+QA==}
 
   node-domexception@1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
@@ -5613,14 +5606,12 @@ snapshots:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
 
-  '@coinbase/wallet-sdk@4.0.3':
+  '@coinbase/wallet-sdk@4.3.0':
     dependencies:
-      buffer: 6.0.3
+      '@noble/hashes': 1.7.1
       clsx: 1.2.1
       eventemitter3: 5.0.1
-      keccak: 3.0.4
       preact: 10.25.4
-      sha.js: 2.4.11
 
   '@coral-xyz/anchor-errors@0.30.1': {}
 
@@ -6815,7 +6806,7 @@ snapshots:
     dependencies:
       zod: 3.24.1
 
-  '@privy-io/js-sdk-core@0.42.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)(viem@2.22.17(bufferutil@4.0.9)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.24.1))':
+  '@privy-io/js-sdk-core@0.43.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)(viem@2.22.17(bufferutil@4.0.9)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.24.1))':
     dependencies:
       '@ethersproject/abstract-signer': 5.7.0
       '@ethersproject/bignumber': 5.7.0
@@ -6849,15 +6840,15 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@privy-io/react-auth@2.3.0(@solana/web3.js@1.98.0(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10))(@types/react@18.3.18)(bs58@6.0.0)(bufferutil@4.0.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)(use-sync-external-store@1.2.0(react@18.3.1))(utf-8-validate@5.0.10)(zod@3.24.1)':
+  '@privy-io/react-auth@2.4.2(@solana/web3.js@1.98.0(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10))(@types/react@18.3.18)(bs58@6.0.0)(bufferutil@4.0.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.3)(use-sync-external-store@1.2.0(react@18.3.1))(utf-8-validate@5.0.10)(zod@3.24.1)':
     dependencies:
-      '@coinbase/wallet-sdk': 4.0.3
+      '@coinbase/wallet-sdk': 4.3.0
       '@floating-ui/react': 0.26.28(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@headlessui/react': 2.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@heroicons/react': 2.2.0(react@18.3.1)
       '@marsidev/react-turnstile': 0.4.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@metamask/eth-sig-util': 6.0.2
-      '@privy-io/js-sdk-core': 0.42.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)(viem@2.22.17(bufferutil@4.0.9)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.24.1))
+      '@privy-io/js-sdk-core': 0.43.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)(viem@2.22.17(bufferutil@4.0.9)(typescript@5.6.3)(utf-8-validate@5.0.10)(zod@3.24.1))
       '@simplewebauthn/browser': 9.0.1
       '@solana/wallet-adapter-base': 0.9.23(@solana/web3.js@1.98.0(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10))
       '@solana/wallet-standard-wallet-adapter-base': 1.1.4(@solana/web3.js@1.98.0(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10))(bs58@6.0.0)
@@ -9893,12 +9884,6 @@ snapshots:
 
   jsonparse@1.3.1: {}
 
-  keccak@3.0.4:
-    dependencies:
-      node-addon-api: 2.0.2
-      node-gyp-build: 4.8.4
-      readable-stream: 3.6.2
-
   keyv@4.5.4:
     dependencies:
       json-buffer: 3.0.1
@@ -10397,8 +10382,6 @@ snapshots:
       lower-case: 2.0.2
       tslib: 2.8.1
 
-  node-addon-api@2.0.2: {}
-
   node-domexception@1.0.0: {}
 
   node-fetch-native@1.6.6: {}
@@ -10411,7 +10394,8 @@ snapshots:
     optionalDependencies:
       encoding: 0.1.13
 
-  node-gyp-build@4.8.4: {}
+  node-gyp-build@4.8.4:
+    optional: true
 
   node-releases@2.0.19: {}
 
