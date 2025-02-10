@@ -39,7 +39,7 @@ export const TopicView = ({
             </div>
 
             <div className="mt-4">
-                {activeTab === "news" && <TopicNews />}
+                {activeTab === "news" && <TopicNews topic={articleName} />}
                 {activeTab === "wiki" && articleContent && (
                     <WikiArticle articleHtml={articleContent} />
                 )}

@@ -81,7 +81,34 @@ export async function getHeadline(id: number) {
         console.error(error);
         throw error;
     }
+
     return data;
+}
+
+export async function getRelatedHeadlines(topics: string[], limit: number = 10) {
+    const { data, error } = await supabase
+        .from("news_story")
+        .select("*")
+        .contains("article_names", topics)
+        .limit(limit);
+
+    if (error) {
+        console.error(error);
+        throw error;
+    }
+
+    // Get images for articles that have image_url
+    const articlesWithImages = await Promise.all(
+      data.map(async (article) => {
+          let imageUrl: string | null = null;
+          if (article.image_id) {
+              imageUrl = await getImage(article.image_id);
+          }
+          return { ...article, imageUrl };
+      })
+  );
+
+    return articlesWithImages;
 }
 
 export async function getImage(id: string) {
