@@ -83,7 +83,7 @@ const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
 
     return (
         <div
-            className="fixed z-50 bg-white shadow-lg p-4 min-w-54 border"
+            className="fixed z-50 bg-white shadow-lg p-4 w-54 border"
             style={{
                 top: `${rect.bottom + 8}px`,
                 left: `${rect.left + rect.width / 2}px`,
