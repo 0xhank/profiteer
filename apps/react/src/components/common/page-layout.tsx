@@ -9,7 +9,7 @@ interface PageLayoutProps {
 
 export const PageLayout = ({ children, className }: PageLayoutProps) => {
   return (
-    <div className={cn("flex flex-col gap-4 max-w-[1200px] pt-8", className)}>
+    <div className={cn("flex flex-col gap-4 max-w-[1200px] pt-2", className)}>
         {children}
     </div>
   );

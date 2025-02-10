@@ -1,6 +1,6 @@
 import { PageLayout } from "../components/common/page-layout";
 import { BreakingNews } from "../components/home/breaking-news";
-import { TokenList } from "../components/home/token-list";
+import { TokenList } from "../components/home/top-stories";
 import { YesterdayNews } from "../components/home/yesterday-news";
 
 export default function Home() {
