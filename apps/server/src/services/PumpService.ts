@@ -210,6 +210,8 @@ export const createPumpService = () => {
 
             const sig = await connection.sendTransaction(tx);
             createBondingCurveRegistry.delete(txId);
+            const {blockhash, lastValidBlockHeight} = await connection.getLatestBlockhash();
+            await connection.confirmTransaction({signature: sig, blockhash, lastValidBlockHeight}, "confirmed");
 
             const events = await getTxEventsFromTxBuilderResponse(
                 connection,
@@ -344,7 +346,9 @@ export const createPumpService = () => {
             const tx = VersionedTransaction.deserialize(txSerialized);
 
             const sig = await connection.sendTransaction(tx);
+            const {blockhash, lastValidBlockHeight} = await connection.getLatestBlockhash();
 
+            await connection.confirmTransaction({signature: sig, blockhash, lastValidBlockHeight}, "confirmed");
             swapRegistry.delete(txId);
 
             const events = await getTxEventsFromTxBuilderResponse(
