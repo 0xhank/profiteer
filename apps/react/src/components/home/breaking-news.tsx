@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { getHeadlineList } from "../../sbClient";
-import { cn } from "../../utils/cn";
 import { LoadingPane } from "../common/loading";
 import { Headline } from "../common/Headline";
 
@@ -35,10 +34,6 @@ export function BreakingNews() {
     const featureImage = articles.find((article) => article.imageUrl)?.imageUrl;
     return (
         <div className="flex flex-col gap-2">
-            <h3 className="text-sm uppercase font-bold w-full bg-white rounded-sm p-2">
-                Breaking News
-            </h3>
-
             <div className="grid grid-cols-3 col-span-3 min-h-96 gap-2">
                 <Headline
                     article={featureArticle}

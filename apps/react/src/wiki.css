@@ -72,7 +72,7 @@ h2 {
 }
 
 .thumbcaption {
-	word-wrap: break-word;
+	/* word-wrap: break-word; */
 	text-align: left;
 	border: 0;
 	font-size: 94%;

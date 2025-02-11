@@ -1,18 +1,22 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import HeadlineForm from "../components/admin/create-headline";
 import { HeadlineEditor } from "../components/admin/edit-headline";
-import { toast } from "react-toastify";
+import { PageLayout } from "../components/common/page-layout";
 
 const AdminPage = () => {
     const [activeTab, setActiveTab] = useState<"create" | "edit">("create");
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        // Initialize from localStorage if available
+        return localStorage.getItem("isAdminAuthenticated") === "true";
+    });
     const [password, setPassword] = useState("");
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        // Replace this with your actual password or better yet, a proper auth system
         if (password === "bigbank") {
             setIsAuthenticated(true);
+            localStorage.setItem("isAdminAuthenticated", "true");
         } else {
             toast.error("Wrong password!");
         }
@@ -20,7 +24,7 @@ const AdminPage = () => {
 
     if (!isAuthenticated) {
         return (
-            <div className="max-w-[1100px] mx-auto flex justify-center items-center mt-20 p-8 bg-white rounded-lg shadow-md">
+            <PageLayout className="max-w-[1100px] mx-auto flex justify-center items-center mt-20 p-8 bg-white rounded-lg shadow-md">
                 <form onSubmit={handleLogin} className="space-y-4">
                     <input
                         type="password"
@@ -36,12 +40,12 @@ const AdminPage = () => {
                         Login
                     </button>
                 </form>
-            </div>
+            </PageLayout>
         );
     }
 
     return (
-        <div className="max-w-7xl mx-auto p-8">
+        <PageLayout className="max-w-7xl mx-auto p-8">
             <div className="flex gap-4 mb-8">
                 <button
                     onClick={() => setActiveTab("create")}
@@ -66,7 +70,7 @@ const AdminPage = () => {
             </div>
 
             {activeTab === "create" ? <HeadlineForm /> : <HeadlineEditor />}
-        </div>
+        </PageLayout>
     );
 };
 

@@ -87,9 +87,9 @@ export function YesterdayNews() {
     return (
         <>
             <div className="flex flex-col gap-2">
-                <h3 className="text-sm uppercase font-bold w-full bg-white rounded-sm p-2">
+                <p className="text-sm uppercase font-bold w-full">
                     Yesterday
-                </h3>
+                </p>
                 <div
                     id="yesterday-news"
                     dangerouslySetInnerHTML={{ __html: article }}

@@ -45,6 +45,17 @@ export async function updateHeadline(
     return data;
 }
 
+export async function deleteHeadline(id: number) {
+    const { error } = await supabase
+        .from("news_story")
+        .delete()
+        .eq("id", id);
+    if (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
 export async function getHeadlineList(limit: number = 10, start: number = 0) {
     const { data, error } = await supabase
         .from("news_story")
