@@ -60,7 +60,6 @@ function AppContent() {
             <TopBar className="absolute top-0 left-0 right-0 z-50" />
             <div
                 className="flex justify-center overflow-y-auto w-full h-full pt-16"
-                style={{ scrollbarGutter: "stable" }}
             >
                 <Routes>
                     <Route path="/" element={<Home />} />
