@@ -47,7 +47,7 @@ export const TokenList = () => {
                     <LeftChevron className="w-4 h-4" />
                 </button>
 
-                <div className="w-full grid grid-cols-10 divide-x divide-black/70 border border-x-black/70 border-y-0">
+                <div className="w-full grid grid-cols-10 divide-x divide-white border border-white gap-1 border-y-0">
                     {visibleTokens.map(([key, token], index) => (
                         <TopStoryItem
                             key={key}
@@ -98,7 +98,7 @@ export const TopStoryItem = ({
             <div className="absolute w-4 h-4 text-xs text-center bg-black text-white right-0">
                 {index + 1}
             </div>
-            <div className="flex flex-col pt-1 px-1 items-start h-full">
+            <div className="flex flex-col pt-2 px-2 items-start h-full">
                 {hasImage && (
                     <img
                         src={token.metadata.imageUri}

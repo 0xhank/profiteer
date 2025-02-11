@@ -16,7 +16,8 @@ import { ServerProvider } from "./providers/server-provider";
 import Admin from "./pages/admin";
 import Maintenance from "./pages/maintenance";
 import { PreviewProvider } from "./contexts/PreviewContext";
-
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import Login from "./pages/login";
 function App() {
     if (import.meta.env.VITE_MAINTENANCE) {
         return <Maintenance />;
@@ -29,15 +30,17 @@ function App() {
                         <SolPriceProvider>
                             <PortfolioProvider>
                                 <PreviewProvider>
-                                    <_App />
-                                    <ToastContainer
-                                        position="bottom-right"
-                                        theme="dark"
-                                    />
-                                    <div
-                                        id="modal-root"
-                                        className="fixed top-0 pointer-events-auto z-50"
-                                    />
+                                    <AuthProvider>
+                                        <AppContent />
+                                        <ToastContainer
+                                            position="bottom-right"
+                                            theme="dark"
+                                        />
+                                        <div
+                                            id="modal-root"
+                                            className="fixed top-0 pointer-events-auto z-50"
+                                        />
+                                    </AuthProvider>
                                 </PreviewProvider>
                             </PortfolioProvider>
                         </SolPriceProvider>
@@ -48,7 +51,9 @@ function App() {
     );
 }
 
-function _App() {
+function AppContent() {
+    const { hasAccess } = useAuth();
+    if (!hasAccess && !import.meta.env.VITE_SKIP_INVITE) return <Login />;
     return (
         <div className="flex flex-col items-center h-screen w-screen absolute top-0 left-0 right-0 z-50 bg-gray-100">
             <TopBar className="absolute top-0 left-0 right-0 z-50" />

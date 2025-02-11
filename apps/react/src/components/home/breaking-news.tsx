@@ -35,7 +35,7 @@ export function BreakingNews() {
     const featureImage = articles.find((article) => article.imageUrl)?.imageUrl;
     return (
         <div className="flex flex-col gap-2">
-            <h3 className="text-xl font-serif font-bold w-full bg-gray-700 text-white p-2">
+            <h3 className="text-sm uppercase font-bold w-full bg-white rounded-sm p-2">
                 Breaking News
             </h3>
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { LoadingPane } from "../common/loading";
 import { cleanWikiArticle } from "../../utils/cleanWikiArticle";
+import { LoadingPane } from "../common/loading";
 
 export function YesterdayNews() {
     const [article, setArticle] = useState<string | null>(null);
@@ -67,17 +67,18 @@ export function YesterdayNews() {
     }, []);
 
     useEffect(() => {
-        document.querySelectorAll('span[data-internal-link="true"]').forEach((span) => {
-            const to = span.getAttribute('data-to');
-            if (to) {
-                const link = document.createElement('a');
-                link.href = `/wiki/${to}`;
-                link.innerHTML = span.innerHTML;
-                span.replaceWith(link);
-            }
-        });
+        document
+            .querySelectorAll('span[data-internal-link="true"]')
+            .forEach((span) => {
+                const to = span.getAttribute("data-to");
+                if (to) {
+                    const link = document.createElement("a");
+                    link.href = `/wiki/${to}`;
+                    link.innerHTML = span.innerHTML;
+                    span.replaceWith(link);
+                }
+            });
     }, [article]);
-
 
     if (!article) {
         return <LoadingPane className="h-[600px]" />;
@@ -86,7 +87,7 @@ export function YesterdayNews() {
     return (
         <>
             <div className="flex flex-col gap-2">
-                <h3 className="text-xl font-serif font-bold w-full bg-gray-700 text-white p-2">
+                <h3 className="text-sm uppercase font-bold w-full bg-white rounded-sm p-2">
                     Yesterday
                 </h3>
                 <div
