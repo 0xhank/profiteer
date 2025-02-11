@@ -54,6 +54,15 @@ export class AuthService {
         }
     }
 
+    async isAuthorized(jwtToken: string) {
+        const { userId } = await this.getUserContext(jwtToken);
+        const { data, error } = await supabase
+            .from("invite_codes")
+            .select("*")
+            .eq("user", userId)
+            .limit(1)
+        return !!data?.[0];
+    }
     async requestAuth(jwtToken: string, code: string) {
 
         const { userId } = await this.getUserContext(jwtToken);

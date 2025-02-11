@@ -1,7 +1,6 @@
 import { useIdentityToken, usePrivy } from "@privy-io/react-auth";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useServer } from "../hooks/useServer";
-import supabase from "../sbClient";
 
 interface AuthContextType {
     hasAccess: boolean | null;
@@ -16,20 +15,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [hasAccess, setHasAccess] = useState<boolean | null>(null);
     const { user } = usePrivy();
     const [ready, setReady] = useState(false);
-    const { requestAuth } = useServer();
+    const { requestAuth, isAuthorized } = useServer();
     const { identityToken } = useIdentityToken();
 
     const checkInviteStatus = async () => {
         if (!user) return setHasAccess(false);
         try {
-            const { data, error } = await supabase
-                .from("invite_codes")
-                .select("*")
-                .eq("user", user.id)
-
-            if (error) throw error;
-            console.log({ data });
-            setHasAccess(!!data);
+            const authorized = await isAuthorized.query(undefined, {
+                context: {
+                    headers: {
+                        Cookie: `privy-id-token=${identityToken}`,
+                    },
+                },
+            });
+            setHasAccess(authorized);
         } catch (err) {
             console.error("Failed to check invite status:", err);
             setHasAccess(false);

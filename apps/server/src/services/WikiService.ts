@@ -12,6 +12,7 @@ interface WikiServiceType {
 
 export type WikiService = WikiServiceType;
 export const WikiService = (): WikiServiceType => {
+    
     const getWikiPage = async (page: string) => {
         const response = await fetch(
             `https://en.wikipedia.org/api/rest_v1/page/summary/${page}`

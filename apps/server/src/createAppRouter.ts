@@ -44,6 +44,9 @@ export function createAppRouter() {
                 return "mainnet";
             }
         }),
+        isAuthorized: t.procedure.query(async ({ ctx }) => {
+            return await ctx.authService.isAuthorized(ctx.jwtToken);
+        }),
 
         requestAuth: t.procedure
             .input(z.object({ code: z.string() }))
@@ -132,8 +135,6 @@ export function createAppRouter() {
                 console.log("migrate ===>>>", input.mint);
                 return ctx.pumpService.migrate(input.mint);
             }),
-
-        
     });
 }
 
