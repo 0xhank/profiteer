@@ -23,7 +23,6 @@ export function HeadlineEditor() {
     const [editContent, setEditContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
     const ITEMS_PER_PAGE = 10;
     const [isDeleting, setIsDeleting] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -35,7 +34,6 @@ export function HeadlineEditor() {
                 (currentPage - 1) * ITEMS_PER_PAGE
             );
             setHeadlines(headlines);
-            setTotalPages(Math.ceil(headlines.length / ITEMS_PER_PAGE));
         };
         fetchHeadlines();
     }, [currentPage]);

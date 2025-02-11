@@ -20,14 +20,15 @@ export const TokenBalance = ({ token }: TokenBalanceProps) => {
                     {tokenData?.metadata.symbol} Balance
                 </p>
                 <div className="text-right">
-                    <p className="text-lg font-extrabold">
-                        {balance.toFixed(2)}
-                    </p>
                     {mostRecentPrice && (
-                        <p className="absolute right-0 -top-1 text-xs font-bold opacity-70">
+                        <p className="text-xs font-bold opacity-70 -mb-1">
                             ${(balance * mostRecentPrice).toFixed(2)}
                         </p>
                     )}
+                    <p className="text-lg font-extrabold">
+                        {balance.toFixed(2)}
+                    </p>
+                    
                 </div>
             </div>
         </div>
@@ -39,17 +40,18 @@ export const SolBalance = () => {
     const { priceUsd } = useSolPrice();
     return (
         <div className="w-full">
-            <div className="relative flex justify-between items-center pt-1">
+            <div className="relative flex justify-between items-end pt-1">
                 <p className="card-title text-primary">SOL Balance</p>
                 <div className="text-right">
-                    <p className="text-lg font-extrabold">
-                        {solBalance.toFixed(5)}
-                    </p>
                     {priceUsd && (
-                        <p className="absolute right-0 -top-1 text-xs font-bold opacity-70">
+                        <p className="text-xs font-bold opacity-70 -mb-1">
                             ${(solBalance * priceUsd).toFixed(2)}
                         </p>
                     )}
+                    <p className="text-lg font-extrabold">
+                        {solBalance.toFixed(5)}
+                    </p>
+                    
                 </div>
             </div>
         </div>

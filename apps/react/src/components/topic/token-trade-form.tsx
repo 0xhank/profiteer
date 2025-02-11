@@ -7,7 +7,7 @@ import { usePortfolio } from "../../hooks/usePortfolio";
 import { useServer } from "../../hooks/useServer";
 import { useTokenBalance } from "../../hooks/useTokenBalance";
 import { SolBalance, TokenBalance } from "./token-balance";
-
+import { cn } from "../../utils/cn";
 // Add these utility functions at the top level
 const uint8ArrayToBase64 = (uint8Array: Uint8Array): string => {
     return btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
@@ -76,22 +76,22 @@ export const TokenTradeForm = ({
     };
 
     return (
-        <div className="flex flex-col gap-2 w-full border border-black/30 p-2">
+        <div className="flex flex-col gap-2 w-full bg-white p-2 rounded-sm ">
             {isBuyMode && <SolBalance />}
             {!isBuyMode && <TokenBalance token={tokenData} />}
             <div className="flex gap-2">
                 <button
                     onClick={() => setIsBuyMode(true)}
-                    className={`btn  rounded-none flex-1 ${
-                        isBuyMode ? "btn-accent" : "btn-outline"
+                    className={`btn rounded-sm flex-1 ${
+                        isBuyMode ? "btn-accent" : "btn-secondary opacity-70"
                     }`}
                 >
                     Buy
                 </button>
                 <button
                     onClick={() => setIsBuyMode(false)}
-                    className={`btn rounded-none flex-1 ${
-                        !isBuyMode ? "btn-accent" : "btn-outline"
+                    className={`btn rounded-sm flex-1 ${
+                        !isBuyMode ? "btn-accent" : "btn-secondary opacity-70"
                     }`}
                 >
                     Sell
@@ -101,40 +101,40 @@ export const TokenTradeForm = ({
                 <div className="grid grid-cols-4 gap-2">
                     <button
                         onClick={() => setAmount(0.1)}
-                        className={`btn rounded-none  ${
+                        className={`btn text-xs ${
                             amount === 0.1
-                                ? "btn-ghost ring-2 ring-accent"
-                                : "btn-outline"
+                                ? "btn-accent"
+                                : "btn-secondary opacity-70"
                         }`}
                     >
                         0.1 SOL
                     </button>
                     <button
                         onClick={() => setAmount(1)}
-                        className={`btn rounded-none  ${
+                        className={`btn text-xs ${
                             amount === 1
-                                ? "btn-ghost ring-2 ring-accent"
-                                : "btn-outline"
+                                ? "btn-accent"
+                                : "btn-secondary opacity-70"
                         }`}
                     >
                         1 SOL
                     </button>
                     <button
                         onClick={() => setAmount(5)}
-                        className={`btn rounded-none  ${
+                        className={`btn text-xs ${
                             amount === 5
-                                ? "btn-ghost ring-2 ring-accent"
-                                : "btn-outline"
+                                ? "btn-accent"
+                                : "btn-secondary opacity-70"
                         }`}
                     >
                         5 SOL
                     </button>
                     <button
                         onClick={() => setAmount(10)}
-                        className={`btn rounded-none  ${
+                        className={`btn text-xs ${
                             amount === 10
-                                ? "btn-ghost ring-2 ring-accent"
-                                : "btn-outline"
+                                ? "btn-accent"
+                                : "btn-secondary opacity-70"
                         }`}
                     >
                         10 SOL
@@ -145,41 +145,45 @@ export const TokenTradeForm = ({
                 <div className="grid grid-cols-4 gap-2">
                     <button
                         onClick={() => setAmount(tokenBalance * 0.25)}
-                        className={
+                        className={cn(
+                            "btn text-xs",
                             amount === tokenBalance * 0.25
-                                ? "btn rounded-none btn-ghost ring-2 ring-accent"
-                                : "btn rounded-none btn-outline"
-                        }
+                                ? "btn-accent"
+                                : "btn-secondary opacity-70"
+                        )}
                     >
                         25%
                     </button>
                     <button
                         onClick={() => setAmount(tokenBalance * 0.5)}
-                        className={
+                        className={cn(
+                            "btn text-xs",
                             amount === tokenBalance * 0.5
-                                ? "btn rounded-none btn-ghost ring-2 ring-accent"
-                                : "btn rounded-none btn-outline"
-                        }
+                                ? "btn-accent"
+                                : "btn-secondary opacity-70"
+                        )}
                     >
                         50%
                     </button>
                     <button
                         onClick={() => setAmount(tokenBalance * 0.75)}
-                        className={
+                        className={cn(
+                            "btn text-xs",
                             amount === tokenBalance * 0.75
-                                ? "btn rounded-none btn-ghost ring-2 ring-accent"
-                                : "btn rounded-none btn-outline"
-                        }
+                                ? "btn-accent"
+                                : "btn-secondary opacity-70"
+                        )}
                     >
                         75%
                     </button>
                     <button
                         onClick={() => setAmount(tokenBalance)}
-                        className={
+                        className={cn(
+                            "btn text-xs",
                             amount === tokenBalance
-                                ? "btn rounded-none btn-ghost ring-2 ring-accent"
-                                : "btn rounded-none btn-outline"
-                        }
+                                ? "btn-accent"
+                                : "btn-secondary opacity-70"
+                        )}
                     >
                         100%
                     </button>
@@ -189,7 +193,7 @@ export const TokenTradeForm = ({
                 type="number"
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
-                className="w-full px-4 py-2 border bg-white"
+                className="input input-neutral w-full bg-gray-100"
                 placeholder="Enter amount"
             />
             {/* {fee > 0.01 && ( */}
@@ -198,7 +202,7 @@ export const TokenTradeForm = ({
             <button
                 onClick={handleExecute}
                 disabled={isLoading}
-                className="btn btn-primary rounded-none"
+                className="btn btn-primary btn-block"
             >
                 {isLoading ? "Processing..." : "Confirm"}
             </button>

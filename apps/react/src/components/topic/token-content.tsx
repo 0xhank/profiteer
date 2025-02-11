@@ -58,9 +58,11 @@ export const TokenContent = ({ mint }: { mint: string }) => {
     return (
         tokenData && (
             <div className="col-span-1 flex flex-col gap-4 items-center">
-                {/* Progress Bar */}
-
-                {/* Price Graph */}
+ {!complete ? (
+                    <TokenTradeForm tokenData={tokenData} onSwap={onSwap} />
+                ) : (
+                    <p>This token has been migrated. </p>
+                )}
                 {loading ? (
                     <div>Loading...</div>
                 ) : tokenPrices.length > 0 ? (
@@ -122,11 +124,7 @@ export const TokenContent = ({ mint }: { mint: string }) => {
 
                 <hr className="w-full border-t-1 border-black/30" />
 
-                {!complete ? (
-                    <TokenTradeForm tokenData={tokenData} onSwap={onSwap} />
-                ) : (
-                    <p>This token has been migrated. </p>
-                )}
+               
             </div>
         )
     );

@@ -20,7 +20,7 @@ export const TopicNews = ({ topic }: { topic: string }) => {
     }
     
     return (
-        <div className="grid grid-cols-2 gap-4 p-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-2">
             {articles.map((article, index) => (
                 <>
                     <Headline key={article.id} article={article} />

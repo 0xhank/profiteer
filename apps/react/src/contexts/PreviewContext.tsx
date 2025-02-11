@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { getTokenDataFromTopic } from "../sbClient";
-import { formatNumber, formatPrice, formatVolume } from "../utils/formatPrice";
+import { useLocation } from "react-router-dom";
 import { useToken } from "../hooks/useToken";
+import { getTokenDataFromTopic } from "../sbClient";
 import { cleanTopicURI } from "../utils/cleanWikiArticle";
+import { formatNumber, formatPrice, formatVolume } from "../utils/formatPrice";
 
 type PreviewData = {
     href: string;
@@ -19,6 +20,7 @@ const PreviewContext = createContext<PreviewContextType | null>(null);
 
 export function PreviewProvider({ children }: { children: React.ReactNode }) {
     const [previewData, setPreviewData] = useState<PreviewData>(null);
+    const location = useLocation();
 
     useEffect(() => {
         let showTimeout: NodeJS.Timeout;
@@ -44,12 +46,15 @@ export function PreviewProvider({ children }: { children: React.ReactNode }) {
         document.addEventListener("mouseover", handleMouseEnter);
         document.addEventListener("mouseout", handleMouseLeave);
 
+        // Call handleMouseLeave when location changes
+        handleMouseLeave();
+
         return () => {
             clearTimeout(showTimeout);
             document.removeEventListener("mouseover", handleMouseEnter);
             document.removeEventListener("mouseout", handleMouseLeave);
         };
-    }, []);
+    }, [location]);
 
     return (
         <PreviewContext.Provider value={{ previewData, setPreviewData }}>
@@ -67,11 +72,13 @@ export const usePreview = () => {
 };
 
 const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
-    const [tokenMetadata, setTokenMetadata] = useState<Awaited<ReturnType<typeof getTokenDataFromTopic>> | null>(null);
+    const [tokenMetadata, setTokenMetadata] = useState<Awaited<
+        ReturnType<typeof getTokenDataFromTopic>
+    > | null>(null);
     const tokenData = useToken(tokenMetadata?.mint ?? "").token;
     const [loading, setLoading] = useState(true);
 
-    const sanitizedTopic =cleanTopicURI(topic);
+    const sanitizedTopic = cleanTopicURI(topic);
     useEffect(() => {
         const fetchArticleList = async () => {
             const tokenData = await getTokenDataFromTopic(topic);
@@ -81,11 +88,25 @@ const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
     }, []);
 
     const priceChange = useMemo(() => {
-        if (!tokenData?.pastPrices?.price1h || !tokenData?.priceUsd) return [0, 'text-gray-500'];
-        
-        const priceChange = ((tokenData.priceUsd) - (tokenData.pastPrices.price1h)) / (tokenData.pastPrices.price1h);
-        const color = priceChange === 0 ? 'text-gray-500' : priceChange > 0 ? 'text-green-500' : 'text-red-500';
-        return [formatNumber(priceChange * 100, {showZero: true, fractionDigits: 2}), color];
+        if (!tokenData?.pastPrices?.price1h || !tokenData?.priceUsd)
+            return [0, "text-gray-500"];
+
+        const priceChange =
+            (tokenData.priceUsd - tokenData.pastPrices.price1h) /
+            tokenData.pastPrices.price1h;
+        const color =
+            priceChange === 0
+                ? "text-gray-500"
+                : priceChange > 0
+                ? "text-green-500"
+                : "text-red-500";
+        return [
+            formatNumber(priceChange * 100, {
+                showZero: true,
+                fractionDigits: 2,
+            }),
+            color,
+        ];
     }, [tokenData]);
 
     return (
@@ -98,25 +119,63 @@ const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
             }}
         >
             {loading ? (
-                <div className = "h-36 w-full"/>
+                <div className="h-36 w-full" />
             ) : tokenMetadata ? (
                 <div className="relative">
-                    <img src={tokenMetadata.uri} alt="Preview" className="h-7 rounded-sm mb-2" />
+                    <img
+                        src={tokenMetadata.uri}
+                        alt="Preview"
+                        className="h-7 rounded-sm mb-2"
+                    />
                     <p className="text-lg font-bold">{sanitizedTopic}</p>
-                    <p className="text-gray-500 text-sm">${tokenMetadata.symbol}</p>
+                    <p className="text-gray-500 text-sm">
+                        ${tokenMetadata.symbol}
+                    </p>
                     <hr className="my-2" />
                     <div className="flex items-center gap-2">
-                        <p className="text-sm font-mono">{formatVolume(tokenData?.volume12h ?? 0,  tokenData?.priceUsd ?? 0)} <span className="text-gray-500 text-xs">VOLUME[12HR]</span></p>
-                        <p className="text-sm font-mono">${formatNumber((tokenData?.metadata?.supply ?? 0) * (tokenData?.priceUsd ?? 0), {short: true, showZero: true, decimals: 9, fractionDigits: 2})} <span className="text-gray-500 text-xs">MARKET CAP</span></p>
+                        <p className="text-sm font-mono">
+                            {formatVolume(
+                                tokenData?.volume12h ?? 0,
+                                tokenData?.priceUsd ?? 0
+                            )}{" "}
+                            <span className="text-gray-500 text-xs">
+                                VOLUME[12HR]
+                            </span>
+                        </p>
+                        <p className="text-sm font-mono">
+                            $
+                            {formatNumber(
+                                (tokenData?.metadata?.supply ?? 0) *
+                                    (tokenData?.priceUsd ?? 0),
+                                {
+                                    short: true,
+                                    showZero: true,
+                                    decimals: 9,
+                                    fractionDigits: 2,
+                                }
+                            )}{" "}
+                            <span className="text-gray-500 text-xs">
+                                MARKET CAP
+                            </span>
+                        </p>
                     </div>
-                    
+
                     <div className="absolute top-0 right-0 font-mono text-xs flex flex-col gap-1 items-end">
-                        <span className="bg-black px-2 text-white">${formatPrice(tokenData?.priceUsd ?? 0)}</span>
-                        <div className={`text-xs flex flex-row items-center ${priceChange[1]}`}><span>{priceChange[0]}%</span><span className="text-gray-500 text-[.75em]">[1hr]</span></div>
+                        <span className="bg-black px-2 text-white">
+                            ${formatPrice(tokenData?.priceUsd ?? 0)}
+                        </span>
+                        <div
+                            className={`text-xs flex flex-row items-center ${priceChange[1]}`}
+                        >
+                            <span>{priceChange[0]}%</span>
+                            <span className="text-gray-500 text-[.75em]">
+                                [1hr]
+                            </span>
+                        </div>
                     </div>
                 </div>
             ) : (
-                <div className="flex flex-col items-center text-center">                     
+                <div className="flex flex-col items-center text-center">
                     <p className="text-gray-500">Create a token for </p>
                     <p className="font-bold text-black">{sanitizedTopic}</p>
                 </div>

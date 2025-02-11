@@ -16,7 +16,7 @@ q {
 a {
     text-decoration: underline;
     color: var(--color-accent);
-	white-space: nowrap;
+	/* white-space: nowrap; */
 }
 
 a:where(:not([role='button'])) {

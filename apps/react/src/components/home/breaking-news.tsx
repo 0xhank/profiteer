@@ -34,7 +34,7 @@ export function BreakingNews() {
     const featureImage = articles.find((article) => article.imageUrl)?.imageUrl;
     return (
         <div className="flex flex-col gap-2">
-            <div className="grid grid-cols-3 col-span-3 min-h-96 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 col-span-3 min-h-96 gap-2">
                 <Headline
                     article={featureArticle}
                     isFeature={true}

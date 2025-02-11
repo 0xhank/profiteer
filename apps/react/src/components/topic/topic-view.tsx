@@ -15,7 +15,7 @@ export const TopicView = ({
 
     return (
         <div className="w-full">
-            <div className="flex border-b border-black/30">
+            <div className="flex border-b border-black/30 bg-white rounded-sm">
                 <button
                     className={`cursor-pointer px-4 py-2 ${
                         activeTab === "news"
@@ -38,7 +38,7 @@ export const TopicView = ({
                 </button>
             </div>
 
-            <div className="mt-4">
+            <div className="mt-2 bg-white rounded-sm p-4">
                 {activeTab === "news" && <TopicNews topic={articleName} />}
                 {activeTab === "wiki" && articleContent && (
                     <WikiArticle articleHtml={articleContent} />

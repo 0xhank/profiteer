@@ -155,9 +155,9 @@ function PageContent({
 
     return (
         <PageLayout>
-            <div className="flex gap-4 pl-16 items-center">
+            <div className="flex gap-4 items-center bg-white rounded-md p-2" style ={{"scrollbarGutter":"stable"}}>
                 {image && (
-                    <img src={image} className="h-20 w-auto object-contain" />
+                    <img src={image} className="max-h-20 w-auto object-contain" />
                 )}
                 <div className="flex flex-col gap-2 ">
                     <p className="font-serif text-2xl font-bold">
@@ -165,7 +165,7 @@ function PageContent({
                     </p>
                     {mint ? (
                         <input
-                            className="cursor-pointer w-[410px] border-black/30"
+                            className="cursor-pointer max-w-[410px] border-black/30"
                             value={mint}
                         />
                     ) : (
@@ -173,8 +173,7 @@ function PageContent({
                     )}
                 </div>
             </div>
-            <hr className="border-t-4 border-double border-black w-full" />
-            <div className="w-[1100px] h-full grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+            <div className="max-w-[1100px] h-full grid grid-cols-1 md:grid-cols-3 md:gap-8 items-start w-full p-2">
                 {/* Rest of the content */}
                 {mint && <TokenContent mint={mint} />}
                 {!mint && (
