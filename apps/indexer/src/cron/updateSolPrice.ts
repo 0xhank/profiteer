@@ -1,4 +1,4 @@
-import supabase from "../sbclient";
+import supabase from "../sbClient";
 
 export const updateSolPrice = async () => {
     try {

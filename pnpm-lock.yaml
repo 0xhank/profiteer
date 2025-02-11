@@ -29,9 +29,6 @@ importers:
       nodemon:
         specifier: ^3.1.7
         version: 3.1.9
-      programs:
-        specifier: workspace:*
-        version: link:../../packages/programs
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -233,7 +230,7 @@ importers:
         version: 4.29.0
       openai:
         specifier: ^4.82.0
-        version: 4.82.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.1)
+        version: 4.82.0(encoding@0.1.13)(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.1)
       programs:
         specifier: workspace:*
         version: link:../../packages/programs
@@ -8417,7 +8414,7 @@ snapshots:
 
   axios@1.7.9:
     dependencies:
-      follow-redirects: 1.15.9(debug@4.4.0)
+      follow-redirects: 1.15.9(debug@4.3.4)
       form-data: 4.0.1
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -10580,7 +10577,7 @@ snapshots:
     dependencies:
       mimic-fn: 2.1.0
 
-  openai@4.82.0(encoding@0.1.13)(ws@7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.1):
+  openai@4.82.0(encoding@0.1.13)(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.24.1):
     dependencies:
       '@types/node': 18.19.74
       '@types/node-fetch': 2.6.12
@@ -10590,7 +10587,7 @@ snapshots:
       formdata-node: 4.4.1
       node-fetch: 2.7.0(encoding@0.1.13)
     optionalDependencies:
-      ws: 7.5.10(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      ws: 8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       zod: 3.24.1
     transitivePeerDependencies:
       - encoding

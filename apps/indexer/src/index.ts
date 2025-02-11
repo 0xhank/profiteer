@@ -3,12 +3,13 @@
 import { Connection } from "@solana/web3.js";
 import { env } from "../bin/env";
 import { updateSolPrice } from "./cron/updateSolPrice";
-import supabase from "./sbclient";
+import supabase from "./sbClient";
 
 /* --------------------------------- START --------------------------------- */
 const SOL_PRICE_UPDATE_INTERVAL = 1000 * 60; // 15 seconds
 export const start = async () => {
     const stopPriceUpdate = updateSolPriceCron();
+    console.log("rpc url", env.RPC_URL);
     const connection = new Connection(env.RPC_URL, "confirmed");
 
     const slotListener = connection.onSlotChange(async (slotInfo) => {
