@@ -1,10 +1,14 @@
 import { usePrivy } from "@privy-io/react-auth";
 import { ScrollingPages } from "../components/common/scrolling-pages";
 import { useAuth } from "../contexts/AuthContext";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 export default function Login() {
     const { login, logout, ready, authenticated } = usePrivy();
-    const { hasAccess, attemptAuthorize } = useAuth();
+    const { hasAccess, attemptAuthorize, refreshInviteStatus } = useAuth();
+    const [code, setCode] = useState("");
+    const [loading, setLoading] = useState(false);
     let content = <div>Loading...</div>;
     if (ready) {
         if (authenticated && hasAccess) {
@@ -26,13 +30,28 @@ export default function Login() {
                         pattern="[A-Za-z0-9]{6}"
                         className="input input-bordered w-48 text-center text-xl tracking-wider uppercase"
                         placeholder="ENTER CODE"
-                        onChange={(e) => {
-                            const code = e.target.value.toUpperCase();
-                            if (code.length === 6) {
-                                attemptAuthorize(code); // You might want to pass the code to your login function
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        disabled={loading}
+                    />
+                    <button
+                        className="btn btn-accent btn-lg"
+                        disabled={loading}
+                        onClick={async () => {
+                            try {
+                            setLoading(true);
+                                await attemptAuthorize(code);
+                                setLoading(false);
+                                await refreshInviteStatus();
+                            } catch {
+                                toast.error("Invalid code");
+                            }finally {
+                                setLoading(false);
                             }
                         }}
-                    />
+                    >
+                        Submit
+                    </button>
                 </div>
             );
         }

@@ -74,25 +74,16 @@ export type Database = {
       invite_codes: {
         Row: {
           code: string
-          created_at: string
-          id: number
-          used: boolean
           used_at: string | null
           user: string | null
         }
         Insert: {
           code: string
-          created_at?: string
-          id?: number
-          used?: boolean
           used_at?: string | null
           user?: string | null
         }
         Update: {
           code?: string
-          created_at?: string
-          id?: number
-          used?: boolean
           used_at?: string | null
           user?: string | null
         }

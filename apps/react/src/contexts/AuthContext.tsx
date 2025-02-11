@@ -1,33 +1,40 @@
+import { useIdentityToken, usePrivy } from "@privy-io/react-auth";
 import { createContext, useContext, useEffect, useState } from "react";
+import { useServer } from "../hooks/useServer";
 import supabase from "../sbClient";
-import { usePrivy } from "@privy-io/react-auth";
 
 interface AuthContextType {
     hasAccess: boolean | null;
     refreshInviteStatus: () => Promise<void>;
     attemptAuthorize: (code: string) => Promise<void>;
+    ready: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [hasAccess, setHasAccess] = useState<boolean | null>(null);
-    const { user, authenticated, ready } = usePrivy();
+    const { user } = usePrivy();
+    const [ready, setReady] = useState(false);
+    const { requestAuth } = useServer();
+    const { identityToken } = useIdentityToken();
 
     const checkInviteStatus = async () => {
-        if (!user || !authenticated || !ready) return setHasAccess(false);
+        if (!user) return setHasAccess(false);
         try {
             const { data, error } = await supabase
                 .from("invite_codes")
                 .select("*")
-                .eq("user_id", user.id)
-                .single();
+                .eq("user", user.id)
 
             if (error) throw error;
+            console.log({ data });
             setHasAccess(!!data);
         } catch (err) {
             console.error("Failed to check invite status:", err);
             setHasAccess(false);
+        } finally {
+            setReady(true);
         }
     };
 
@@ -36,16 +43,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const attemptAuthorize = async (code: string) => {
-        // TODO: Implement authorization logic
+        if (!identityToken) throw new Error("No identity token available");
+        await requestAuth.mutate(
+            {
+                code,
+            },
+            {
+                context: {
+                    headers: {
+                        authorization: "hello",
+                        Cookie: `privy-id-token=${identityToken}`,
+                    },
+                },
+            }
+        );
     };
 
     useEffect(() => {
         checkInviteStatus();
-    }, []);
+    }, [user]);
 
     return (
         <AuthContext.Provider
-            value={{ hasAccess, refreshInviteStatus, attemptAuthorize }}
+            value={{ hasAccess, refreshInviteStatus, attemptAuthorize, ready }}
         >
             {children}
         </AuthContext.Provider>

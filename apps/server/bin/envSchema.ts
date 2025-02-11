@@ -20,5 +20,8 @@ export const commonSchema = z.object({
         ),
 
     DEEPINFRA_API_KEY: z.string().optional(),
+
+    PRIVY_APP_ID: z.string(),
+    PRIVY_APP_SECRET: z.string(),
 });
 

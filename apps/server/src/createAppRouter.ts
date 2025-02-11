@@ -5,12 +5,20 @@ import { PumpService } from "./services/PumpService";
 import { WikiService } from "./services/WikiService";
 import { createBondingCurveInputSchema, swapInputSchema } from "./types";
 import { Env } from "@bin/envSchema";
-
+import supabase from "./sbClient";
+import { PublicKey } from "@solana/web3.js";
+import { AuthService } from "./services/AuthService";
 export type AppContext = {
     pumpService: PumpService;
     jwtToken: string;
+    authService: AuthService;
     wikiService: WikiService;
     env: Env;
+};
+
+type UserContext = {
+    userId: string;
+    walletPublicKey: PublicKey;
 };
 
 // Initialize Supabase client
@@ -27,7 +35,7 @@ export function createAppRouter() {
         }),
 
         getChainType: t.procedure.query(async ({ ctx }) => {
-            const rpc = ctx.env.RPC_URL
+            const rpc = ctx.env.RPC_URL;
             if (rpc.includes("localhost")) {
                 return "local";
             } else if (rpc.includes("devnet")) {
@@ -36,6 +44,12 @@ export function createAppRouter() {
                 return "mainnet";
             }
         }),
+
+        requestAuth: t.procedure
+            .input(z.object({ code: z.string() }))
+            .mutation(async ({ ctx, input }) => {
+                await ctx.authService.requestAuth(ctx.jwtToken, input.code);
+            }),
 
         getAirdrop: t.procedure
             .input(z.object({ address: z.string() }))
@@ -81,8 +95,6 @@ export function createAppRouter() {
                 return ctx.pumpService.getAllUserTokenBalances(input.address);
             }),
 
-           
-
         createBondingCurveTx: t.procedure
             .input(createBondingCurveInputSchema)
             .mutation(async ({ input, ctx }) => {
@@ -118,8 +130,10 @@ export function createAppRouter() {
             )
             .mutation(async ({ input, ctx }) => {
                 console.log("migrate ===>>>", input.mint);
-            return ctx.pumpService.migrate(input.mint);
+                return ctx.pumpService.migrate(input.mint);
             }),
+
+        
     });
 }
 

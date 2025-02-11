@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { AuthService } from "@/services/AuthService";
 import { createPumpService } from "@/services/PumpService";
 import { WikiService } from "@/services/WikiService";
 import fastifyWebsocket from "@fastify/websocket";
@@ -7,7 +8,7 @@ import {
     fastifyTRPCPlugin,
 } from "@trpc/server/adapters/fastify";
 import fastify from "fastify";
-import { IncomingMessage } from "http";
+import { IncomingHttpHeaders } from "http";
 import { AppRouter, createAppRouter } from "../src/createAppRouter";
 import { parseEnv } from "./env";
 
@@ -22,13 +23,11 @@ server.get("/healthz", (_, res) => res.code(200).send());
 server.get("/readyz", (_, res) => res.code(200).send());
 server.get("/", (_, res) => res.code(200).send("hello world"));
 
-// Helper function to extract bearer token
-const getBearerToken = (req: IncomingMessage) => {
-    const authHeader = req.headers?.authorization;
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-        return authHeader.substring(7);
-    }
-    return null;
+// Helper function to extract privy token from cookies
+const getPrivyToken = (req: IncomingHttpHeaders) => {
+    return req.cookie?.split(";").find((cookie) =>
+        cookie.trim().startsWith("privy-id-token=")
+    )?.split("=")[1] || null;
 };
 
 export function createContext({ req, res }: CreateFastifyContextOptions) {
@@ -37,15 +36,11 @@ export function createContext({ req, res }: CreateFastifyContextOptions) {
 }
 
 export const start = async () => {
-    console.log("starting");
-
     try {
         await server.register(fastifyWebsocket);
         await server.register(import("@fastify/compress"));
         await server.register(import("@fastify/cors"), {
-            origin: [
-                "*"
-            ],
+            origin: "http://localhost:5173",
             credentials: true,
             methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
             allowedHeaders: [
@@ -54,12 +49,14 @@ export const start = async () => {
                 "Content-Type",
                 "Accept",
                 "Authorization",
+                "Cookie",
                 "ngrok-skip-browser-warning",
             ],
         });
 
         const pumpService = createPumpService();
         const wikiService = WikiService();
+        const authService = new AuthService();
         const router = createAppRouter();
         const env = parseEnv();
 
@@ -69,10 +66,11 @@ export const start = async () => {
             trpcOptions: {
                 router: router,
                 createContext: async (opt) => ({
-                    jwtToken: getBearerToken(opt.req.raw) ?? "",
+                    jwtToken: getPrivyToken(opt.req.headers) ?? "",
                     pumpService,
                     wikiService,
                     env,
+                    authService,
                 }),
             },
         });

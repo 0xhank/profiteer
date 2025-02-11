@@ -25,6 +25,12 @@ export function createClient({
         links: [
             httpBatchLink({
                 url: httpUrl,
+                fetch(url, options) {
+                    return fetch(url, {
+                        ...options,
+                        credentials: "include",
+                    });
+                },
             }),
         ],
     });
