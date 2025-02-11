@@ -1,40 +1,10 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { cn } from "../../utils/cn";
-import { ArticlePreview } from "../common/article-preview";
 import { LoadingPane } from "../common/loading";
+import { cleanWikiArticle } from "../../utils/cleanWikiArticle";
 
 export function YesterdayNews() {
     const [article, setArticle] = useState<string | null>(null);
-    const [previewData, setPreviewData] = useState<{
-        href: string;
-        rect: DOMRect;
-    } | null>(null);
-
-    const handleMouseEnter = (e: MouseEvent) => {
-        const link = e.target as HTMLAnchorElement;
-        if (link.tagName === "A" && link.href.includes("/wiki/")) {
-            setPreviewData({
-                href: link.href,
-                rect: link.getBoundingClientRect(),
-            });
-        }
-    };
-
-    const handleMouseLeave = () => {
-        setPreviewData(null);
-    };
-
-    useEffect(() => {
-        const newsContainer = document.getElementById("yesterday-news");
-        newsContainer?.addEventListener("mouseover", handleMouseEnter);
-        newsContainer?.addEventListener("mouseout", handleMouseLeave);
-
-        return () => {
-            newsContainer?.removeEventListener("mouseover", handleMouseEnter);
-            newsContainer?.removeEventListener("mouseout", handleMouseLeave);
-        };
-    }, []);
 
     useEffect(() => {
         const fetchArticle = async () => {
@@ -82,16 +52,7 @@ export function YesterdayNews() {
                     }
                 });
 
-                // Convert Portal links to divs
-                eventsBlurb
-                    .querySelectorAll('a[href^="/wiki/Portal:"]')
-                    .forEach((link) => {
-                        const div = document.createElement("span");
-                        div.innerHTML = link.innerHTML;
-                        link.replaceWith(div);
-                    });
-
-                setArticle(eventsBlurb.innerHTML);
+                setArticle(cleanWikiArticle(eventsBlurb.innerHTML));
             } catch (error) {
                 const errorMessage =
                     error instanceof Error
@@ -105,46 +66,34 @@ export function YesterdayNews() {
         fetchArticle();
     }, []);
 
+    useEffect(() => {
+        document.querySelectorAll('span[data-internal-link="true"]').forEach((span) => {
+            const to = span.getAttribute('data-to');
+            if (to) {
+                const link = document.createElement('a');
+                link.href = `/wiki/${to}`;
+                link.innerHTML = span.innerHTML;
+                span.replaceWith(link);
+            }
+        });
+    }, [article]);
+
+
     if (!article) {
         return <LoadingPane className="h-[600px]" />;
     }
 
     return (
         <>
-            <div>
-                <h3 className="text-lg font-bold">
-                    Yesterday's{" "}
-                    <span
-                        className={cn(
-                            "text-xl font-bold font-script !text-accent",
-                            "text-shadow-[2px_2px_0_black,_-2px_-2px_0_black,_2px_-2px_0_black,_-2px_2px_0_black]"
-                        )}
-                    >
-                        News
-                    </span>
+            <div className="flex flex-col gap-2">
+                <h3 className="text-xl font-serif font-bold w-full bg-gray-700 text-white p-2">
+                    Yesterday
                 </h3>
                 <div
                     id="yesterday-news"
                     dangerouslySetInnerHTML={{ __html: article }}
                 />
             </div>
-            {previewData && <PreviewOverlay {...previewData} />}
         </>
     );
 }
-
-const PreviewOverlay = ({ href, rect }: { href: string; rect: DOMRect }) => {
-    return (
-        <div
-            className="fixed z-50 bg-white shadow-lg rounded p-4 max-w-md"
-            style={{
-                top: `${rect.bottom + 8}px`,
-                left: `${rect.left}px`,
-            }}
-        >
-            <ArticlePreview href={href}>
-                <a href={href}>{href}</a>
-            </ArticlePreview>
-        </div>
-    );
-};

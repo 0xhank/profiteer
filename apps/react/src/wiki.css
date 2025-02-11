@@ -36,7 +36,8 @@ h2 {
 
 .current-events-main {
 	margin: 0 !important;
-	border: 1px solid black !important;
+	border: 0px solid black !important;
+	border-radius: 0.5rem !important;
 }
 
 .current-events-heading {
@@ -45,6 +46,7 @@ h2 {
 }
 
 .current-events-title {
+	display: none;
 	font-weight: var(--font-weight-bold);
 	font-size: var(--text-md);
 	background-color: var(--background-color-base-100);
