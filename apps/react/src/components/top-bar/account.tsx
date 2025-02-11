@@ -71,9 +71,9 @@ export function Account() {
                                 <span>{balance.toFixed(3)}</span>
                             </div>
                         ))}
-                        {/* <button onClick={logout} className="btn btn-error">
+                        <button onClick={logout} className="btn btn-error">
                             Logout
-                        </button> */}
+                        </button>
                     </div>
                 </div>
             </Modal.Content>
