@@ -5,11 +5,7 @@ import { config } from "dotenv";
 import path from "path";
 
 const commonSchema = z.object({
-  SERVER_HOST: z.string().default("0.0.0.0"),
-  SERVER_PORT: z.coerce.number().positive().default(8888),
-
   // SUPABASE
-  SB_CONNECTION: z.string(),
   SB_URL: z.string(),
   SB_SERVICE_KEY: z.string(),
 
