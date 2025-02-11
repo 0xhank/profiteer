@@ -18,6 +18,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Login from "./pages/login";
 import { Privacy } from "./pages/privacy";
 import { Terms } from "./pages/terms";
+import LoadingScreen from "./components/common/loading-screen";
 function App() {
     if (import.meta.env.VITE_MAINTENANCE) {
         return <Maintenance />;
@@ -53,7 +54,7 @@ function App() {
 
 function AppContent() {
     const { hasAccess, ready } = useAuth();
-    if (!ready && !import.meta.env.VITE_SKIP_INVITE) return <Maintenance />;
+    if (!ready && !import.meta.env.VITE_SKIP_INVITE) return <LoadingScreen />;
     if (!hasAccess && !import.meta.env.VITE_SKIP_INVITE) return <Login />;
     return (
         <div className="flex flex-col items-center h-screen w-screen absolute top-0 left-0 right-0 z-50 bg-gray-100">
