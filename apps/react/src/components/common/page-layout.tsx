@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { cn } from "../../utils/cn";
+import { Footer } from "./footer";
 interface PageLayoutProps {
   children: ReactNode;
   title?: string;
@@ -9,8 +10,12 @@ interface PageLayoutProps {
 
 export const PageLayout = ({ children, className }: PageLayoutProps) => {
   return (
-    <div className={cn("flex flex-col gap-4 max-w-[1100px] pt-26", className)}>
+    <div className="flex flex-col items-center gap-4 w-full pt-26">
+    <div className={cn("flex flex-col gap-4 max-w-[1100px] ", className)}>
         {children}
+
     </div>
+            <Footer />
+</div>
   );
 };

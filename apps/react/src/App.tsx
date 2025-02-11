@@ -2,8 +2,6 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
-import { Disclaimer } from "./components/common/disclaimer";
-import ServerStatus from "./components/home/server-status";
 import TopBar from "./components/top-bar/top-bar";
 import { PortfolioProvider } from "./contexts/PortfolioContext";
 import { SolPriceProvider } from "./contexts/SolPriceContext";
@@ -18,6 +16,8 @@ import Maintenance from "./pages/maintenance";
 import { PreviewProvider } from "./contexts/PreviewContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Login from "./pages/login";
+import { Privacy } from "./pages/privacy";
+import { Terms } from "./pages/terms";
 function App() {
     if (import.meta.env.VITE_MAINTENANCE) {
         return <Maintenance />;
@@ -66,11 +66,11 @@ function AppContent() {
                     <Route path="/" element={<Home />} />
                     <Route path="/wiki/:id" element={<Token />} />
                     <Route path="/admin" element={<Admin />} />
+                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/privacy" element={<Privacy />} />
                     <Route path="/*" element={<Page404 />} />
                 </Routes>
             </div>
-            <Disclaimer />
-            <ServerStatus />
         </div>
     );
 }
