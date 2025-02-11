@@ -53,7 +53,7 @@ function App() {
 
 function AppContent() {
     const { hasAccess, ready } = useAuth();
-    if (!ready) return <Maintenance />;
+    if (!ready && !import.meta.env.VITE_SKIP_INVITE) return <Maintenance />;
     if (!hasAccess && !import.meta.env.VITE_SKIP_INVITE) return <Login />;
     return (
         <div className="flex flex-col items-center h-screen w-screen absolute top-0 left-0 right-0 z-50 bg-gray-100">

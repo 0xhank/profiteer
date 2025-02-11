@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { getTokenDataFromTopic } from "../sbClient";
-import { formatNumber, formatPrice } from "../utils/formatPrice";
+import { formatNumber, formatPrice, formatVolume } from "../utils/formatPrice";
 import { useToken } from "../hooks/useToken";
 import { cleanTopicURI } from "../utils/cleanWikiArticle";
 
@@ -106,7 +106,7 @@ const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
                     <p className="text-gray-500 text-sm">${tokenMetadata.symbol}</p>
                     <hr className="my-2" />
                     <div className="flex items-center gap-2">
-                        <p className="text-sm font-mono">${formatNumber((tokenData?.volume12h ?? 0) * (tokenData?.priceUsd ?? 0), {short: true, showZero: true, decimals: 9, fractionDigits: 2})} <span className="text-gray-500 text-xs">VOLUME[12HR]</span></p>
+                        <p className="text-sm font-mono">{formatVolume(tokenData?.volume12h ?? 0,  tokenData?.priceUsd ?? 0)} <span className="text-gray-500 text-xs">VOLUME[12HR]</span></p>
                         <p className="text-sm font-mono">${formatNumber((tokenData?.metadata?.supply ?? 0) * (tokenData?.priceUsd ?? 0), {short: true, showZero: true, decimals: 9, fractionDigits: 2})} <span className="text-gray-500 text-xs">MARKET CAP</span></p>
                     </div>
                     

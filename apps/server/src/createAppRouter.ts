@@ -132,7 +132,6 @@ export function createAppRouter() {
                 })
             )
             .mutation(async ({ input, ctx }) => {
-                console.log("migrate ===>>>", input.mint);
                 return ctx.pumpService.migrate(input.mint);
             }),
     });
