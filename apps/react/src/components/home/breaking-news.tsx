@@ -32,6 +32,9 @@ export function BreakingNews() {
     const secondArticle = articles[1];
     const otherArticles = articles.slice(2);
     const featureImage = articles.find((article) => article.imageUrl)?.imageUrl;
+    if (articles == null) {
+        return <LoadingPane className="h-[600px]" />;
+    }
     return (
         <div className="flex flex-col gap-2">
             <div className="grid grid-cols-1 md:grid-cols-3 col-span-3 min-h-96 gap-2">
