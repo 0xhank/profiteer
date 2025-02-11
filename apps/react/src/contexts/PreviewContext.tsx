@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { getTokenDataFromTopic } from "../sbClient";
 import { formatNumber, formatPrice } from "../utils/formatPrice";
 import { useToken } from "../hooks/useToken";
+import { cleanTopicURI } from "../utils/cleanWikiArticle";
 
 type PreviewData = {
     href: string;
@@ -70,11 +71,7 @@ const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
     const tokenData = useToken(tokenMetadata?.mint ?? "").token;
     const [loading, setLoading] = useState(true);
 
-    const sanitizedTopic = decodeURIComponent(topic)
-        .split('_')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ');
-
+    const sanitizedTopic =cleanTopicURI(topic);
     useEffect(() => {
         const fetchArticleList = async () => {
             const tokenData = await getTokenDataFromTopic(topic);
@@ -101,7 +98,7 @@ const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
             }}
         >
             {loading ? (
-                <span className="text-gray-500">Loading Token Data</span>
+                <div className = "h-36 w-full"/>
             ) : tokenMetadata ? (
                 <div className="relative">
                     <img src={tokenMetadata.uri} alt="Preview" className="h-7 rounded-sm mb-2" />
@@ -119,8 +116,9 @@ const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
                     </div>
                 </div>
             ) : (
-                <div className="flex items-center gap-2">                     
-                    <span className="text-gray-500">No token found for <span className="font-bold text-black">{sanitizedTopic}</span></span>
+                <div className="flex flex-col items-center text-center">                     
+                    <p className="text-gray-500">Create a token for </p>
+                    <p className="font-bold text-black">{sanitizedTopic}</p>
                 </div>
             )}
         </div>

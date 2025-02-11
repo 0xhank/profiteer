@@ -83,9 +83,9 @@ function getDecimals(num: number, max = 3): string {
 }
 
 export function formatVolume(volume: number, priceUsd: number) {
-    const val = (volume / 1e9) * priceUsd;
+    const val = (volume / 1e6) * priceUsd;
     return (
         "$" +
-        formatNumber(val, { fractionDigits: val < 1 ? 4 : 0, short: val > 100 })
+        formatNumber(val, { fractionDigits: val < 1 ? 4 : val > 1000 ? 0 : 2, short: val > 100,  })
     );
 }

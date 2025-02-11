@@ -2,6 +2,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { toast } from "react-toastify";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { Modal } from "../common/modal";
+import { Link } from "react-router-dom";
 
 export function Account() {
     const { logout, connectWallet } = usePrivy();
@@ -26,13 +27,11 @@ export function Account() {
     // show accounts
     return (
         <Modal>
-            <Modal.Button className="btn btn-accent btn-sm rounded-none">
+            <p className="text-lg text-gray-200 font-semibold">
+                {solBalance > 0 ? `${solBalance.toFixed(3)} SOL` : "Deposit"}
+            </p>
+            <Modal.Button className="btn btn-accent btn-square h-8 w-8 rounded-sm">
                 <div className="flex items-center gap-1">
-                    <p className="text-lg text-gray-200 font-semibold">
-                        {solBalance > 0
-                            ? `${solBalance.toFixed(3)} SOL`
-                            : "Deposit"}
-                    </p>
                     <AccountIcon className="w-6 h-6" />
                 </div>
             </Modal.Button>
@@ -62,10 +61,13 @@ export function Account() {
                             ["SOL", solBalance],
                             ...Object.entries(tokenBalances),
                         ].map(([token, balance]) => (
-                            <div key={token} className="flex items-center justify-between px-2">
-                                <a href={`/wiki/${token}`}>
+                            <div
+                                key={token}
+                                className="flex items-center justify-between px-2"
+                            >
+                                <Link to={`/wiki/${token}`}>
                                     {token.slice(0, 6)}
-                                </a>
+                                </Link>
                                 <span>{balance.toFixed(3)}</span>
                             </div>
                         ))}

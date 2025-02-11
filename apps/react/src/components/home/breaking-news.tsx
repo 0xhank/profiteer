@@ -34,20 +34,12 @@ export function BreakingNews() {
     const otherArticles = articles.slice(2);
     const featureImage = articles.find((article) => article.imageUrl)?.imageUrl;
     return (
-        <div className="flex flex-col">
-            <h3 className="text-xl font-bold">
-                Breaking{" "}
-                <span
-                    className={cn(
-                        "text-xl font-bold font-script !text-accent",
-                        "text-shadow-[2px_2px_0_black,_-2px_-2px_0_black,_2px_-2px_0_black,_-2px_2px_0_black]"
-                    )}
-                >
-                    News
-                </span>
+        <div className="flex flex-col gap-2">
+            <h3 className="text-xl font-serif font-bold w-full bg-gray-700 text-white p-2">
+                Breaking News
             </h3>
 
-            <div className="grid grid-cols-3 col-span-3 min-h-96 divide-y divide-black/30">
+            <div className="grid grid-cols-3 col-span-3 min-h-96 gap-2">
                 <Headline
                     article={featureArticle}
                     isFeature={true}
@@ -70,7 +62,7 @@ export function BreakingNews() {
                     />
                 )}
             </div>
-            <div className="grid grid-cols-2 divide-y divide-black/30">
+            <div className="grid grid-cols-2 gap-2">
                 {otherArticles.map((article, index) =>
                     index === 0 ? (
                         // First article - large, top right

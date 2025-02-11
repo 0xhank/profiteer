@@ -174,7 +174,7 @@ function PageContent({
                 </div>
             </div>
             <hr className="border-t-4 border-double border-black w-full" />
-            <div className="w-[1200px] h-full grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+            <div className="w-[1100px] h-full grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
                 {/* Rest of the content */}
                 {mint && <TokenContent mint={mint} />}
                 {!mint && (

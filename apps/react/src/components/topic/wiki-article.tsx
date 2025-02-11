@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArticlePreview } from "../common/article-preview";
+import { Link } from "react-router-dom";
 
 const WikiArticle = ({ articleHtml }: { articleHtml: string }) => {
     const [previewData, setPreviewData] = useState<{
@@ -56,7 +57,7 @@ const PreviewOverlay = ({ href, rect }: { href: string; rect: DOMRect }) => {
             }}
         >
             <ArticlePreview href={href}>
-                <a href={href}>{href}</a>
+                <Link to={href}>{href}</Link>
             </ArticlePreview>
         </div>
     );

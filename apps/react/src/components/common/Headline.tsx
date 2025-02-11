@@ -2,6 +2,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import { cn } from "../../utils/cn";
 import { getHeadlineList } from "../../sbClient";
+import { Link } from "react-router-dom";
 
 export function Headline({
     article,
@@ -22,7 +23,7 @@ export function Headline({
     };
 
     return (
-        <div className={cn("flex gap-2 h-full w-full p-2")}>
+        <div className={cn("flex gap-2 h-full w-full p-2 bg-white rounded-sm")}>
             {(article.imageUrl || isFeature) && !showNoImage && (
                 <img
                     src={
@@ -46,9 +47,9 @@ export function Headline({
                 rehypePlugins={[rehypeRaw]}
                 components={{
                     a: ({ children, href, ...props }) => (
-                        <a href={href || "#"} {...props}>
+                        <Link to={href || "#"} {...props}>
                             {children}
-                        </a>
+                        </Link>
                     ),
                 }}
             >

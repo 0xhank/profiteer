@@ -15,10 +15,20 @@ export const cleanWikiArticle = (articleHtml: string) => {
     const links = doc.querySelectorAll("a");
     links.forEach((link) => {
         if (!checkValidWikiLink(link.href)) {
-            const div = document.createElement("span");
-            div.className = "text-align-center";
-            div.innerHTML = link.innerHTML;
-            link.replaceWith(div);
+            const span = document.createElement("span");
+            span.innerHTML = link.innerHTML;
+            link.replaceWith(span);
+        } else {
+            // Extract the path from the full URL
+            const path = link.getAttribute("href")?.split("/").pop() || "";
+            const linkText = link.innerHTML;
+
+            // Create a wrapper span that React can hydrate into a Link
+            const wrapper = document.createElement("span");
+            wrapper.setAttribute("data-internal-link", "true");
+            wrapper.setAttribute("data-to", path);
+            wrapper.innerHTML = linkText;
+            link.replaceWith(wrapper);
         }
     });
     return doc.body.innerHTML;
@@ -38,4 +48,13 @@ export const checkValidWikiLink = (link: string) => {
         return false;
     }
     return true;
+};
+
+export const cleanTopicURI = (topic: string) => {
+    return decodeURIComponent(topic)
+        .split("_")
+        .map(
+            (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        )
+        .join(" ");
 };

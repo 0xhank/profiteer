@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 import supabase, { uploadFile } from "../../sbClient";
 import { getWikipediaAutocomplete } from "../../utils/getWikiAutocomplete";
+import { Link } from "react-router-dom";
 
 const HeadlineForm = () => {
     const [headline, setHeadline] = useState("");
@@ -84,15 +85,15 @@ const HeadlineForm = () => {
             }
             const href = decodeURIComponent(match[2]);
             parts.push(
-                <a
+                <Link
                     key={match.index}
-                    href={href}
+                    to={href}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-500 hover:underline"
                 >
                     {match[1]}
-                </a>
+                </Link>
             );
             lastIndex = match.index + match[0].length;
         }
