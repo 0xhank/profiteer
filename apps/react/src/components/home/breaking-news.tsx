@@ -35,6 +35,9 @@ export function BreakingNews() {
     if (articles == null) {
         return <LoadingPane className="h-[600px]" />;
     }
+    if (articles.length === 0) {
+        return <div className="h-[600px] flex items-center justify-center bg-white rounded-md">No articles found</div>;
+    }
     return (
         <div className="flex flex-col gap-2">
             <div className="grid grid-cols-1 md:grid-cols-3 col-span-3 min-h-96 gap-2">
