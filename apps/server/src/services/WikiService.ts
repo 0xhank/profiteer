@@ -73,8 +73,9 @@ You must respond with "Here are six imaginary ticker symbols based on the title 
     ]
 
     ### For each element of the symbols array ### 
-- Be an imaginary ticker symbol that is an abbreviation or acronym of the title of the article.
-- Be 3-6 characters long, total. The first two are 3 characters. The 3-4 are 4 or 5 characters. The final two are 6 characters.
+- Be an imaginary ticker symbol that is a keyword, an abbreviation or acronym of the title of the article.
+- If the article is about a person, use a common nickname, abbreviation, or a combination of first and last name.
+- Be 4-6 characters long, total. The first two are 4 characters. The 3-4 are 4 or 5 characters. The final two are 6 characters.
 <|start_header_id|>user<|end_header_id|>
 ${articleContent}<|eot_id|><|start_header_id|>assistant<|end_header_id|>`;
         console.log(input);

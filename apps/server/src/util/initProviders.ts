@@ -18,6 +18,7 @@ export const initProviders = () => {
   const masterWallet = new Wallet(feePayerKeypair);
 
   const rpcUrl = env.RPC_URL;
+  console.log("rpcUrl:", rpcUrl);
 
   const connection = new Connection(rpcUrl, "confirmed");
   const provider = new anchor.AnchorProvider(
@@ -27,6 +28,7 @@ export const initProviders = () => {
   );
 
   const programId = toWeb3JsPublicKey(PUMP_SCIENCE_PROGRAM_ID);
+  console.log("programId:", programId);
   const program = new Program(
     idl as anchor.Idl as PumpScience,
     programId,

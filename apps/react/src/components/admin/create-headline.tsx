@@ -130,11 +130,17 @@ const HeadlineForm = () => {
                 imageId = uuidv4();
                 await uploadFile(imageId, image);
             }
-            await supabase.from("news_story").insert({
+            const {error } = await supabase.from("news_story").insert({
                 content: headline,
                 image_id: imageId,
-                headline_names: names
+                article_names: names
             });
+            if (error) {
+                toast.error("Error submitting headline");
+                console.error(error);
+            } else {
+                toast.success("Headline submitted successfully");
+            }
         } catch (error) {
             toast.error("Error submitting headline");
             console.error(error);

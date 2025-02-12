@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { useServer } from "../../hooks/useServer";
 import { LoadingPane } from "../common/loading";
+import { usePrivy } from "@privy-io/react-auth";
 
 export const CreateToken = ({
     articleName,
@@ -131,6 +132,7 @@ const CreateTokenButton = (props: {
     disabled: boolean;
     refresh: () => void;
 }) => {
+    const { authenticated } = usePrivy();
     const { createBondingCurveTx, sendCreateBondingCurveTx } = useServer();
     const { wallet } = usePortfolio();
     const [isLoading, setIsLoading] = useState(false);
@@ -166,9 +168,9 @@ const CreateTokenButton = (props: {
         <button
             onClick={onSendTransaction}
             className="btn btn-primary btn-block rounded-none"
-            disabled={props.disabled || isLoading}
+            disabled={props.disabled || isLoading || !authenticated}
         >
-            {isLoading ? "Creating..." : "Create Token"}
+            {!authenticated ? "Login to create a token" : isLoading ? "Creating..." : "Create Token"}
         </button>
     );
 };

@@ -8,6 +8,7 @@ import { useServer } from "../../hooks/useServer";
 import { useTokenBalance } from "../../hooks/useTokenBalance";
 import { SolBalance, TokenBalance } from "./token-balance";
 import { cn } from "../../utils/cn";
+import { usePrivy } from "@privy-io/react-auth";
 // Add these utility functions at the top level
 const uint8ArrayToBase64 = (uint8Array: Uint8Array): string => {
     return btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
@@ -20,6 +21,8 @@ export const TokenTradeForm = ({
     tokenData: Token;
     onSwap: () => void;
 }) => {
+
+    const { authenticated } = usePrivy();
     const [isLoading, setIsLoading] = useState(false);
     const [amount, setAmount] = useState(1);
     const [isBuyMode, setIsBuyMode] = useState(true);
@@ -196,15 +199,13 @@ export const TokenTradeForm = ({
                 className="input input-neutral w-full bg-gray-100"
                 placeholder="Enter amount"
             />
-            {/* {fee > 0.01 && ( */}
-                
-            {/* // )} */}
+           
             <button
                 onClick={handleExecute}
-                disabled={isLoading}
+                disabled={isLoading || !authenticated}
                 className="btn btn-primary btn-block"
             >
-                {isLoading ? "Processing..." : "Confirm"}
+                {!authenticated ? "Login to trade" : isLoading ? "Processing..." : "Confirm"}
             </button>
         </div>
     );

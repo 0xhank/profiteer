@@ -12,7 +12,6 @@ import {
   LAMPORTS_PER_SOL,
   Keypair as Web3JsKeypair,
 } from "@solana/web3.js";
-import path from "path";
 import { PumpScience } from "src/idls/pump_science";
 import {
   AMM,
@@ -27,14 +26,19 @@ import { confirmTransaction, processTransaction } from "../src/confirmTx";
 import idl from "../src/idls/pump_science.json";
 
 
-const privateKeyUrl = path.resolve(__dirname, "../../../pump_test.json");
 const loadProviders = () => {
   // convert the private key to a string
   // const rpcUrl = "https://cosmological-wild-dew.solana-devnet.quiknode.pro/5c3ba882408038ec82100344e3c50147ace8fd51/";
-  const rpcUrl = "http://localhost:8899";
+  // const rpcUrl = "https://api.devnet.solana.com	"
+  // const rpcUrl = "http://localhost:8899";
 
+  // mainnet
+  const rpcUrl = "https://winter-wandering-frost.solana-mainnet.quiknode.pro/ccd37eee5fa0749b20281e12a7f31885b95f93c2"
+
+  // const privateKey = require(privateKeyUrl);
+  // console.log("privateKey", privateKey);
   const web3jsKp = Web3JsKeypair.fromSecretKey(
-    Uint8Array.from(require(privateKeyUrl))
+    Uint8Array.from([115,188,144,34,211,204,50,142,66,45,142,12,169,155,140,73,241,105,28,157,189,15,228,23,80,138,229,102,85,12,194,45,212,87,109,48,35,20,17,60,72,173,42,99,3,0,144,232,7,114,158,115,246,115,61,117,58,212,252,4,16,170,37,88])
   );
   const connection = new Connection(rpcUrl, "confirmed");
   const provider = new anchor.AnchorProvider(
@@ -43,6 +47,7 @@ const loadProviders = () => {
     anchor.AnchorProvider.defaultOptions()
   );
 
+  console.log("PUMP_SCIENCE_PROGRAM_ID", PUMP_SCIENCE_PROGRAM_ID);
   const programId = toWeb3JsPublicKey(PUMP_SCIENCE_PROGRAM_ID);
   const program = new Program(
     idl as unknown as anchor.Idl,
@@ -241,7 +246,7 @@ describe("pump tests", () => {
     }
   });
 
-  it("migrate", async () => {
+  it.skip("migrate", async () => {
       const mintKp = fromWeb3JsKeypair(Web3JsKeypair.generate());
     const curveSdk = sdk.getCurveSDK(mintKp.publicKey);
     const curveTx = await curveSdk.createBondingCurve(

@@ -5,13 +5,16 @@ seeds = false
 skip-lint = false
 
 [programs.devnet]
-pump_science = "BjbuCn9cWxLZFmRc7zQ4hwV45SyqZA5YSMKpvUUeeHvw"
+pump_science = "J3nh6pDYtUbwZbGfTozRhHgPJnRVUR2aFAXCrqt9qo62"
+
+[programs.mainnet]
+pump_science = "J3nh6pDYtUbwZbGfTozRhHgPJnRVUR2aFAXCrqt9qo62"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "Mainnet"
 wallet = "/Users/henry/.config/solana/id.json"
 
 [scripts]
