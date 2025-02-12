@@ -10,10 +10,10 @@ type Candle = {
 
 export const pricesToCandles = (
     tokenPrices: {
-        time: string;
+        time: number;
         value: number;
     }[],
-    candleTimespan: number
+    candleTimespanSecs: number
 ) => {
     // 1. sort prices by time
     const sortedPrices = tokenPrices.sort(
@@ -23,8 +23,10 @@ export const pricesToCandles = (
     // 2. group prices into buckets of candleTimespan
     const candleGroups: Map<number, number[]> = new Map();
 
-    const addPriceToGroup = (price: { time: string; value: number }) => {
-        const groupStartTime = new Date(price.time).getTime() - (new Date(price.time).getTime() % (candleTimespan * 1000));
+    const addPriceToGroup = (price: { time: number; value: number }) => {
+        const groupLength = candleTimespanSecs * 1000;
+
+        const groupStartTime = (Math.floor(price.time / groupLength) * groupLength) / 1000;
         if (!candleGroups.has(groupStartTime)) {
             candleGroups.set(groupStartTime, []);
         }
@@ -44,20 +46,9 @@ export const pricesToCandles = (
         };
         candles.push(candle);
     }
-    // 4. backfill missing candles
-    const lastCandle = candles[candles.length - 1];
-    const lastCandleTime = lastCandle.time;
-    const now = new Date().getTime();
-    const timeDiff = now - lastCandleTime;
-    const missingCandles = Math.floor(timeDiff / (candleTimespan * 1000));
-    for (let i = 0; i < missingCandles; i++) {
-        candles.push({
-            time: lastCandleTime + (i + 1) * candleTimespan * 1000 as UTCTimestamp,
-            open: lastCandle.close,
-            high: lastCandle.close,
-            low: lastCandle.close,
-            close: lastCandle.close,
-        });
+    // set the close price of each candle to the open price of the next candle
+    for (let i = 0; i < candles.length - 1; i++) {
+        candles[i].close = candles[i + 1].open;
     }
 
     return candles;
