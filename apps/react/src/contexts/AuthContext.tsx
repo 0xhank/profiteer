@@ -19,8 +19,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { identityToken } = useIdentityToken();
 
     const checkInviteStatus = async () => {
-        if (!user) return setHasAccess(false);
         try {
+            if (!user) return setHasAccess(false);
             const authorized = await isAuthorized.query(undefined, {
                 context: {
                     headers: {
