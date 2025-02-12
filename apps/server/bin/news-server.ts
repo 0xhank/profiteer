@@ -54,11 +54,13 @@ export const start = async () => {
             ],
         });
 
+        const env = parseEnv();
+
         const pumpService = createPumpService();
         const wikiService = WikiService();
         const authService = new AuthService();
         const router = createAppRouter();
-        const env = parseEnv();
+        console.log(JSON.stringify(env, null, 2));
 
         // Single TRPC registration that handles both HTTP and WebSocket
         await server.register(fastifyTRPCPlugin<AppRouter>, {

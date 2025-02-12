@@ -16,7 +16,8 @@ ENV DEEPINFRA_API_KEY=$DEEPINFRA_API_KEY
 ENV ADMIN_PRIVATE_KEY=$ADMIN_PRIVATE_KEY
 
 # Copy workspace files
-# COPY packages ./packages
+
+COPY packages ./packages
 COPY apps/server ./apps/server
 
 # Install dependencies
