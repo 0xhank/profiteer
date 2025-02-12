@@ -23,11 +23,20 @@ server.get("/healthz", (_, res) => res.code(200).send());
 server.get("/readyz", (_, res) => res.code(200).send());
 server.get("/", (_, res) => res.code(200).send("hello world"));
 
+// Add cookie parser registration
+
 // Helper function to extract privy token from cookies
 const getPrivyToken = (req: IncomingHttpHeaders) => {
-    return req.cookie?.split(";").find((cookie) =>
-        cookie.trim().startsWith("privy-id-token=")
-    )?.split("=")[1] || null;
+    // Use proper cookie parsing
+    if (typeof req.cookie === "string") {
+        return (
+            req.cookie
+                .split(";")
+                .find((cookie) => cookie.trim().startsWith("privy-id-token="))
+                ?.split("=")[1] || null
+        );
+    }
+    return null;
 };
 
 export function createContext({ req, res }: CreateFastifyContextOptions) {
@@ -37,6 +46,7 @@ export function createContext({ req, res }: CreateFastifyContextOptions) {
 
 export const start = async () => {
     try {
+        await server.register(import("@fastify/cookie"));
         await server.register(fastifyWebsocket);
         await server.register(import("@fastify/compress"));
         await server.register(import("@fastify/cors"), {

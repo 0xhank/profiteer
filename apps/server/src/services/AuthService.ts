@@ -23,6 +23,7 @@ export class AuthService {
      */
     async getUserContext(token: string): Promise<UserContext> {
         try {
+            console.log("token", token);
             const verifiedClaims = await this.privy.verifyAuthToken(token);
             const userId = verifiedClaims.userId;
             if (!userId) {
