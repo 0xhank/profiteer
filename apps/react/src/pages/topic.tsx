@@ -13,6 +13,8 @@ import {
     cleanWikiArticle,
 } from "../utils/cleanWikiArticle";
 import { LoadingPane } from "../components/common/loading";
+import { linkToName } from "../utils/titleToLink";
+
 export default function Topic() {
     const params = useParams();
     const [mint, setMint] = useState<string | null>(null);
@@ -39,10 +41,11 @@ export default function Topic() {
     };
 
     const getArticleMint = async (articleName: string) => {
+        const cleanedArticleName = linkToName(articleName);
         const { data, error } = await supabase
             .from("mint_article_name")
             .select("mint")
-            .eq("article_name", articleName)
+            .eq("article_name", cleanedArticleName)
             .limit(1);
 
         if (error) {
@@ -133,6 +136,7 @@ function PageContent({
 
     useEffect(() => {
         const fetchArticle = async ({ title }: { title: string }) => {
+            setArticle(null);
             try {
                 const response = await fetch(
                     `https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&section=0&page=${title}&origin=*`
@@ -149,7 +153,7 @@ function PageContent({
 
         fetchArticle({ title: articleName });
         if (mint) refreshToken();
-    }, []);
+    }, [articleName, mint]);
 
     return (
         <PageLayout className="p-2 ">

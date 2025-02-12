@@ -31,7 +31,7 @@ export const TopStories = () => {
         .sort((a, b) => (b[1].volume12h ?? 0) - (a[1].volume12h ?? 0));
 
     return (
-        <div className="relative h-26 left-0 right-0 w-full max-w-[1170px] z-[999]">
+        <div className="relative h-16 md:h-26 left-0 right-0 w-full max-w-[1170px] z-[999]">
             <button
                 onClick={handlePrev}
                 disabled={startIndex === 0}
@@ -40,16 +40,20 @@ export const TopStories = () => {
                 <LeftChevron className="w-4 h-4" />
             </button>
 
-<div className = "relative w-full max-w-[1170px] h-26 overflow-hidden">
-            <div
-                className="w-full flex divide-x divide-white gap-1 sm:pl-8 border-y-0 sm:transition-transform sm:duration-300"
-                style={{ transform: `translateX(-${startIndex * 9}%)` }}
-            >
-                {visibleTokens.map(([key, token], index) => (
-                    <TopStoryItem key={`${key}`} token={token} index={index} />
-                ))}
+            <div className="relative w-full max-w-[1170px] h-26 overflow-hidden">
+                <div
+                    className="w-full flex divide-x divide-white gap-1 sm:pl-8 border-y-0 sm:transition-transform sm:duration-300"
+                    style={{ transform: `translateX(-${startIndex * 9}%)` }}
+                >
+                    {visibleTokens.map(([key, token], index) => (
+                        <TopStoryItem
+                            key={`${key}`}
+                            token={token}
+                            index={index}
+                        />
+                    ))}
+                </div>
             </div>
-</div>
 
             <button
                 onClick={handleNext}
@@ -106,8 +110,12 @@ export const TopStoryItem = ({
             </div>
             <hr className="my-1 mx-1 border border-gray-300" />
             <div className="flex md:flex-row justify-center items-center md:gap-1 pb-1 font-mono text-sm">
-                <span className = "text-xs md:text-base">{formatVolume(token.volume12h ?? 0, token.priceUsd ?? 0)}{" "}</span>
-                <span className="text-gray-500 text-[0.6rem] md:text-xs">[VOL]</span>
+                <span className="text-xs md:text-base">
+                    {formatVolume(token.volume12h ?? 0, token.priceUsd ?? 0)}{" "}
+                </span>
+                <span className="text-gray-500 text-[0.6rem] md:text-xs">
+                    [VOL]
+                </span>
             </div>
         </div>
     );

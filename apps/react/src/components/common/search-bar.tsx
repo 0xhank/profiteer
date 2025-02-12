@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "../../utils/cn";
 import { getWikipediaAutocomplete } from "../../utils/getWikiAutocomplete";
+import { nameToLink } from "../../utils/titleToLink";
 
 export function SearchBar({
     focusOnMount = false,
@@ -31,7 +32,7 @@ export function SearchBar({
         if (newQuery.length > 2) {
             const results = await getWikipediaAutocomplete(newQuery);
             const suggestions = results.map((result) =>
-                result.replace("%20", "_")
+                result.replace("%20", " ")
             );
             setSuggestions(suggestions);
         } else {
@@ -40,7 +41,7 @@ export function SearchBar({
     };
 
     const handleSuggestionClick = (suggestion: string) => {
-        navigate(`/wiki/${suggestion}`);
+        navigate(`/wiki/${nameToLink(suggestion)}`);
         setQuery("");
         setSuggestions([]);
     };
