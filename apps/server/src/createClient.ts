@@ -20,11 +20,13 @@ type CreateClientOptions = {
  */
 export function createClient({
     httpUrl,
+    httpHeaders,
 }: CreateClientOptions): CreateTRPCProxyClient<AppRouter> {
     return createTRPCProxyClient<AppRouter>({
         links: [
             httpBatchLink({
                 url: httpUrl,
+                headers: httpHeaders,
                 fetch(url, options) {
                     return fetch(url, {
                         ...options,

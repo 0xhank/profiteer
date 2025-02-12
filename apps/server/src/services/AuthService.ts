@@ -12,7 +12,14 @@ export class AuthService {
     privy: PrivyClient;
 
     constructor() {
-        this.privy = new PrivyClient(env.PRIVY_APP_ID, env.PRIVY_APP_SECRET);
+        this.privy = new PrivyClient(
+            env.VITE_ENV === "development"
+                ? env.DEV_PRIVY_APP_ID
+                : env.PROD_PRIVY_APP_ID,
+            env.VITE_ENV === "development"
+                ? env.DEV_PRIVY_APP_SECRET
+                : env.PROD_PRIVY_APP_SECRET
+        );
     }
 
     /**
@@ -23,7 +30,6 @@ export class AuthService {
      */
     async getUserContext(token: string): Promise<UserContext> {
         try {
-            console.log("token", token);
             const verifiedClaims = await this.privy.verifyAuthToken(token);
             const userId = verifiedClaims.userId;
             if (!userId) {

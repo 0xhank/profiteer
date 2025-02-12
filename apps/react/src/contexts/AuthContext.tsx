@@ -20,6 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const checkInviteStatus = async () => {
         try {
             if (!user) return setHasAccess(false);
+
             const authorized = await isAuthorized.query();
             setHasAccess(authorized);
         } catch (err) {

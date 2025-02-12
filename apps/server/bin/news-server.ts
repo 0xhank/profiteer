@@ -8,7 +8,7 @@ import {
     fastifyTRPCPlugin,
 } from "@trpc/server/adapters/fastify";
 import fastify from "fastify";
-import { IncomingHttpHeaders } from "http";
+import { IncomingHttpHeaders, IncomingMessage } from "http";
 import { AppRouter, createAppRouter } from "../src/createAppRouter";
 import { parseEnv } from "./env";
 
@@ -25,18 +25,12 @@ server.get("/", (_, res) => res.code(200).send("hello world"));
 
 // Add cookie parser registration
 
-// Helper function to extract privy token from cookies
-const getPrivyToken = (req: IncomingHttpHeaders) => {
-    // Use proper cookie parsing
-    if (typeof req.cookie === "string") {
-        return (
-            req.cookie
-                .split(";")
-                .find((cookie) => cookie.trim().startsWith("privy-token="))
-                ?.split("=")[1] || null
-        );
-    }
-    return null;
+const getBearerToken = (req: IncomingMessage) => {
+  const authHeader = req.headers?.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    return authHeader.substring(7);
+  }
+  return null;
 };
 
 export function createContext({ req, res }: CreateFastifyContextOptions) {
@@ -81,19 +75,13 @@ export const start = async () => {
             trpcOptions: {
                 router: router,
                 createContext: async (opt) => ({
-                    jwtToken: getPrivyToken(opt.req.headers) ?? "",
+                    jwtToken: getBearerToken(opt.req.raw) ?? "",
                     pumpService,
                     wikiService,
                     env,
                     authService,
                 }),
             },
-        });
-
-        server.addHook("onRequest", (request, reply, done) => {
-            console.log("Cookies received:", request.cookies);
-            console.log("Headers:", request.headers);
-            done();
         });
 
         await server.listen({ host: env.SERVER_HOST, port: env.SERVER_PORT });

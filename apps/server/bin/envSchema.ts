@@ -21,7 +21,11 @@ export const commonSchema = z.object({
 
     DEEPINFRA_API_KEY: z.string().optional(),
 
-    PRIVY_APP_ID: z.string(),
-    PRIVY_APP_SECRET: z.string(),
-});
+    DEV_PRIVY_APP_ID: z.string(),
+    DEV_PRIVY_APP_SECRET: z.string(),
 
+    PROD_PRIVY_APP_ID: z.string(),
+    PROD_PRIVY_APP_SECRET: z.string(),
+
+    VITE_ENV: z.enum(["development", "production"]).default("development"),
+});

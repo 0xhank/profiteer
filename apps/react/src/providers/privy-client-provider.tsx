@@ -12,7 +12,11 @@ export function PrivyClientProvider({
 }) {
     return (
         <PrivyProvider
-            appId="cm6pbbrvi00d1ie7frudjs2pq"
+            appId={
+                import.meta.env.VITE_ENV === "development"
+                    ? "cm6pbbrvi00d1ie7frudjs2pq"
+                    : "cm72hyk3c001zsisu1tugjh8e"
+            }
             config={{
                 appearance: {
                     theme: "light",
