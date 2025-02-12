@@ -31,7 +31,7 @@ export default function Login() {
                         className="input input-bordered w-48 text-center text-xl tracking-wider uppercase"
                         placeholder="ENTER CODE"
                         value={code}
-                        onChange={(e) => setCode(e.target.value)}
+                        onChange={(e) => setCode(e.target.value.toUpperCase())}
                         disabled={loading}
                     />
                     <button

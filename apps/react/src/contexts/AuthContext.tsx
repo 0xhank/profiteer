@@ -1,4 +1,4 @@
-import { useIdentityToken, usePrivy } from "@privy-io/react-auth";
+import { usePrivy } from "@privy-io/react-auth";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useServer } from "../hooks/useServer";
 
@@ -16,19 +16,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { user } = usePrivy();
     const [ready, setReady] = useState(false);
     const { requestAuth, isAuthorized } = useServer();
-    const { identityToken } = useIdentityToken();
 
     const checkInviteStatus = async () => {
         try {
             if (!user) return setHasAccess(false);
-            console.log("identityToken", identityToken);
-            const authorized = await isAuthorized.query(undefined, {
-                context: {
-                    headers: {
-                        Cookie: `privy-id-token=${identityToken}`,
-                    },
-                },
-            });
+            const authorized = await isAuthorized.query();
             setHasAccess(authorized);
         } catch (err) {
             console.error("Failed to check invite status:", err);
@@ -43,20 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const attemptAuthorize = async (code: string) => {
-        if (!identityToken) throw new Error("No identity token available");
-        await requestAuth.mutate(
-            {
-                code,
-            },
-            {
-                context: {
-                    headers: {
-                        authorization: "hello",
-                        Cookie: `privy-id-token=${identityToken}`,
-                    },
-                },
-            }
-        );
+        await requestAuth.mutate({ code });
     };
 
     useEffect(() => {

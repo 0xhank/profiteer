@@ -32,7 +32,7 @@ const getPrivyToken = (req: IncomingHttpHeaders) => {
         return (
             req.cookie
                 .split(";")
-                .find((cookie) => cookie.trim().startsWith("privy-id-token="))
+                .find((cookie) => cookie.trim().startsWith("privy-token="))
                 ?.split("=")[1] || null
         );
     }
@@ -88,6 +88,12 @@ export const start = async () => {
                     authService,
                 }),
             },
+        });
+
+        server.addHook("onRequest", (request, reply, done) => {
+            console.log("Cookies received:", request.cookies);
+            console.log("Headers:", request.headers);
+            done();
         });
 
         await server.listen({ host: env.SERVER_HOST, port: env.SERVER_PORT });
