@@ -7,10 +7,10 @@ import { WalletBalance } from "./wallet-balance";
 export default function TopBar({ className }: { className?: string }) {
     return (
         <div
-            className={`flex flex-col items-center w-full justify-center bg-gray-100 ${className}`}
+            className={`contents  w-full m-0 p-0 ${className}`}
         >
             <TopStories />
-            <div className="bg-gray-700 w-full flex justify-center">
+            <div className="sticky top-0 z-[999] bg-gray-700 w-full flex justify-center">
                 <div className="grid grid-cols-[1fr_auto_1fr] w-full  max-w-[1100px] items-center px-2 md:px-4 md:pr-6">
                     <div className="relative z-10">
                         <SearchBar secondary={true} />

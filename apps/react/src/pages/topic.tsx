@@ -152,7 +152,7 @@ function PageContent({
     }, []);
 
     return (
-        <PageLayout className="p-2 overflow-y-auto">
+        <PageLayout className="p-2 ">
             <div className="flex gap-4 items-center bg-white rounded-md p-2 max-w-[1100px]" style ={{"scrollbarGutter":"stable"}}>
                 {image && (
                     <img src={image} className="max-h-20 w-auto object-contain" />

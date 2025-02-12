@@ -54,11 +54,11 @@ export function SearchBar({
                 onChange={handleSearchChange}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => {
-                    setIsFocused(false);
-                    setTimeout(() => {
-                        setQuery("");
-                        setSuggestions([]);
-                    }, 200);
+                    // setIsFocused(false);
+                    // setTimeout(() => {
+                    //     setQuery("");
+                    //     setSuggestions([]);
+                    // }, 200);
                 }}
                 placeholder=""
                 className={cn(
