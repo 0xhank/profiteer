@@ -47,13 +47,15 @@ export function BreakingNews() {
                     showNoImage={true}
                 />
                 {featureImage && (
+                    <div className="row-span-2 col-span-2 flex justify-center items-center bg-white rounded-md p-1">
                     <img
                         src={featureImage}
                         alt={
                             featureArticle.article_names?.[0] || "Article image"
                         }
-                        className="row-span-2 col-span-2 w-full h-full object-cover"
+                        className="row-span-2 col-span-2 w-full h-auto object-cover"
                     />
+                    </div>
                 )}
                 {secondArticle && (
                     <Headline
@@ -65,26 +67,11 @@ export function BreakingNews() {
             </div>
             <div className="grid grid-cols-2 gap-2">
                 {otherArticles.map((article, index) =>
-                    index === 0 ? (
-                        // First article - large, top right
-                        <div key={article.id} className="">
-                            <Headline
-                                article={article}
-                                isFeature={true}
-                                showNoImage={true}
-                            />
-                        </div>
-                    ) : index <= 2 ? (
-                        // Second and third articles - left side
-                        <div key={article.id} className="col-span-1 row-span-1">
-                            <Headline article={article} />
-                        </div>
-                    ) : (
+                   
                         // Rest of the articles - bottom cascade
                         <div key={article.id} className="col-span-1">
                             <Headline article={article} />
                         </div>
-                    )
                 )}
             </div>
         </div>

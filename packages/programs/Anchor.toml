@@ -11,7 +11,7 @@ pump_science = "BjbuCn9cWxLZFmRc7zQ4hwV45SyqZA5YSMKpvUUeeHvw"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/Users/henry/.config/solana/id.json"
 
 [scripts]

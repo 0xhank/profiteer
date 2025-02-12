@@ -10,6 +10,8 @@ export const cleanWikiArticle = (articleHtml: string) => {
             div.remove();
         } else if (div.className.includes("box-More_citations_needed")) {
             div.remove();
+        } else if (div.className.includes("hatnote")) {
+            div.remove();
         }
     });
 
