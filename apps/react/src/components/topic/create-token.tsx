@@ -19,7 +19,6 @@ export const CreateToken = ({
             return null;
         }
         const image = articleContent.match(/<img[^>]*src="([^"]+)"[^>]*>/);
-        console.log(image);
         if (image) {
             return image[1];
         }

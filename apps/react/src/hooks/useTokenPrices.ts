@@ -7,7 +7,6 @@ export const useTokenPrices = (mint: string) => {
     const [tokenPrices, setTokenPrices] = useState<
         { time: number; value: number }[]
     >([]);
-    console.log({tokenPrices});
     const [loading, setLoading] = useState(true);
     const [running, setRunning] = useState(false);
 

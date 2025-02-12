@@ -104,7 +104,7 @@ export default function Topic() {
     }
     if (invalidLink || !articleName) {
         return (
-            <PageLayout className="flex ">
+            <PageLayout >
                 <p>This page doesn't exist.</p>
                 <button onClick={() => goBack()} className="btn btn-primary">
                     Go back

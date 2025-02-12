@@ -4,7 +4,7 @@ import { YesterdayNews } from "../components/home/yesterday-news";
 
 export default function Home() {
     return (
-        <PageLayout className = "gap-4">
+        <PageLayout className = "gap-4 overflow-y-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 px-2">
                 <div className="col-span-2 space-y-4">
                     <BreakingNews />

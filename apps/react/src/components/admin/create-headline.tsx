@@ -49,7 +49,6 @@ const HeadlineForm = () => {
             .replace(/\(/g, "%28")
             .replace(/\)/g, "%29");
 
-        console.log({ url });
         const newText =
             beforeText.slice(0, lastAtPos) +
             `[${suggestion}](${url})` +
@@ -109,7 +108,6 @@ const HeadlineForm = () => {
         let match;
 
         while ((match = linkRegex.exec(text)) !== null) {
-            console.log({ match });
             links.add(
                 match[2]
                     .replace(/\/wiki\//g, "")
@@ -123,7 +121,6 @@ const HeadlineForm = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         // Handle form submission here
-        console.log({ headline, image });
         setSubmitting(true);
 
         let imageId = null;
@@ -131,15 +128,13 @@ const HeadlineForm = () => {
         try {
             if (image) {
                 imageId = uuidv4();
-                const path = await uploadFile(imageId, image);
-                console.log({ path });
+                await uploadFile(imageId, image);
             }
-            const { data, error } = await supabase.from("news_story").insert({
+            await supabase.from("news_story").insert({
                 content: headline,
                 image_id: imageId,
                 headline_names: names
             });
-            console.log({ data, error });
         } catch (error) {
             toast.error("Error submitting headline");
             console.error(error);

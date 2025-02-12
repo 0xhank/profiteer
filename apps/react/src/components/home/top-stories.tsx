@@ -30,8 +30,6 @@ export const TopStories = () => {
         .filter(([, token]) => token.volume12h && token.volume12h > 0)
         .sort((a, b) => (b[1].volume12h ?? 0) - (a[1].volume12h ?? 0));
 
-    console.log(visibleTokens);
-
     return (
         <div className="relative w-full max-w-[1170px] sm:overflow-hidden overflow-x-auto">
             <button
