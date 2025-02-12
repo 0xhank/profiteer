@@ -7,7 +7,6 @@ export const updateSolPrice = async () => {
         );
         const data = await response.json();
         const solPrice = data.solana.usd;
-        console.log("solPrice", solPrice);
         await supabase.from("sol_price_usd").insert({
             price_usd: solPrice,
         });

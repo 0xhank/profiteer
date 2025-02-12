@@ -3,10 +3,10 @@ import { TokenTradeForm } from "./token-trade-form";
 import { useEffect, useMemo, useState } from "react";
 import { useFee } from "../../hooks/useFee";
 import { useToken } from "../../hooks/useToken";
-import { useTokenPrices } from "../../hooks/useTokenPrices";
 import supabase from "../../sbClient";
 import { pricesToCandles } from "../../utils/pricesToCandles";
 import { CandleChart } from "./candle-chart";
+import { useTokenPrices } from "../../hooks/useTokenPrices";
 
 export const TokenContent = ({ mint }: { mint: string }) => {
     const { token: tokenData } = useToken(mint);
@@ -54,24 +54,26 @@ export const TokenContent = ({ mint }: { mint: string }) => {
     useEffect(() => {
         fetchCurveLiquidity();
     }, [mint]);
+    const candles = useMemo(() =>{
+        return pricesToCandles(tokenPrices, 15 * 60);
+    }, [tokenPrices]);
+
+
+ 
 
     return (
         tokenData && (
             <div className="col-span-1 flex flex-col gap-4 items-center">
-                {/* Progress Bar */}
-
-                {/* Price Graph */}
-                {loading ? (
-                    <div>Loading...</div>
-                ) : tokenPrices.length > 0 ? (
+                {!complete ? (
+                    <TokenTradeForm tokenData={tokenData} onSwap={onSwap} />
+                ) : (
+                    <p>This token has been migrated. </p>
+                )}
                     <CandleChart
-                        data={pricesToCandles(tokenPrices, 10 * 60)}
+                        data={candles}
                         colors={{ lineColor: "red" }}
                         className="w-full"
                     />
-                ) : (
-                    <div>No price data</div>
-                )}
                 {fee > 0.01 && (
                     <div className="text-left w-full">
                         <details className="cursor-pointer">
@@ -121,12 +123,6 @@ export const TokenContent = ({ mint }: { mint: string }) => {
                 )}
 
                 <hr className="w-full border-t-1 border-black/30" />
-
-                {!complete ? (
-                    <TokenTradeForm tokenData={tokenData} onSwap={onSwap} />
-                ) : (
-                    <p>This token has been migrated. </p>
-                )}
             </div>
         )
     );

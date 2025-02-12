@@ -12,11 +12,9 @@ const imageUrlCache = new Map<string, string>();
 // Upload file using standard upload
 export async function uploadFile(id: string, file: File) {
     try {
-        console.log("uploading file");
         const { data, error } = await supabase.storage
             .from("images")
             .upload(`${id}.png`, file);
-        console.log("uploading file");
 
         if (error) {
             console.error("Upload error:", error.message);
@@ -43,6 +41,17 @@ export async function updateHeadline(
         throw error;
     }
     return data;
+}
+
+export async function deleteHeadline(id: number) {
+    const { error } = await supabase
+        .from("news_story")
+        .delete()
+        .eq("id", id);
+    if (error) {
+        console.error(error);
+        throw error;
+    }
 }
 
 export async function getHeadlineList(limit: number = 10, start: number = 0) {

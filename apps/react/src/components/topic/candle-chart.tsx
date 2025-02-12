@@ -1,4 +1,9 @@
-import { CandlestickSeries, ColorType, Time } from "lightweight-charts";
+import {
+    CandlestickSeries,
+    ColorType,
+    ISeriesApi,
+    Time,
+} from "lightweight-charts";
 
 import { createChart } from "lightweight-charts";
 import { useEffect, useRef } from "react";
@@ -22,17 +27,12 @@ type ChartProps = {
 export const CandleChart = (props: ChartProps) => {
     const {
         data,
-        colors: {
-            backgroundColor = "white",
-            lineColor = "#2962FF",
-            textColor = "black",
-            areaTopColor = "#2962FF",
-            areaBottomColor = "rgba(41, 98, 255, 0.28)",
-        } = {},
+        colors: { backgroundColor = "white", textColor = "black" } = {},
         className,
     } = props;
 
     const chartContainerRef = useRef<HTMLDivElement>(null);
+    const seriesRef = useRef<ISeriesApi<"Candlestick">>();
 
     useEffect(() => {
         const handleResize = () => {
@@ -59,7 +59,7 @@ export const CandleChart = (props: ChartProps) => {
         chart.timeScale().applyOptions({
             timeVisible: true,
             secondsVisible: false,
-            tickMarkFormatter: (time: Time) => {
+            tickMarkFormatter: (time: number) => {
                 const date = new Date(time * 1000);
                 return date.toLocaleTimeString("en-US", {
                     hour: "2-digit",
@@ -69,7 +69,7 @@ export const CandleChart = (props: ChartProps) => {
             },
         });
 
-        const newSeries = chart.addSeries(CandlestickSeries, {
+        const series = chart.addSeries(CandlestickSeries, {
             upColor: "#26a69a",
             downColor: "#ef5350",
 
@@ -82,7 +82,8 @@ export const CandleChart = (props: ChartProps) => {
                 },
             },
         });
-        newSeries.setData(data);
+        series.setData(data);
+        seriesRef.current = series;
 
         window.addEventListener("resize", handleResize);
 
@@ -91,14 +92,14 @@ export const CandleChart = (props: ChartProps) => {
 
             chart.remove();
         };
-    }, [
-        data,
-        backgroundColor,
-        lineColor,
-        textColor,
-        areaTopColor,
-        areaBottomColor,
-    ]);
+    }, []);
+
+    useEffect(() => {
+        const lastData = data[data.length - 1];
+        if (seriesRef.current && lastData) {
+            seriesRef.current.update(lastData);
+        }
+    }, [data]);
 
     return <div ref={chartContainerRef} className={className} />;
 };

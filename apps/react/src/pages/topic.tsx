@@ -12,6 +12,8 @@ import {
     checkValidWikiLink,
     cleanWikiArticle,
 } from "../utils/cleanWikiArticle";
+import { LoadingPane } from "../components/common/loading";
+import { linkToName } from "../utils/titleToLink";
 
 export default function Topic() {
     const params = useParams();
@@ -39,10 +41,11 @@ export default function Topic() {
     };
 
     const getArticleMint = async (articleName: string) => {
+        const cleanedArticleName = linkToName(articleName);
         const { data, error } = await supabase
             .from("mint_article_name")
             .select("mint")
-            .eq("article_name", articleName)
+            .eq("article_name", cleanedArticleName)
             .limit(1);
 
         if (error) {
@@ -57,7 +60,6 @@ export default function Topic() {
     };
 
     const refresh = async () => {
-        setLoading(true);
         const isBs58 = (id: string) => {
             try {
                 const decoded = bs58.decode(id);
@@ -75,7 +77,6 @@ export default function Topic() {
             return;
         }
         if (!isBs58(id)) {
-            console.log("getting article name", id);
             try {
                 const mint = await getArticleMint(id);
                 setArticleName(id);
@@ -102,11 +103,11 @@ export default function Topic() {
     };
 
     if (loading) {
-        return <PageLayout>{null}</PageLayout>;
+        return <PageLayout><LoadingPane className="h-full w-full" /></PageLayout>;
     }
     if (invalidLink || !articleName) {
         return (
-            <PageLayout className="flex ">
+            <PageLayout >
                 <p>This page doesn't exist.</p>
                 <button onClick={() => goBack()} className="btn btn-primary">
                     Go back
@@ -135,6 +136,7 @@ function PageContent({
 
     useEffect(() => {
         const fetchArticle = async ({ title }: { title: string }) => {
+            setArticle(null);
             try {
                 const response = await fetch(
                     `https://en.wikipedia.org/w/api.php?action=parse&format=json&prop=text&section=0&page=${title}&origin=*`
@@ -151,13 +153,13 @@ function PageContent({
 
         fetchArticle({ title: articleName });
         if (mint) refreshToken();
-    }, []);
+    }, [articleName, mint]);
 
     return (
-        <PageLayout>
-            <div className="flex gap-4 pl-16 items-center">
+        <PageLayout className="p-2 ">
+            <div className="flex gap-4 items-center bg-white rounded-md p-2 max-w-[1100px]" style ={{"scrollbarGutter":"stable"}}>
                 {image && (
-                    <img src={image} className="h-20 w-auto object-contain" />
+                    <img src={image} className="max-h-20 w-auto object-contain" />
                 )}
                 <div className="flex flex-col gap-2 ">
                     <p className="font-serif text-2xl font-bold">
@@ -165,7 +167,7 @@ function PageContent({
                     </p>
                     {mint ? (
                         <input
-                            className="cursor-pointer w-[410px] border-black/30"
+                            className="cursor-pointer max-w-[410px] border-black/30"
                             value={mint}
                         />
                     ) : (
@@ -173,8 +175,7 @@ function PageContent({
                     )}
                 </div>
             </div>
-            <hr className="border-t-4 border-double border-black w-full" />
-            <div className="w-[1100px] h-full grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+            <div className="max-w-[1100px] h-full grid grid-cols-1 md:grid-cols-3 md:gap-8 items-start w-full py-2">
                 {/* Rest of the content */}
                 {mint && <TokenContent mint={mint} />}
                 {!mint && (

@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { getHeadlineList, updateHeadline } from "../../sbClient";
+import {
+    deleteHeadline,
+    getHeadlineList,
+    updateHeadline,
+} from "../../sbClient";
 import { LoadingPane } from "../common/loading";
 
 type Headline = {
@@ -19,8 +23,9 @@ export function HeadlineEditor() {
     const [editContent, setEditContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
     const ITEMS_PER_PAGE = 10;
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
         const fetchHeadlines = async () => {
@@ -29,7 +34,6 @@ export function HeadlineEditor() {
                 (currentPage - 1) * ITEMS_PER_PAGE
             );
             setHeadlines(headlines);
-            setTotalPages(Math.ceil(headlines.length / ITEMS_PER_PAGE));
         };
         fetchHeadlines();
     }, [currentPage]);
@@ -67,12 +71,46 @@ export function HeadlineEditor() {
         setIsSubmitting(false);
     };
 
+    const handleDelete = async () => {
+        if (
+            !selectedHeadline ||
+            !confirm("Are you sure you want to delete this headline?")
+        )
+            return;
+
+        setIsDeleting(true);
+        try {
+            await deleteHeadline(selectedHeadline.id);
+            // Update local state
+            setHeadlines(
+                headlines?.filter((h) => h.id !== selectedHeadline.id) || null
+            );
+            setSelectedHeadline(null);
+        } catch (error) {
+            console.error("Failed to delete headline:", error);
+            alert("Failed to delete headline");
+        }
+        setIsDeleting(false);
+    };
+
+    const filteredHeadlines =
+        headlines?.filter((headline) =>
+            headline.content.toLowerCase().includes(searchQuery.toLowerCase())
+        ) || [];
+
     return (
         <div className="flex gap-4 p-4">
             <div className="w-1/3 border-r pr-4">
                 <h2 className="text-xl font-bold mb-4">Headlines</h2>
+                <input
+                    type="text"
+                    placeholder="Search headlines..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full p-2 mb-4 border rounded"
+                />
                 <div className="space-y-2">
-                    {headlines.map((headline) => (
+                    {filteredHeadlines.map((headline) => (
                         <div
                             key={headline.id}
                             onClick={() => handleHeadlineSelect(headline)}
@@ -105,13 +143,25 @@ export function HeadlineEditor() {
                         Previous
                     </button>
                     <span className="text-sm text-gray-600">
-                        Page {currentPage} of {totalPages}
+                        Page {currentPage} of{" "}
+                        {Math.ceil(filteredHeadlines.length / ITEMS_PER_PAGE)}
                     </span>
                     <button
                         onClick={() =>
-                            setCurrentPage((p) => Math.min(totalPages, p + 1))
+                            setCurrentPage((p) =>
+                                Math.min(
+                                    Math.ceil(
+                                        filteredHeadlines.length /
+                                            ITEMS_PER_PAGE
+                                    ),
+                                    p + 1
+                                )
+                            )
                         }
-                        disabled={currentPage === totalPages}
+                        disabled={
+                            currentPage ===
+                            Math.ceil(filteredHeadlines.length / ITEMS_PER_PAGE)
+                        }
                         className="px-3 py-1 bg-gray-100 rounded disabled:opacity-50"
                     >
                         Next
@@ -122,7 +172,16 @@ export function HeadlineEditor() {
             <div className="w-2/3">
                 {selectedHeadline ? (
                     <div className="space-y-4">
-                        <h2 className="text-xl font-bold">Edit Headline</h2>
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-xl font-bold">Edit Headline</h2>
+                            <button
+                                onClick={handleDelete}
+                                disabled={isDeleting}
+                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
+                            >
+                                {isDeleting ? "Deleting..." : "Delete Headline"}
+                            </button>
+                        </div>
                         <textarea
                             value={editContent}
                             onChange={(e) => setEditContent(e.target.value)}

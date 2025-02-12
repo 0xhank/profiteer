@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 export const useTokenPrices = (mint: string) => {
     const [tokenPrices, setTokenPrices] = useState<
-        { time: string; value: number }[]
+        { time: number; value: number }[]
     >([]);
     const [loading, setLoading] = useState(true);
     const [running, setRunning] = useState(false);
@@ -31,7 +31,7 @@ export const useTokenPrices = (mint: string) => {
         }) => {
             setTokenPrices((prev) => [
                 ...prev,
-                { time: payload.new.created_at, value: payload.new.price_usd },
+                { time: new Date(payload.new.created_at).getTime(), value: payload.new.price_usd },
             ]);
         };
 
@@ -62,7 +62,7 @@ export const useTokenPrices = (mint: string) => {
         } else {
             setTokenPrices(
                 data.map((price) => ({
-                    time: price.created_at,
+                    time: new Date(price.created_at).getTime(),
                     value: price.price_usd,
                 }))
             );

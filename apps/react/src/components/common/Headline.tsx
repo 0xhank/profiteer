@@ -23,7 +23,7 @@ export function Headline({
     };
 
     return (
-        <div className={cn("flex gap-2 h-full w-full p-2 bg-white rounded-sm")}>
+        <div className={cn("flex gap-2 h-full w-full p-2 bg-white rounded-sm shadow-md")}>
             {(article.imageUrl || isFeature) && !showNoImage && (
                 <img
                     src={

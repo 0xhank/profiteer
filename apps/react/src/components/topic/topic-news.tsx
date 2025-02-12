@@ -1,26 +1,17 @@
-import { useState, useEffect } from "react";
 import { getRelatedHeadlines } from "../../sbClient";
 import { LoadingPane } from "../common/loading";
 import { Headline } from "../common/Headline";
 
-export const TopicNews = ({ topic }: { topic: string }) => {
-    const [articles, setArticles] = useState<Awaited<ReturnType<typeof getRelatedHeadlines>> | null>(null);
-
-    useEffect(() => {
-        const fetchArticleList = async () => {
-            const articles = await getRelatedHeadlines([topic]);
-            setArticles(articles);
-        };
-
-        fetchArticleList();
-    }, []);
-
+export const TopicNews = ({ articles }: { articles: Awaited<ReturnType<typeof getRelatedHeadlines>> | null }) => {
     if (!articles) {
         return <LoadingPane className="h-[600px]" />;
     }
+    if (articles.length === 0) {
+        return <div className="h-[600px] flex items-center justify-center">No articles found</div>;
+    }
     
     return (
-        <div className="grid grid-cols-2 gap-4 p-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-2">
             {articles.map((article, index) => (
                 <>
                     <Headline key={article.id} article={article} />

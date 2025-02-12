@@ -16,7 +16,7 @@ q {
 a {
     text-decoration: underline;
     color: var(--color-accent);
-	white-space: nowrap;
+	/* white-space: nowrap; */
 }
 
 a:where(:not([role='button'])) {
@@ -32,6 +32,11 @@ h2 {
 
 .text-align-center {
 	text-align: center;
+}
+
+.mw-default-size {
+	display: flex;
+	ustify-content: center;
 }
 
 .current-events-main {
@@ -72,7 +77,7 @@ h2 {
 }
 
 .thumbcaption {
-	word-wrap: break-word;
+	/* word-wrap: break-word; */
 	text-align: left;
 	border: 0;
 	font-size: 94%;
@@ -164,7 +169,6 @@ small {
 /* Avoid FOUC/reflows on collapsed elements. */
 /* This copies MediaWiki's solution for T42812 to apply to innercollapse/outercollapse (T325115). */
 /* TODO: Use :is() selector at some reasonable future when support is good for Most Clients */
-Reference: https://gerrit.wikimedia.org/g/mediawiki/core/+/ecda06cb2aef55b77c4b4d7ecda492d634419ead/resources/src/jquery/jquery.makeCollapsible.styles.less#75
 .client-js .outercollapse .innercollapse.mw-collapsible:not( .mw-made-collapsible ) > p,
 .client-js .outercollapse .innercollapse.mw-collapsible:not( .mw-made-collapsible ) > table,
 .client-js .outercollapse .innercollapse.mw-collapsible:not( .mw-made-collapsible ) > thead + tbody,

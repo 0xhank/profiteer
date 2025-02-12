@@ -8,6 +8,8 @@ export const cleanWikiArticle = (articleHtml: string) => {
             div.remove();
         } else if (div.className.includes("box-Multiple_issues")) {
             div.remove();
+        } else if (div.className.includes("box-More_citations_needed")) {
+            div.remove();
         }
     });
 
@@ -18,18 +20,7 @@ export const cleanWikiArticle = (articleHtml: string) => {
             const span = document.createElement("span");
             span.innerHTML = link.innerHTML;
             link.replaceWith(span);
-        } else {
-            // Extract the path from the full URL
-            const path = link.getAttribute("href")?.split("/").pop() || "";
-            const linkText = link.innerHTML;
-
-            // Create a wrapper span that React can hydrate into a Link
-            const wrapper = document.createElement("span");
-            wrapper.setAttribute("data-internal-link", "true");
-            wrapper.setAttribute("data-to", path);
-            wrapper.innerHTML = linkText;
-            link.replaceWith(wrapper);
-        }
+        } 
     });
     return doc.body.innerHTML;
 };
