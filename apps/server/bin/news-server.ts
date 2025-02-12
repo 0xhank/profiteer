@@ -40,7 +40,7 @@ export const start = async () => {
         await server.register(fastifyWebsocket);
         await server.register(import("@fastify/compress"));
         await server.register(import("@fastify/cors"), {
-            origin: "http://localhost:5173",
+            origin: ["http://localhost:5173", "https://profiteer.news"],
             credentials: true,
             methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
             allowedHeaders: [
