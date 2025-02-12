@@ -66,7 +66,7 @@ export function BreakingNews() {
                 )}
             </div>
             <div className="grid grid-cols-2 gap-2">
-                {otherArticles.map((article, index) =>
+                {otherArticles.map((article) =>
                    
                         // Rest of the articles - bottom cascade
                         <div key={article.id} className="col-span-1">

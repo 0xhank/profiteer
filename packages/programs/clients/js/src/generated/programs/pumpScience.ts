@@ -9,7 +9,7 @@
 import { ClusterFilter, Context, Program, PublicKey } from '@metaplex-foundation/umi';
 import { getPumpScienceErrorFromCode, getPumpScienceErrorFromName } from '../errors';
 
-export const PUMP_SCIENCE_PROGRAM_ID = 'BjbuCn9cWxLZFmRc7zQ4hwV45SyqZA5YSMKpvUUeeHvw' as PublicKey<'BjbuCn9cWxLZFmRc7zQ4hwV45SyqZA5YSMKpvUUeeHvw'>;
+export const PUMP_SCIENCE_PROGRAM_ID = 'J3nh6pDYtUbwZbGfTozRhHgPJnRVUR2aFAXCrqt9qo62' as PublicKey<'J3nh6pDYtUbwZbGfTozRhHgPJnRVUR2aFAXCrqt9qo62'>;
 
 
 export function createPumpScienceProgram(): Program {

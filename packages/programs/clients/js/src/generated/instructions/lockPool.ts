@@ -56,7 +56,7 @@ export function lockPool(
                         input: LockPoolInstructionAccounts,
       ): TransactionBuilder {
   // Program ID.
-  const programId = context.programs.getPublicKey('pumpScience', 'BjbuCn9cWxLZFmRc7zQ4hwV45SyqZA5YSMKpvUUeeHvw');
+  const programId = context.programs.getPublicKey('pumpScience', 'J3nh6pDYtUbwZbGfTozRhHgPJnRVUR2aFAXCrqt9qo62');
 
   // Accounts.
   const resolvedAccounts = {

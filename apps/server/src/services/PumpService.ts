@@ -205,7 +205,7 @@ export const createPumpService = () => {
             }
             const txSerialized = Buffer.from(txInput, "base64");
             const tx = VersionedTransaction.deserialize(txSerialized);
-            console.log("tx:", tx.signatures);
+            console.log("tx:", tx.message.compiledInstructions.length);
             const { kp, name } = entry;
 
             const sig = await connection.sendTransaction(tx);

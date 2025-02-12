@@ -134,6 +134,7 @@ export class CurveSDK {
         }
         const mintInstructions = await this.createMint(user, mintKp);
 
+
         const createBondingCurveBuilder = new TransactionBuilder()
             .add(setComputeUnitLimit(this.umi, { units: 600_000 }))
             .add(createBondingCurve(this.umi, {
@@ -162,6 +163,7 @@ export class CurveSDK {
             const tx = new VersionedTransaction(message);
             tx.sign([toWeb3JsKeypair(mintKp)]);
 
+            console.log("built tx")
             return tx
 
     }
