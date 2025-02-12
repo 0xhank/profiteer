@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { useServer } from "../../hooks/useServer";
+import { LoadingPane } from "../common/loading";
 
 export const CreateToken = ({
     articleName,
@@ -17,7 +18,8 @@ export const CreateToken = ({
         if (!articleContent) {
             return null;
         }
-        const image = articleContent.match(/<img src="([^"]+)"/);
+        const image = articleContent.match(/<img[^>]*src="([^"]+)"[^>]*>/);
+        console.log(image);
         if (image) {
             return image[1];
         }
@@ -55,10 +57,10 @@ export const CreateToken = ({
     };
 
     if (!articleContent) {
-        return null;
+        return <LoadingPane className="h-full w-full" />;
     }
     return (
-        <div className="border border-black/30 p-4 space-y-6">
+        <div className="bg-white rounded-md p-4 space-y-6">
             <div className="card-title">Create a token for this topic</div>
             {imageUri && (
                 <div className="flex justify-center mb-6">
@@ -79,7 +81,7 @@ export const CreateToken = ({
                         <p className="label">Ticker</p>
                         <button
                             onClick={() => handleGetSymbols(true)}
-                            className="btn btn-sm btn-outline rounded-none"
+                            className="btn btn-sm btn-outline"
                             disabled={isLoading}
                         >
                             Regenerate
@@ -98,10 +100,10 @@ export const CreateToken = ({
                                 <button
                                     key={symbol}
                                     onClick={() => setSelectedSymbol(symbol)}
-                                    className={`btn btn-sm rounded-none ${
+                                    className={`btn btn-sm ${
                                         selectedSymbol === symbol
                                             ? "btn-accent"
-                                            : "btn-outline"
+                                            : "btn-secondary opacity-50"
                                     }`}
                                 >
                                     {symbol}

@@ -34,6 +34,11 @@ h2 {
 	text-align: center;
 }
 
+.mw-default-size {
+	display: flex;
+	ustify-content: center;
+}
+
 .current-events-main {
 	margin: 0 !important;
 	border: 0px solid black !important;

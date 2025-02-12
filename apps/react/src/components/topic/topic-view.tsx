@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TopicNews } from "./topic-news";
-import WikiArticle from "./wiki-article";
-
+import { LoadingPane } from "../common/loading";
+import { getRelatedHeadlines } from "../../sbClient";
 type Tab = "news" | "wiki";
 
 export const TopicView = ({
@@ -11,11 +11,23 @@ export const TopicView = ({
     articleName: string;
     articleContent: string | null;
 }) => {
-    const [activeTab, setActiveTab] = useState<Tab>("news");
+    const [activeTab, setActiveTab] = useState<Tab>("wiki");
+    const [articles, setArticles] = useState<Awaited<ReturnType<typeof getRelatedHeadlines>> | null>(null);
+
+    useEffect(() => {
+        const fetchArticleList = async () => {
+            const articles = await getRelatedHeadlines([articleName]);
+            setArticles(articles);
+        };
+
+        fetchArticleList();
+    }, []);
+
+
 
     return (
         <div className="w-full">
-            <div className="flex border-b border-black/30 bg-white rounded-sm">
+            <div className="flex border-b border-black/30 bg-white rounded-sm w-full">
                 <button
                     className={`cursor-pointer px-4 py-2 ${
                         activeTab === "news"
@@ -38,11 +50,20 @@ export const TopicView = ({
                 </button>
             </div>
 
-            <div className="mt-2 bg-white rounded-sm p-4">
-                {activeTab === "news" && <TopicNews topic={articleName} />}
-                {activeTab === "wiki" && articleContent && (
-                    <WikiArticle articleHtml={articleContent} />
-                )}
+            <div className="mt-2 bg-white rounded-sm p-4 w-full">
+                {activeTab === "news" && <TopicNews articles={articles} />}
+                {activeTab === "wiki" &&
+                    (articleContent ? (
+                        <div
+                            id="article"
+                            className="w-full"
+                            dangerouslySetInnerHTML={{
+                                __html: articleContent,
+                            }}
+                        />
+                    ) : (
+                        <LoadingPane className="h-full w-full" />
+                    ))}
             </div>
         </div>
     );
