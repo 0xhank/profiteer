@@ -40,7 +40,11 @@ export const start = async () => {
         await server.register(fastifyWebsocket);
         await server.register(import("@fastify/compress"));
         await server.register(import("@fastify/cors"), {
-            origin: ["http://localhost:5173", "https://profiteer.news"],
+            origin: [
+                "http://localhost:5173",
+                "https://profiteer.news",
+                "https://www.profiteer.news",
+            ],
             credentials: true,
             methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
             allowedHeaders: [
@@ -60,7 +64,6 @@ export const start = async () => {
         const wikiService = WikiService();
         const authService = new AuthService();
         const router = createAppRouter();
-        console.log(JSON.stringify(env, null, 2));
 
         // Single TRPC registration that handles both HTTP and WebSocket
         await server.register(fastifyTRPCPlugin<AppRouter>, {
