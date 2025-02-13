@@ -31,7 +31,7 @@ export const TopStories = () => {
         .sort((a, b) => (b[1].volume12h ?? 0) - (a[1].volume12h ?? 0));
 
     return (
-        <div className="relative h-16 md:h-26 left-0 right-0 w-full max-w-[1170px] z-[999]">
+        <div className="relative h-16 left-0 right-0 w-full max-w-[1170px] z-[999]">
             <button
                 onClick={handlePrev}
                 disabled={startIndex === 0}
@@ -85,23 +85,16 @@ export const TopStoryItem = ({
     index: number;
 }) => {
     const navigate = useNavigate();
-    const hasImage = !token.metadata.imageUri.includes("api.");
     return (
         <div
-            className="relative h-full flex flex-col hover:cursor-pointer bg-white hover:bg-slate-50"
+            className="relative h-full flex flex-col hover:cursor-pointer bg-white hover:bg-slate-50 border border-y-0 border-accent"
             onClick={() => navigate(`/wiki/${token.mint}`)}
         >
             <div className="absolute w-4 h-4 text-xs text-center bg-black text-white right-0">
                 {index + 1}
             </div>
             <div className="flex flex-col pt-2 px-2 items-start h-full">
-                {hasImage && (
-                    <img
-                        src={token.metadata.imageUri}
-                        alt={token.metadata.name}
-                        className="hidden md:block h-8 max-w-18 rounded-sm object-contain"
-                    />
-                )}
+                
                 <>
                     <p className="text-md font-light">
                         {token.metadata.symbol}

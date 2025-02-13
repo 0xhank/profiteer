@@ -1,8 +1,8 @@
 import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
-import { cn } from "../../utils/cn";
-import { getHeadlineList } from "../../sbClient";
 import { Link } from "react-router-dom";
+import rehypeRaw from "rehype-raw";
+import { getHeadlineList } from "../../sbClient";
+import { cn } from "../../utils/cn";
 
 export function Headline({
     article,
@@ -22,7 +22,9 @@ export function Headline({
         });
     };
 
-    const [firstSentence, ...restContent] = article.content.split(/(?<=\.) /);
+    const [firstSentence, ...restContent] = article.content.split(
+        /(?<=[^A-Z][.!?])\s+(?=[A-Z])/
+    );
 
     return (
         <div
@@ -31,14 +33,14 @@ export function Headline({
                 isFeature ? "flex-col" : "flex-row"
             )}
         >
-            {(article.imageUrl && !showNoImage) && (
+            {article.imageUrl && !showNoImage && (
                 <img
                     src={
                         article.imageUrl ||
                         "https://placehold.co/600x400/gray/white?text=No+Image"
                     }
                     className={`object-cover ${
-                        isFeature ? "w-full h-48" : "w-24 h-24"
+                        isFeature ? "w-full h-48" : "w-auto h-24"
                     }`}
                     alt={article.article_names?.[0] || "Article image"}
                     onError={(e) => {

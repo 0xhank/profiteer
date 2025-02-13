@@ -2,7 +2,6 @@ import { convertHtmlToReact } from "@hedgedoc/html-to-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getRelatedHeadlines } from "../../sbClient";
-import { nameToLink } from "../../utils/titleToLink";
 import { LoadingPane } from "../common/loading";
 import { TopicNews } from "./topic-news";
 import { Node } from "domhandler";
@@ -20,11 +19,10 @@ export const TopicView = ({
         ReturnType<typeof getRelatedHeadlines>
     > | null>(null);
 
-    console.log(articleContent);
     useEffect(() => {
-        const headline = nameToLink(articleName);
         const fetchArticleList = async () => {
-            const articles = await getRelatedHeadlines([headline]);
+            console.log({articleName});
+            const articles = await getRelatedHeadlines([articleName]);
             setArticles(articles);
         };
 

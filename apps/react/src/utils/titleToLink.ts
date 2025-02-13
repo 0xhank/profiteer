@@ -10,6 +10,7 @@ const nameToLink = (link: string) => {
 
 const linkToName = (link: string) => {
     const cleanedArticleName = link
+        .replace(/^\/wiki\//, "")
         .replace(/_/g, " ")
         .replace(/%20/g, " ")
         .replace(/%28/g, "(")

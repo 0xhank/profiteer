@@ -13,9 +13,7 @@ export default function Login() {
         ready: authReady,
     } = useAuth();
 
-    console.log({ ready, authReady});
     useEffect(() => {
-        console.log({ userId: user?.id });
         if (authenticated) {
             refreshInviteStatus();
         }

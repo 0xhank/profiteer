@@ -39,7 +39,7 @@ export function BreakingNews() {
     if (articles.length === 0) {
         return (
             <div className="h-[600px] flex items-center justify-center bg-white rounded-md">
-                No articles found
+                No headlines found
             </div>
         );
     }

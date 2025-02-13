@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import supabase, { uploadFile } from "../../sbClient";
 import { getWikipediaAutocomplete } from "../../utils/getWikiAutocomplete";
 import { Link } from "react-router-dom";
-import { nameToLink } from "../../utils/titleToLink";
+import { linkToName, nameToLink } from "../../utils/titleToLink";
 
 const HeadlineForm = () => {
     const [headline, setHeadline] = useState("");
@@ -106,12 +106,10 @@ const HeadlineForm = () => {
 
         while ((match = linkRegex.exec(text)) !== null) {
             links.add(
-                match[2]
-                    .replace(/\/wiki\//g, "")
-                    .replace(/%28/g, "(")
-                    .replace(/%29/g, ")")
+                linkToName(match[2])
             ); // Push the link text (not the URL)
         }
+        console.log({links});
         return Array.from(links);
     };
 
@@ -166,6 +164,10 @@ const HeadlineForm = () => {
                             required
                             placeholder="Write your headline here... Use @ to link Wikipedia headlines"
                         />
+                        <button onClick={() => {
+                            const names = getHeadlineNames(headline);
+                            console.log({names});
+                        }}>Get Names</button>
                         {suggestions.length > 0 && (
                             <div className="absolute z-10 w-64 mt-1 bg-white border rounded-md shadow-lg">
                                 {suggestions.map((suggestion, index) => (
