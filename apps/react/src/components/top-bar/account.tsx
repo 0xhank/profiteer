@@ -103,11 +103,22 @@ export function Account() {
                     </div>
                     <div className="py-4 space-y-2">
                         <p className="label">Portfolio</p>
-                        if {tokensWithBalance.length == 0 }
+                        {tokensWithBalance.length == 0 && (
+                            <div>No coins in your portfolio</div>
+                        )}
                         {tokensWithBalance.map(({ name, balance }) => (
-                            <div key={name} className="flex items-center justify-between px-2">
-                                <Link to={`/wiki/${name}`} onClick={() => setShowQR(false)}>
-                                    <Modal.CloseButton onClick={() => setShowQR(false)} className="text-left">
+                            <div
+                                key={name}
+                                className="flex items-center justify-between px-2"
+                            >
+                                <Link
+                                    to={`/wiki/${name}`}
+                                    onClick={() => setShowQR(false)}
+                                >
+                                    <Modal.CloseButton
+                                        onClick={() => setShowQR(false)}
+                                        className="text-left"
+                                    >
                                         {name}
                                     </Modal.CloseButton>
                                 </Link>

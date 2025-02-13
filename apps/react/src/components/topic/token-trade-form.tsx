@@ -79,7 +79,7 @@ export const TokenTradeForm = ({
                 userPublicKey: pubKey,
                 mint: tokenData.mint,
                 amount: amountInAbs.toString(),
-                minAmountOut: minAmountOut.toString(),
+                minAmountOut: "0",
                 direction: isBuyMode ? "buy" : "sell",
             });
 
