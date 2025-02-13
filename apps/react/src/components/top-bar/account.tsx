@@ -1,15 +1,30 @@
 import { usePrivy } from "@privy-io/react-auth";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import QRCode from "react-qr-code";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { Modal } from "../common/modal";
-
+import { useTokens } from "../../hooks/useTokens";
 export function Account() {
     const { logout, connectWallet } = usePrivy();
     const { solBalance, wallet, tokenBalances } = usePortfolio();
     const [showQR, setShowQR] = useState(false);
+    const { tokens } = useTokens();
+
+    const tokensWithBalance = useMemo(() => {
+        return [["SOL", solBalance], ...Object.entries(tokenBalances)].reduce(
+            (acc, [token, balance]) => {
+                if (!tokens[token]) return acc;
+                acc.push({
+                    name: tokens[token].metadata.name,
+                    balance: balance as number,
+                });
+                return acc;
+            },
+            [] as { name: string; balance: number }[]
+        );
+    }, [solBalance, tokenBalances, tokens]);
 
     if (!wallet) {
         return (
@@ -88,16 +103,13 @@ export function Account() {
                     </div>
                     <div className="py-4 space-y-2">
                         <p className="label">Portfolio</p>
-                        {[
-                            ["SOL", solBalance],
-                            ...Object.entries(tokenBalances),
-                        ].map(([token, balance]) => (
-                            <div
-                                key={token}
-                                className="flex items-center justify-between px-2"
-                            >
-                                <Link to={`/wiki/${token}`}>
-                                    {token.slice(0, 6)}
+                        if {tokensWithBalance.length == 0 }
+                        {tokensWithBalance.map(({ name, balance }) => (
+                            <div key={name} className="flex items-center justify-between px-2">
+                                <Link to={`/wiki/${name}`} onClick={() => setShowQR(false)}>
+                                    <Modal.CloseButton onClick={() => setShowQR(false)} className="text-left">
+                                        {name}
+                                    </Modal.CloseButton>
                                 </Link>
                                 <span>{balance.toFixed(3)}</span>
                             </div>

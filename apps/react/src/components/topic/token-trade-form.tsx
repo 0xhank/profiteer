@@ -27,7 +27,9 @@ export const TokenTradeForm = ({
     const [isBuyMode, setIsBuyMode] = useState(true);
     const [showSettings, setShowSettings] = useState(false);
     const [maxSlippagePct, setMaxSlippagePct] = useState(() => {
+        
         const stored = localStorage.getItem("maxSlippagePct");
+        return 100;
         return stored ? Number(stored) : 20;
     });
     const { createSwapTx, sendSwapTx } = useServer();
@@ -240,7 +242,7 @@ export const TokenTradeForm = ({
                 </p>
             </div>
 
-            <div className="grid grid-cols-[1fr_auto] gap-2 items-center">
+            <div className="grid grid-cols-1 gap-2 items-center">
                 <button
                     onClick={handleExecute}
                     disabled={isLoading || !wallet}
@@ -252,12 +254,12 @@ export const TokenTradeForm = ({
                         ? "Processing..."
                         : "Confirm"}
                 </button>
-                <button
+                {/* <button
                     onClick={() => setShowSettings(!showSettings)}
                     className="btn btn-ghost btn-sm"
                 >
                     <SettingsIcon className="w-4 h-4" />
-                </button>
+                </button> */}
             </div>
             {showSettings && (
                 <div className="bg-gray-100 p-2 rounded-sm">

@@ -7,6 +7,7 @@ import {
 } from "react";
 import { ConnectedSolanaWallet, usePrivy, useSolanaWallets } from "@privy-io/react-auth";
 import { useServer } from "../hooks/useServer";
+import { useTokens } from "../hooks/useTokens";
 
 interface PortfolioContextType {
     wallet: ConnectedSolanaWallet | null;
@@ -33,6 +34,7 @@ export const PortfolioProvider = ({
     const [tokenBalances, setTokenBalances] = useState<Record<string, number>>(
         {}
     );
+    const {refreshTokens, tokens } = useTokens()
     const { wallets,ready } = useSolanaWallets();
     const { authenticated,   } = usePrivy();
 
@@ -68,9 +70,12 @@ export const PortfolioProvider = ({
 
     const fetchTokenBalances = useCallback(async () => {
         if (!wallet) return;
-        const balances = (
+        const allBalances = (
             await getAllTokenBalances.query({ address: wallet.address })
-        ).reduce((acc, balance) => {
+        );
+        await refreshTokens(allBalances.map((balance) => balance.mint));
+        const pertinentBalances = allBalances.filter(({mint}) => tokens[mint] != null);
+        const balances = pertinentBalances.reduce((acc, balance) => {
             acc[balance.mint] = balance.balanceToken / 10 ** 6;
             return acc;
         }, {} as Record<string, number>);
