@@ -1,13 +1,15 @@
 import { usePrivy } from "@privy-io/react-auth";
+import { useState } from "react";
+import QRCode from "react-qr-code";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { Modal } from "../common/modal";
-import { Link } from "react-router-dom";
 
 export function Account() {
     const { logout, connectWallet } = usePrivy();
-
     const { solBalance, wallet, tokenBalances } = usePortfolio();
+    const [showQR, setShowQR] = useState(false);
 
     if (!wallet) {
         return (
@@ -54,6 +56,35 @@ export function Account() {
                         >
                             <ClipboardIcon className="w-4 h-4" />
                         </button>
+                        <button
+                            onClick={() => setShowQR(true)}
+                            className="btn btn-ghost btn-xs"
+                            title="Show QR Code"
+                        >
+                            <QRIcon className="w-4 h-4" />
+                        </button>
+                        {showQR && (
+                            <div
+                                className="fixed inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center"
+                                onClick={() => setShowQR(false)}
+                            >
+                                <div
+                                    className="bg-white p-8 rounded-lg"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <QRCode
+                                        value={wallet?.address || ""}
+                                        size={256}
+                                        level="H"
+                                        fgColor="#000000"
+                                        bgColor="#FFFFFF"
+                                    />
+                                    <p className="text-center text-sm text-gray-500">
+                                        Scan to copy address
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                     <div className="py-4 space-y-2">
                         <p className="label">Portfolio</p>
@@ -107,5 +138,18 @@ const ClipboardIcon = ({ className }: { className?: string }) => (
         xmlns="http://www.w3.org/2000/svg"
     >
         <path d="M384 112v352c0 26.51-21.49 48-48 48H48c-26.51 0-48-21.49-48-48V112c0-26.51 21.49-48 48-48h80c0-35.29 28.71-64 64-64s64 28.71 64 64h80c26.51 0 48 21.49 48 48zM192 40c-13.255 0-24 10.745-24 24s10.745 24 24 24 24-10.745 24-24-10.745-24-24-24m96 114v-20a6 6 0 0 0-6-6H102a6 6 0 0 0-6 6v20a6 6 0 0 0 6 6h180a6 6 0 0 0 6-6z"></path>
+    </svg>
+);
+
+const QRIcon = ({ className }: { className?: string }) => (
+    <svg
+        className={className}
+        stroke="currentColor"
+        fill="currentColor"
+        strokeWidth="0"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <path d="M3 11h8V3H3v8zm2-6h4v4H5V5zM3 21h8v-8H3v8zm2-6h4v4H5v-4zM13 3v8h8V3h-8zm6 6h-4V5h4v4zM13 13h2v2h-2zM15 15h2v2h-2zM13 17h2v2h-2zM17 13h2v2h-2zM19 15h2v2h-2zM17 17h2v2h-2zM19 19h2v2h-2zM15 19h2v2h-2zM13 21h2v2h-2zM21 13h2v2h-2z" />
     </svg>
 );
