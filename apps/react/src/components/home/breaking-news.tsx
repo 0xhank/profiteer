@@ -50,7 +50,7 @@ export function BreakingNews() {
                     <Headline
                         article={secondArticle}
                         isFeature={true}
-                        showNoImage={true}
+                        // showNoImage={true}
                     />
                 )}
                 {featureImage && (
@@ -74,7 +74,7 @@ export function BreakingNews() {
                     <Headline
                         article={thirdArticle}
                         isFeature={true}
-                        showNoImage={true}
+                        // showNoImage={true}
                     />
                 )}
             </div>

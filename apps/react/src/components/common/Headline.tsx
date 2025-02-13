@@ -27,11 +27,11 @@ export function Headline({
     return (
         <div
             className={cn(
-                "h-full w-full flex p-2 gap-2 bg-white rounded-sm shadow-md"
-                , isFeature ? "flex-col" : "flex-row"
+                "h-full w-full flex p-2 gap-2 bg-white rounded-sm shadow-md",
+                isFeature ? "flex-col" : "flex-row"
             )}
         >
-            {(article.imageUrl || isFeature) && !showNoImage && (
+            {(article.imageUrl && !showNoImage) && (
                 <img
                     src={
                         article.imageUrl ||
@@ -50,39 +50,40 @@ export function Headline({
                 />
             )}
             <div>
-            <ReactMarkdown
-                className={`inline font-semibold ${isFeature ? "text-lg" : "text-base"}`}
-                rehypePlugins={[rehypeRaw]}
-                components={{
-                    a: ({ children, href, ...props }) => (
-                        <Link to={href || "#"} {...props}>
-                            <span className="text-accent text-xs">$</span>{children}
-                        </Link>
-                    ),
-                }}
-            >
-                {firstSentence}
-            </ReactMarkdown>
-            {restContent.length > 0 && (
                 <ReactMarkdown
-                    className={`inline text-sm opacity-70`}
+                    className={`inline font-semibold ${
+                        isFeature ? "text-lg" : "text-base"
+                    }`}
                     rehypePlugins={[rehypeRaw]}
                     components={{
-                    a: ({ children, href, ...props }) => (
-                        <Link to={href || "#"} {...props}>
-                            {children}
-                        </Link>
-                    ),
-                }}
-            >
-                {restContent.join(" ")}
-               
+                        a: ({ children, href, ...props }) => (
+                            <Link to={href || "#"} {...props}>
+                                {children}
+                            </Link>
+                        ),
+                    }}
+                >
+                    {firstSentence}
                 </ReactMarkdown>
-            )}
-            <span className="inline text-sm text-gray-500">
-                [{formatDate(article.created_at)}]
-            </span>
-</div>
+                {restContent.length > 0 && (
+                    <ReactMarkdown
+                        className={`inline text-sm opacity-70`}
+                        rehypePlugins={[rehypeRaw]}
+                        components={{
+                            a: ({ children, href, ...props }) => (
+                                <Link to={href || "#"} {...props}>
+                                    {children}
+                                </Link>
+                            ),
+                        }}
+                    >
+                        {restContent.join(" ")}
+                    </ReactMarkdown>
+                )}
+                <span className="inline text-sm text-gray-500">
+                    [{formatDate(article.created_at)}]
+                </span>
+            </div>
         </div>
     );
 }
