@@ -182,7 +182,7 @@ export const TokenTradeForm = ({
                         onClick={() => setAmountIn(tokenBalance * 0.25)}
                         className={cn(
                             "btn text-xs",
-                            amountIn === tokenBalance * 0.25
+                            amountIn > 0 && amountIn === tokenBalance * 0.25
                                 ? "btn-accent"
                                 : "btn-secondary opacity-70"
                         )}
@@ -193,7 +193,7 @@ export const TokenTradeForm = ({
                         onClick={() => setAmountIn(tokenBalance * 0.5)}
                         className={cn(
                             "btn text-xs",
-                            amountIn === tokenBalance * 0.5
+                            amountIn > 0 && amountIn === tokenBalance * 0.5
                                 ? "btn-accent"
                                 : "btn-secondary opacity-70"
                         )}
@@ -204,7 +204,7 @@ export const TokenTradeForm = ({
                         onClick={() => setAmountIn(tokenBalance * 0.75)}
                         className={cn(
                             "btn text-xs",
-                            amountIn === tokenBalance * 0.75
+                            amountIn > 0 && amountIn === tokenBalance * 0.75
                                 ? "btn-accent"
                                 : "btn-secondary opacity-70"
                         )}
@@ -215,7 +215,7 @@ export const TokenTradeForm = ({
                         onClick={() => setAmountIn(tokenBalance)}
                         className={cn(
                             "btn text-xs",
-                            amountIn === tokenBalance
+                            amountIn > 0 && amountIn === tokenBalance
                                 ? "btn-accent"
                                 : "btn-secondary opacity-70"
                         )}
@@ -231,6 +231,14 @@ export const TokenTradeForm = ({
                 className="input input-neutral w-full bg-gray-100"
                 placeholder="Enter amount"
             />
+            <div className="flex gap-2">
+                <p>
+                    {isBuyMode ? tokenData.metadata.symbol : "SOL"}
+                </p>
+                <p>
+                    {amountOut.toFixed(2)}
+                </p>
+            </div>
 
             <div className="grid grid-cols-[1fr_auto] gap-2 items-center">
                 <button
