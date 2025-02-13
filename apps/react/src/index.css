@@ -125,6 +125,15 @@
     "wdth" 100;
 }
 
+.nunito-sans-regular {
+  font-family: "Nunito Sans", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100,
+    "YTLC" 500;
+}
 
 .itim-regular {
   font-family: "Itim", serif;
@@ -133,7 +142,7 @@
 }
 
 #root {
-    font-family: "Itim", serif;
+    font-family: "Nunito Sans", sans-serif;
     padding: 0;
     margin: 0;
 }

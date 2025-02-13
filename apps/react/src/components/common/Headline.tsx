@@ -22,8 +22,15 @@ export function Headline({
         });
     };
 
+    const [firstSentence, ...restContent] = article.content.split(/(?<=\.) /);
+
     return (
-        <div className={cn("flex gap-2 h-full w-full p-2 bg-white rounded-sm shadow-md")}>
+        <div
+            className={cn(
+                "h-full w-full flex p-2 gap-2 bg-white rounded-sm shadow-md"
+                , isFeature ? "flex-col" : "flex-row"
+            )}
+        >
             {(article.imageUrl || isFeature) && !showNoImage && (
                 <img
                     src={
@@ -42,10 +49,25 @@ export function Headline({
                     }}
                 />
             )}
+            <div>
             <ReactMarkdown
-                className={`${isFeature ? "text-lg" : "text-base"}`}
+                className={`inline font-semibold ${isFeature ? "text-lg" : "text-base"}`}
                 rehypePlugins={[rehypeRaw]}
                 components={{
+                    a: ({ children, href, ...props }) => (
+                        <Link to={href || "#"} {...props}>
+                            <span className="text-accent text-xs">$</span>{children}
+                        </Link>
+                    ),
+                }}
+            >
+                {firstSentence}
+            </ReactMarkdown>
+            {restContent.length > 0 && (
+                <ReactMarkdown
+                    className={`inline text-sm opacity-70`}
+                    rehypePlugins={[rehypeRaw]}
+                    components={{
                     a: ({ children, href, ...props }) => (
                         <Link to={href || "#"} {...props}>
                             {children}
@@ -53,12 +75,14 @@ export function Headline({
                     ),
                 }}
             >
-                {`${
-                    article.content
-                } <span class="text-sm text-gray-500">[${formatDate(
-                    article.created_at
-                )}]</span>`}
-            </ReactMarkdown>
+                {restContent.join(" ")}
+               
+                </ReactMarkdown>
+            )}
+            <span className="inline text-sm text-gray-500">
+                [{formatDate(article.created_at)}]
+            </span>
+</div>
         </div>
     );
 }
