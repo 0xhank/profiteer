@@ -10,7 +10,7 @@ import { useTokenPrices } from "../../hooks/useTokenPrices";
 
 export const TokenContent = ({ mint }: { mint: string }) => {
     const { token: tokenData } = useToken(mint);
-    const { tokenPrices, loading } = useTokenPrices(mint);
+    const { tokenPrices } = useTokenPrices(mint);
 
     const [complete, setComplete] = useState<boolean | null>(null);
 
