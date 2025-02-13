@@ -61,7 +61,7 @@ export const CreateToken = ({
     }
     return (
         <div className="bg-white rounded-md p-4 space-y-6">
-            <div className="card-title">Create a token for this topic</div>
+            <div className="card-title">Create a newscoin for this topic</div>
             {imageUri && (
                 <div className="flex justify-center mb-6">
                     <div className="relative">
@@ -155,10 +155,10 @@ const CreateTokenButton = (props: {
                 txMessage: uint8ArrayToBase64(signedTx.serialize()),
             });
 
-            toast.success("Token created");
+            toast.success("Newscoin created");
             props.refresh();
         } catch (error) {
-            toast.error("Error creating token");
+            toast.error("Error creating newscoin");
             console.error(error);
         } finally {
             setIsLoading(false);
@@ -171,7 +171,7 @@ const CreateTokenButton = (props: {
             className="btn btn-primary btn-block rounded-none"
             disabled={props.disabled || isLoading || !authenticated}
         >
-            {!authenticated ? "Login to create a token" : isLoading ? "Creating..." : "Create Token"}
+            {!authenticated ? "Login to create a newscoin" : isLoading ? "Creating..." : "Create Token"}
         </button>
     );
 };

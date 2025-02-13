@@ -141,7 +141,7 @@ export function TokenProvider({ children }: { children: ReactNode }) {
                     await new Promise((resolve) => setTimeout(resolve, 100));
                     attempt++;
                     if (attempt > 20) {
-                        throw new Error("Failed to fetch tokens");
+                        throw new Error("Failed to fetch newscoins");
                     }
                 }
             };
@@ -160,7 +160,7 @@ export function TokenProvider({ children }: { children: ReactNode }) {
 
             const fetchedToken = data[0] ?? null;
             if (!fetchedToken) {
-                throw new Error("No token found");
+                throw new Error("No newscoin found");
             }
             const newToken = formatToken(fetchedToken);
             tokens[newToken.mint] = newToken;

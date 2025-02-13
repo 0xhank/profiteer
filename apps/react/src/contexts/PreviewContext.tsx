@@ -176,7 +176,7 @@ const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
                 </div>
             ) : (
                 <div className="flex flex-col items-center text-center">
-                    <p className="text-gray-500">Create a token for </p>
+                    <p className="text-gray-500">Create a newscoin for </p>
                     <p className="font-bold text-black">{sanitizedTopic}</p>
                 </div>
             )}
