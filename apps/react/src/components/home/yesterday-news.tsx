@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { cleanWikiArticle } from "../../utils/cleanWikiArticle";
 import { LoadingPane } from "../common/loading";
+import { Link } from "react-router-dom";
+import { convertHtmlToReact } from "@hedgedoc/html-to-react";
+import DOMPurify from "dompurify";
+import { Node } from "domhandler";
 
 export function YesterdayNews() {
     const [article, setArticle] = useState<string | null>(null);
@@ -80,6 +84,25 @@ export function YesterdayNews() {
             });
     }, [article]);
 
+    const transform = (node: Node, index: string | number) => {
+        // Convert internal wiki links to React Router Links
+        if (
+            node.type === "tag" &&
+            node.name === "a" &&
+            node.attribs?.href?.startsWith("/wiki/")
+        ) {
+            const to = node.attribs.href;
+            return (
+                <Link
+                    key={index}
+                    to={to}
+                    className="text-blue-600 hover:text-blue-800"
+                >
+                    {convertHtmlToReact(node.children[0].data)}
+                </Link>
+            );
+        }
+    };
     if (!article) {
         return <LoadingPane className="h-[600px]" />;
     }
@@ -90,10 +113,9 @@ export function YesterdayNews() {
                 <p className="text-sm uppercase font-bold w-full">
                     Yesterday
                 </p>
-                <div
-                    id="yesterday-news"
-                    dangerouslySetInnerHTML={{ __html: article }}
-                />
+                {convertHtmlToReact(DOMPurify.sanitize(article), {
+                    transform,
+                })}
             </div>
         </>
     );

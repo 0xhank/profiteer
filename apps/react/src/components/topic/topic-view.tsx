@@ -1,7 +1,11 @@
+import { convertHtmlToReact } from "@hedgedoc/html-to-react";
 import { useEffect, useState } from "react";
-import { TopicNews } from "./topic-news";
-import { LoadingPane } from "../common/loading";
+import { Link } from "react-router-dom";
 import { getRelatedHeadlines } from "../../sbClient";
+import { nameToLink } from "../../utils/titleToLink";
+import { LoadingPane } from "../common/loading";
+import { TopicNews } from "./topic-news";
+import { Node } from "domhandler";
 type Tab = "news" | "wiki";
 
 export const TopicView = ({
@@ -12,18 +16,39 @@ export const TopicView = ({
     articleContent: string | null;
 }) => {
     const [activeTab, setActiveTab] = useState<Tab>("wiki");
-    const [articles, setArticles] = useState<Awaited<ReturnType<typeof getRelatedHeadlines>> | null>(null);
+    const [articles, setArticles] = useState<Awaited<
+        ReturnType<typeof getRelatedHeadlines>
+    > | null>(null);
 
+    console.log(articleContent);
     useEffect(() => {
+        const headline = nameToLink(articleName);
         const fetchArticleList = async () => {
-            const articles = await getRelatedHeadlines([articleName]);
+            const articles = await getRelatedHeadlines([headline]);
             setArticles(articles);
         };
 
         fetchArticleList();
-    }, []);
+    }, [articleName]);
 
-
+    const transform = (node: Node, index: string | number) => {
+        if (
+            node.type === "tag" &&
+            node.name === "a" &&
+            node.attribs?.href?.startsWith("/wiki/")
+        ) {
+            const to = node.attribs.href;
+            return (
+                <Link
+                    key={index}
+                    to={to}
+                    className="text-blue-600 hover:text-blue-800"
+                >
+                    {convertHtmlToReact(node.children[0].data)}
+                </Link>
+            );
+        }
+    };
 
     return (
         <div className="w-full">
@@ -54,13 +79,9 @@ export const TopicView = ({
                 {activeTab === "news" && <TopicNews articles={articles} />}
                 {activeTab === "wiki" &&
                     (articleContent ? (
-                        <div
-                            id="article"
-                            className="w-full"
-                            dangerouslySetInnerHTML={{
-                                __html: articleContent,
-                            }}
-                        />
+                        <div className="prose max-w-none bg-white rounded-md p-4">
+                            {convertHtmlToReact(articleContent, {transform})}
+                        </div>
                     ) : (
                         <LoadingPane className="h-full w-full" />
                     ))}

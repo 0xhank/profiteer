@@ -6,11 +6,16 @@ import { toast } from "react-toastify";
 
 export default function Login() {
     const { login, logout, ready, authenticated } = usePrivy();
-    const { hasAccess, attemptAuthorize, refreshInviteStatus } = useAuth();
+    const {
+        hasAccess,
+        attemptAuthorize,
+        refreshInviteStatus,
+        ready: authReady,
+    } = useAuth();
     const [code, setCode] = useState("");
     const [loading, setLoading] = useState(false);
-    let content = <div>Loading...</div>;
-    if (ready) {
+    let content = <img src="/logogif.webp" alt="Logo" className="w-48 h-48" />;
+    if (ready && authReady) {
         if (authenticated && hasAccess) {
             content = <div>Redirecting...</div>;
         } else if (!authenticated) {
@@ -39,13 +44,13 @@ export default function Login() {
                         disabled={loading}
                         onClick={async () => {
                             try {
-                            setLoading(true);
+                                setLoading(true);
                                 await attemptAuthorize(code);
                                 setLoading(false);
                                 await refreshInviteStatus();
                             } catch {
                                 toast.error("Invalid code");
-                            }finally {
+                            } finally {
                                 setLoading(false);
                             }
                         }}

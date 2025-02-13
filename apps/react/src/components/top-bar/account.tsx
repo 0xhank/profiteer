@@ -29,9 +29,7 @@ export function Account() {
         <Modal>
             <Modal.Button className="btn btn-accent h-8 px-2 rounded-sm">
                 <p className="text-xs sm:text-lg text-gray-200 font-semibold">
-                    {solBalance > 0
-                        ? `${solBalance.toFixed(3)} SOL`
-                        : "Deposit"}
+                    {solBalance.toFixed(3)} SOL
                 </p>
                 <div className="hidden md:flex items-center gap-1">
                     <AccountIcon className="w-6 h-6" />

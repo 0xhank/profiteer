@@ -1,7 +1,9 @@
 import bs58 from "bs58";
+import DOMPurify from "dompurify";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { LoadingPane } from "../components/common/loading";
 import { PageLayout } from "../components/common/page-layout";
 import { CreateToken } from "../components/topic/create-token";
 import { TokenContent } from "../components/topic/token-content";
@@ -12,9 +14,7 @@ import {
     checkValidWikiLink,
     cleanWikiArticle,
 } from "../utils/cleanWikiArticle";
-import { LoadingPane } from "../components/common/loading";
 import { linkToName } from "../utils/titleToLink";
-
 export default function Topic() {
     const params = useParams();
     const [mint, setMint] = useState<string | null>(null);
@@ -68,26 +68,27 @@ export default function Topic() {
                 return false;
             }
         };
-        const id = params.id;
-        if (!id || !checkValidWikiLink(id)) {
+        const link = params.id;
+        if (!link || !checkValidWikiLink(link)) {
             setInvalidLink(true);
             setArticleName(null);
             setMint(null);
             setLoading(false);
             return;
         }
-        if (!isBs58(id)) {
+        if (!isBs58(link)) {
             try {
-                const mint = await getArticleMint(id);
-                setArticleName(id);
+                const name = linkToName(link);
+                const mint = await getArticleMint(name);
+                setArticleName(name);
                 setMint(mint?.mint || null);
             } catch {
                 toast.error(`Article does not exist`);
                 setInvalidLink(true);
             }
         } else {
-            setMint(id);
-            const articleName = await getArticleName(id);
+            setMint(link);
+            const articleName = await getArticleName(link);
             setArticleName(articleName?.article_name || null);
         }
         setLoading(false);
@@ -103,14 +104,21 @@ export default function Topic() {
     };
 
     if (loading) {
-        return <PageLayout><LoadingPane className="h-full w-full" /></PageLayout>;
+        return (
+            <PageLayout>
+                <LoadingPane className="h-full w-full" />
+            </PageLayout>
+        );
     }
     if (invalidLink || !articleName) {
         return (
-            <PageLayout >
+            <PageLayout>
                 <div className="flex flex-col items-center justify-center h-full bg-white rounded-md p-2 gap-4">
                     <p>This page doesn't exist.</p>
-                    <button onClick={() => goBack()} className="btn btn-primary">
+                    <button
+                        onClick={() => goBack()}
+                        className="btn btn-primary"
+                    >
                         Go back
                     </button>
                 </div>
@@ -145,8 +153,9 @@ function PageContent({
                 );
                 const data = await response.json();
                 const markup = data.parse.text["*"];
+                const sanitizedMarkup = DOMPurify.sanitize(markup);
                 const blurb = document.createElement("div");
-                blurb.innerHTML = markup;
+                blurb.innerHTML = sanitizedMarkup;
                 setArticle(cleanWikiArticle(blurb.innerHTML));
             } catch (error) {
                 console.error("Error fetching the article:", error);
@@ -159,9 +168,15 @@ function PageContent({
 
     return (
         <PageLayout className="p-2 ">
-            <div className="flex gap-4 items-center bg-white rounded-md p-2 max-w-[1100px]" style ={{"scrollbarGutter":"stable"}}>
+            <div
+                className="flex gap-4 items-center bg-white rounded-md p-2 max-w-[1100px]"
+                style={{ scrollbarGutter: "stable" }}
+            >
                 {image && (
-                    <img src={image} className="max-h-20 w-auto object-contain" />
+                    <img
+                        src={image}
+                        className="max-h-20 w-auto object-contain"
+                    />
                 )}
                 <div className="flex flex-col gap-2 ">
                     <p className="font-serif text-2xl font-bold">

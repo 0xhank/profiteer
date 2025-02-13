@@ -30,11 +30,12 @@ export async function uploadFile(id: string, file: File) {
 export async function updateHeadline(
     id: number,
     content: string,
-    image_id: string | null
+    image_id: string | null,
+    article_names: string[] | null
 ) {
     const { data, error } = await supabase
         .from("news_story")
-        .update({ content, image_id })
+        .update({ content, image_id, article_names })
         .eq("id", id);
     if (error) {
         console.error(error);
@@ -95,6 +96,7 @@ export async function getHeadline(id: number) {
 }
 
 export async function getRelatedHeadlines(topics: string[], limit: number = 10) {
+    console.log("topics", topics);  
     const { data, error } = await supabase
         .from("news_story")
         .select("*")

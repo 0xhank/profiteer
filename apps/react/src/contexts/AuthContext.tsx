@@ -13,11 +13,12 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [hasAccess, setHasAccess] = useState<boolean | null>(null);
-    const { user } = usePrivy();
+    const { user, ready: privyReady } = usePrivy();
     const [ready, setReady] = useState(false);
     const { requestAuth, isAuthorized } = useServer();
 
     const checkInviteStatus = async () => {
+        if (!privyReady) return;
         try {
             if (!user) return setHasAccess(false);
 

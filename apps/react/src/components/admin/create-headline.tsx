@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import supabase, { uploadFile } from "../../sbClient";
 import { getWikipediaAutocomplete } from "../../utils/getWikiAutocomplete";
 import { Link } from "react-router-dom";
+import { nameToLink } from "../../utils/titleToLink";
 
 const HeadlineForm = () => {
     const [headline, setHeadline] = useState("");
@@ -43,11 +44,7 @@ const HeadlineForm = () => {
         const afterText = headline.slice(caretPosition);
         const lastAtPos = beforeText.lastIndexOf("@");
         if (lastAtPos === -1) return;
-        const name = suggestion.replace(/ /g, "_");
-
-        const url = `/wiki/${encodeURIComponent(name)}`
-            .replace(/\(/g, "%28")
-            .replace(/\)/g, "%29");
+        const url = `/wiki/${nameToLink(suggestion)}`;
 
         const newText =
             beforeText.slice(0, lastAtPos) +

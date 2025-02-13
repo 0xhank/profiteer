@@ -73,7 +73,7 @@ export class AuthService {
     async requestAuth(jwtToken: string, code: string) {
 
         const { userId } = await this.getUserContext(jwtToken);
-        console.log({ userId });
+        console.log({ userId, code });
         const { data, error } = await supabase
             .from("invite_codes")
             .select("*")

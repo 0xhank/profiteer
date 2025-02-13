@@ -138,6 +138,7 @@ const CreateTokenButton = (props: {
     const [isLoading, setIsLoading] = useState(false);
 
     const onSendTransaction = async () => {
+        
         if (!wallet) return;
         setIsLoading(true);
         try {

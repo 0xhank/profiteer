@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useDropzone } from "react-dropzone";
 import {
     deleteHeadline,
     getHeadlineList,
@@ -26,6 +27,7 @@ export function HeadlineEditor() {
     const ITEMS_PER_PAGE = 10;
     const [isDeleting, setIsDeleting] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [newImage, setNewImage] = useState<File | null>(null);
 
     useEffect(() => {
         const fetchHeadlines = async () => {
@@ -38,7 +40,6 @@ export function HeadlineEditor() {
         fetchHeadlines();
     }, [currentPage]);
 
-    if (!headlines) return <LoadingPane className="h-[600px]" />;
 
     const handleHeadlineSelect = (headline: Headline) => {
         setSelectedHeadline(headline);
@@ -50,16 +51,27 @@ export function HeadlineEditor() {
 
         setIsSubmitting(true);
         try {
+            const articleNames =
+                editContent
+                    .match(/\/wiki\/([^)]+)/g)
+                    ?.map((link) =>
+                        decodeURIComponent(link.replace("/wiki/", ""))
+                    ) || null;
+
             await updateHeadline(
                 selectedHeadline.id,
                 editContent,
-                selectedHeadline.image_id
+                selectedHeadline.image_id,
+                articleNames
             );
-            // Update local state
             setHeadlines(
                 headlines?.map((a) =>
                     a.id === selectedHeadline.id
-                        ? { ...a, content: editContent }
+                        ? {
+                              ...a,
+                              content: editContent,
+                              article_names: articleNames,
+                          }
                         : a
                 ) || null
             );
@@ -81,7 +93,6 @@ export function HeadlineEditor() {
         setIsDeleting(true);
         try {
             await deleteHeadline(selectedHeadline.id);
-            // Update local state
             setHeadlines(
                 headlines?.filter((h) => h.id !== selectedHeadline.id) || null
             );
@@ -93,11 +104,26 @@ export function HeadlineEditor() {
         setIsDeleting(false);
     };
 
+    const onDrop = useCallback((acceptedFiles: File[]) => {
+        if (acceptedFiles[0]) {
+            setNewImage(acceptedFiles[0]);
+        }
+    }, []);
+
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+        onDrop,
+        accept: {
+            "image/*": [],
+        },
+        maxFiles: 1,
+    });
+
     const filteredHeadlines =
         headlines?.filter((headline) =>
             headline.content.toLowerCase().includes(searchQuery.toLowerCase())
         ) || [];
 
+    if (!headlines) return <LoadingPane className="h-[600px]" />;
     return (
         <div className="flex gap-4 p-4">
             <div className="w-1/3 border-r pr-4">
@@ -187,6 +213,50 @@ export function HeadlineEditor() {
                             onChange={(e) => setEditContent(e.target.value)}
                             className="w-full h-48 p-2 border rounded"
                         />
+
+                        <div className="mt-4">
+                            <h3 className="text-lg font-medium mb-2">
+                                Headline Image
+                            </h3>
+                            <div
+                                {...getRootProps()}
+                                className={`border-2 border-dashed rounded-lg p-4 cursor-pointer text-center
+                                    ${
+                                        isDragActive
+                                            ? "border-blue-500 bg-blue-50"
+                                            : "border-gray-300"
+                                    }`}
+                            >
+                                <input {...getInputProps()} />
+                                {isDragActive ? (
+                                    <p>Drop the image here ...</p>
+                                ) : (
+                                    <p>
+                                        Drag & drop a new image here, or click
+                                        to select one
+                                    </p>
+                                )}
+                                {newImage && (
+                                    <div className="mt-4">
+                                        <img
+                                            src={URL.createObjectURL(newImage)}
+                                            alt="New preview"
+                                            className="max-w-full h-48 mx-auto object-contain"
+                                        />
+                                    </div>
+                                )}
+                                {selectedHeadline.imageUrl && !newImage && (
+                                    <div className="mt-4">
+                                        <img
+                                            src={selectedHeadline.imageUrl}
+                                            alt="Current"
+                                            className="max-w-full h-48 mx-auto object-contain"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
                         <button
                             onClick={handleSubmit}
                             disabled={isSubmitting}
