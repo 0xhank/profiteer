@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         checkInviteStatus();
-    }, [user]);
+    }, [user, privyReady]);
 
     return (
         <AuthContext.Provider

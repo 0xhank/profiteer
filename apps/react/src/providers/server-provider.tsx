@@ -1,5 +1,5 @@
 import { usePrivy } from "@privy-io/react-auth";
-import React, { createContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useMemo } from "react";
 
 import { createClient as createServerClient } from "server";
 
@@ -13,19 +13,14 @@ const httpUrl = import.meta.env.VITE_SERVER_URL + "/trpc";
 export const ServerProvider: React.FC<{ children: React.ReactNode }> = ({
     children,
 }) => {
-    const { getAccessToken } = usePrivy();
-    const [accessToken, setAccessToken] = useState<string | null>(null);
-
-    useEffect(() => {
-        getAccessToken().then((token) => {
-            setAccessToken(token);
-        });
-    }, [getAccessToken]);
+    const { getAccessToken, authenticated, user } = usePrivy();
 
     const server = useMemo(() => {
         return createServerClient({
             httpUrl,
-            httpHeaders: () => {
+            httpHeaders: async () => {
+                const accessToken = await getAccessToken();
+                console.log({ accessToken });
                 return {
                     // Don't need to manually set cookies - browser handles this
                     // Other headers can still be included as needed
@@ -33,7 +28,7 @@ export const ServerProvider: React.FC<{ children: React.ReactNode }> = ({
                 };
             },
         });
-    }, [accessToken]);
+    }, [getAccessToken, user?.id, authenticated]);
 
     return (
         <ServerContext.Provider value={server}>

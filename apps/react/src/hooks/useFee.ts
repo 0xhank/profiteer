@@ -10,6 +10,7 @@ export const useFee = (mint: string) => {
     useEffect(() => {
         if (tokenData == null || slot == null) return;
         const fee = calculateFee(slot, tokenData.metadata.startSlot);
+        console.log({fee});
         if (fee > 0.01 && !running) {
             start();
         } else if (fee <= 0.01 && running) {
@@ -17,7 +18,7 @@ export const useFee = (mint: string) => {
         }
 
         setFee(calculateFee(slot, tokenData.metadata.startSlot));
-    }, [slot, tokenData, running]);
+    }, [slot, tokenData, running, start, stop]);
 
     return { fee, setFee };
 };

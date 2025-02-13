@@ -1,5 +1,5 @@
 import { VersionedTransaction } from "@solana/web3.js";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { Token } from "shared/src/types/token";
 import { useFee } from "../../hooks/useFee";
@@ -9,6 +9,8 @@ import { useTokenBalance } from "../../hooks/useTokenBalance";
 import { SolBalance, TokenBalance } from "./token-balance";
 import { cn } from "../../utils/cn";
 import { usePrivy } from "@privy-io/react-auth";
+import { useSolPrice } from "../../hooks/useSolPrice";
+import { useToken } from "../../hooks/useToken";
 // Add these utility functions at the top level
 const uint8ArrayToBase64 = (uint8Array: Uint8Array): string => {
     return btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
@@ -24,7 +26,7 @@ export const TokenTradeForm = ({
 
     const { authenticated } = usePrivy();
     const [isLoading, setIsLoading] = useState(false);
-    const [amount, setAmount] = useState(1);
+    const [amountIn, setAmountIn] = useState(1);
     const [isBuyMode, setIsBuyMode] = useState(true);
     const [maxSlippagePct, setMaxSlippagePct] = useState(20);
     const { createSwapTx, sendSwapTx } = useServer();
@@ -32,10 +34,27 @@ export const TokenTradeForm = ({
     const { balance: tokenBalance } = useTokenBalance(tokenData.mint);
     const { fee } = useFee(tokenData.mint);
     const { wallet } = usePortfolio();
+    const {priceUsd: solPriceUsd } =useSolPrice();
+    const {token: {priceUsd: tokenPriceUsd}} = useToken(tokenData.mint)
+
+    const amountOut = useMemo(() => {
+        if (!tokenPriceUsd || !solPriceUsd) return 0;
+        const inPriceUsd= isBuyMode ? solPriceUsd : tokenPriceUsd;
+        const outPriceUsd= isBuyMode ? tokenPriceUsd : solPriceUsd;
+        const amountOut = amountIn * inPriceUsd / outPriceUsd;
+        const amountOutWithFee = amountOut * (1 - fee);
+        return amountOutWithFee;
+    }, [amountIn, maxSlippagePct]);
+    useEffect(() => {
+        setAmountIn(1);
+    }, [isBuyMode]);
 
     useEffect(() => {
-        setAmount(0);
-    }, [isBuyMode]);
+        if (!wallet) {
+            return;
+        }
+        setAmountIn(0);
+    }, [wallet]);
 
     const handleExecute = async () => {
         if (!wallet) {
@@ -43,17 +62,17 @@ export const TokenTradeForm = ({
         }
         setIsLoading(true);
         const decimals = isBuyMode ? 9 : tokenData.metadata.decimals;
-        const amountIn = BigInt(Math.round(amount * 10 ** decimals));
-        const minAmountOut =
-            amountIn * BigInt(Math.round(100 - maxSlippagePct / 10000));
+        const amountInAbs = BigInt(Math.round(amountIn * 10 ** decimals));
+        const amountOutAbs = BigInt(Math.round(amountOut * 10 ** decimals));
+        const minAmountOut = amountOutAbs * BigInt(Math.round(10000 - maxSlippagePct * 100 / 10000));
 
         try {
             const pubKey = wallet.address;
             const { txId, txMessage } = await createSwapTx.query({
                 userPublicKey: pubKey,
                 mint: tokenData.mint,
-                amount: amountIn.toString(),
-                minAmountOut: "0",
+                amount: amountInAbs.toString(),
+                minAmountOut: minAmountOut.toString(),
                 direction: isBuyMode ? "buy" : "sell",
             });
 
@@ -103,9 +122,9 @@ export const TokenTradeForm = ({
             {isBuyMode && (
                 <div className="grid grid-cols-4 gap-2">
                     <button
-                        onClick={() => setAmount(0.1)}
+                        onClick={() => setAmountIn(0.1)}
                         className={`btn text-xs ${
-                            amount === 0.1
+                            amountIn === 0.1
                                 ? "btn-accent"
                                 : "btn-secondary opacity-70"
                         }`}
@@ -113,9 +132,9 @@ export const TokenTradeForm = ({
                         0.1 SOL
                     </button>
                     <button
-                        onClick={() => setAmount(1)}
+                        onClick={() => setAmountIn(1)}
                         className={`btn text-xs ${
-                            amount === 1
+                            amountIn === 1
                                 ? "btn-accent"
                                 : "btn-secondary opacity-70"
                         }`}
@@ -123,9 +142,9 @@ export const TokenTradeForm = ({
                         1 SOL
                     </button>
                     <button
-                        onClick={() => setAmount(5)}
+                        onClick={() => setAmountIn(5)}
                         className={`btn text-xs ${
-                            amount === 5
+                            amountIn === 5
                                 ? "btn-accent"
                                 : "btn-secondary opacity-70"
                         }`}
@@ -133,9 +152,9 @@ export const TokenTradeForm = ({
                         5 SOL
                     </button>
                     <button
-                        onClick={() => setAmount(10)}
+                        onClick={() => setAmountIn(10)}
                         className={`btn text-xs ${
-                            amount === 10
+                            amountIn === 10
                                 ? "btn-accent"
                                 : "btn-secondary opacity-70"
                         }`}
@@ -147,10 +166,10 @@ export const TokenTradeForm = ({
             {!isBuyMode && (
                 <div className="grid grid-cols-4 gap-2">
                     <button
-                        onClick={() => setAmount(tokenBalance * 0.25)}
+                        onClick={() => setAmountIn(tokenBalance * 0.25)}
                         className={cn(
                             "btn text-xs",
-                            amount === tokenBalance * 0.25
+                            amountIn === tokenBalance * 0.25
                                 ? "btn-accent"
                                 : "btn-secondary opacity-70"
                         )}
@@ -158,10 +177,10 @@ export const TokenTradeForm = ({
                         25%
                     </button>
                     <button
-                        onClick={() => setAmount(tokenBalance * 0.5)}
+                        onClick={() => setAmountIn(tokenBalance * 0.5)}
                         className={cn(
                             "btn text-xs",
-                            amount === tokenBalance * 0.5
+                            amountIn === tokenBalance * 0.5
                                 ? "btn-accent"
                                 : "btn-secondary opacity-70"
                         )}
@@ -169,10 +188,10 @@ export const TokenTradeForm = ({
                         50%
                     </button>
                     <button
-                        onClick={() => setAmount(tokenBalance * 0.75)}
+                        onClick={() => setAmountIn(tokenBalance * 0.75)}
                         className={cn(
                             "btn text-xs",
-                            amount === tokenBalance * 0.75
+                            amountIn === tokenBalance * 0.75
                                 ? "btn-accent"
                                 : "btn-secondary opacity-70"
                         )}
@@ -180,10 +199,10 @@ export const TokenTradeForm = ({
                         75%
                     </button>
                     <button
-                        onClick={() => setAmount(tokenBalance)}
+                        onClick={() => setAmountIn(tokenBalance)}
                         className={cn(
                             "btn text-xs",
-                            amount === tokenBalance
+                            amountIn === tokenBalance
                                 ? "btn-accent"
                                 : "btn-secondary opacity-70"
                         )}
@@ -194,8 +213,8 @@ export const TokenTradeForm = ({
             )}
             <input
                 type="number"
-                value={amount}
-                onChange={(e) => setAmount(Number(e.target.value))}
+                value={amountIn}
+                onChange={(e) => setAmountIn(Number(e.target.value))}
                 className="input input-neutral w-full bg-gray-100"
                 placeholder="Enter amount"
             />

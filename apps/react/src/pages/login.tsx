@@ -1,17 +1,26 @@
 import { usePrivy } from "@privy-io/react-auth";
 import { ScrollingPages } from "../components/common/scrolling-pages";
 import { useAuth } from "../contexts/AuthContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 export default function Login() {
-    const { login, logout, ready, authenticated } = usePrivy();
+    const { login, logout, ready, authenticated, user } = usePrivy();
     const {
         hasAccess,
         attemptAuthorize,
         refreshInviteStatus,
         ready: authReady,
     } = useAuth();
+
+    console.log({ ready, authReady});
+    useEffect(() => {
+        console.log({ userId: user?.id });
+        if (authenticated) {
+            refreshInviteStatus();
+        }
+    }, [authenticated, refreshInviteStatus, user?.id]);
+
     const [code, setCode] = useState("");
     const [loading, setLoading] = useState(false);
     let content = <img src="/logogif.webp" alt="Logo" className="w-48 h-48" />;
