@@ -21,7 +21,6 @@ export const TopicView = ({
 
     useEffect(() => {
         const fetchArticleList = async () => {
-            console.log({articleName});
             const articles = await getRelatedHeadlines([articleName]);
             setArticles(articles);
         };

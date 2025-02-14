@@ -3,10 +3,11 @@ import { TokenTradeForm } from "./token-trade-form";
 import { useEffect, useMemo, useState } from "react";
 import { useFee } from "../../hooks/useFee";
 import { useToken } from "../../hooks/useToken";
+import { useTokenPrices } from "../../hooks/useTokenPrices";
 import supabase from "../../sbClient";
 import { pricesToCandles } from "../../utils/pricesToCandles";
+import { LoadingPane } from "../common/loading";
 import { CandleChart } from "./candle-chart";
-import { useTokenPrices } from "../../hooks/useTokenPrices";
 
 export const TokenContent = ({ mint }: { mint: string }) => {
     const { token: tokenData } = useToken(mint);
@@ -22,6 +23,10 @@ export const TokenContent = ({ mint }: { mint: string }) => {
 
     const { fee } = useFee(tokenData?.mint ?? "");
     const [curveLiquidity, setCurveLiquidity] = useState<number | null>(null);
+    const [reserves, setReserves] = useState<{
+        virtualSolReserves: number;
+        virtualTokenReserves: number;
+    } | null>(null);
 
     const onSwap = () => {
         fetchCurveLiquidity();
@@ -48,32 +53,70 @@ export const TokenContent = ({ mint }: { mint: string }) => {
         } else {
             setCurveLiquidity(data[0].real_token_reserves);
             setComplete(data[0].complete);
+            setReserves({
+                virtualSolReserves: data[0].virtual_sol_reserves,
+                virtualTokenReserves: data[0].virtual_token_reserves,
+            });
         }
     };
 
     useEffect(() => {
+        // Initial fetch
         fetchCurveLiquidity();
+
+        // Set up realtime subscription
+        const channel = supabase
+            .channel("curve_data_changes")
+            .on(
+                "postgres_changes",
+                {
+                    event: "INSERT",
+                    schema: "public",
+                    table: "curve_data",
+                    filter: `mint=eq.${mint}`,
+                },
+                (payload) => {
+                    const newData = payload.new;
+                    setCurveLiquidity(newData.real_token_reserves);
+                    setComplete(newData.complete);
+                    setReserves({
+                        virtualSolReserves: newData.virtual_sol_reserves,
+                        virtualTokenReserves: newData.virtual_token_reserves,
+                    });
+                }
+            )
+            .subscribe();
+
+        // Cleanup subscription
+        return () => {
+            channel.unsubscribe();
+        };
     }, [mint]);
-    const candles = useMemo(() =>{
+
+    const candles = useMemo(() => {
         return pricesToCandles(tokenPrices, 15 * 60);
     }, [tokenPrices]);
 
-
- 
+    if (!tokenData || !reserves) return <LoadingPane className="h-full" />;
 
     return (
-        tokenData && (
+        tokenData &&
+        reserves && (
             <div className="col-span-1 flex flex-col gap-4 items-center">
                 {!complete ? (
-                    <TokenTradeForm tokenData={tokenData} onSwap={onSwap} />
+                    <TokenTradeForm
+                        tokenData={tokenData}
+                        onSwap={onSwap}
+                        reserves={reserves}
+                    />
                 ) : (
                     <p>This token has been migrated. </p>
                 )}
-                    <CandleChart
-                        data={candles}
-                        colors={{ lineColor: "red" }}
-                        className="w-full"
-                    />
+                <CandleChart
+                    data={candles}
+                    colors={{ lineColor: "red" }}
+                    className="w-full"
+                />
                 {fee > 0.01 && (
                     <div className="text-left w-full">
                         <details className="cursor-pointer">

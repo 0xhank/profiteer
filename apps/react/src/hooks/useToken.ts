@@ -5,5 +5,5 @@ export const useToken= (mint: string) => {
 
     const token = tokens[mint];
 
-    return { token, refreshToken: () => refreshTokens([mint]) };
+    return { token, refreshToken: async () => await refreshTokens([mint]) };
 };

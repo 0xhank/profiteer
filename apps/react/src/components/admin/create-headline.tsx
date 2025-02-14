@@ -109,7 +109,6 @@ const HeadlineForm = () => {
                 linkToName(match[2])
             ); // Push the link text (not the URL)
         }
-        console.log({links});
         return Array.from(links);
     };
 
@@ -164,10 +163,6 @@ const HeadlineForm = () => {
                             required
                             placeholder="Write your headline here... Use @ to link Wikipedia headlines"
                         />
-                        <button onClick={() => {
-                            const names = getHeadlineNames(headline);
-                            console.log({names});
-                        }}>Get Names</button>
                         {suggestions.length > 0 && (
                             <div className="absolute z-10 w-64 mt-1 bg-white border rounded-md shadow-lg">
                                 {suggestions.map((suggestion, index) => (

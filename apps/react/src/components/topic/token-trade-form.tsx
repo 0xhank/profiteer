@@ -5,8 +5,6 @@ import { Token } from "shared/src/types/token";
 import { useFee } from "../../hooks/useFee";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { useServer } from "../../hooks/useServer";
-import { useSolPrice } from "../../hooks/useSolPrice";
-import { useToken } from "../../hooks/useToken";
 import { useTokenBalance } from "../../hooks/useTokenBalance";
 import { cn } from "../../utils/cn";
 import { SolBalance, TokenBalance } from "./token-balance";
@@ -17,9 +15,14 @@ const uint8ArrayToBase64 = (uint8Array: Uint8Array): string => {
 
 export const TokenTradeForm = ({
     tokenData,
+    reserves,
     onSwap,
 }: {
     tokenData: Token;
+    reserves: {
+        virtualSolReserves: number;
+        virtualTokenReserves: number;
+    };
     onSwap: () => void;
 }) => {
     const [isLoading, setIsLoading] = useState(false);
@@ -27,9 +30,7 @@ export const TokenTradeForm = ({
     const [isBuyMode, setIsBuyMode] = useState(true);
     const [showSettings, setShowSettings] = useState(false);
     const [maxSlippagePct, setMaxSlippagePct] = useState(() => {
-        
         const stored = localStorage.getItem("maxSlippagePct");
-        return 100;
         return stored ? Number(stored) : 20;
     });
     const { createSwapTx, sendSwapTx } = useServer();
@@ -37,19 +38,30 @@ export const TokenTradeForm = ({
     const { balance: tokenBalance } = useTokenBalance(tokenData.mint);
     const { fee } = useFee(tokenData.mint);
     const { wallet } = usePortfolio();
-    const { priceUsd: solPriceUsd } = useSolPrice();
-    const {
-        token: { priceUsd: tokenPriceUsd },
-    } = useToken(tokenData.mint);
 
     const amountOut = useMemo(() => {
-        if (!tokenPriceUsd || !solPriceUsd) return 0;
-        const inPriceUsd = isBuyMode ? solPriceUsd : tokenPriceUsd;
-        const outPriceUsd = isBuyMode ? tokenPriceUsd : solPriceUsd;
-        const amountOut = (amountIn * inPriceUsd) / outPriceUsd;
-        const amountOutWithFee = amountOut * (1 - fee);
-        return amountOutWithFee;
-    }, [amountIn, maxSlippagePct]);
+        if (isBuyMode) {
+            const amountOut = getTokensForBuySol(
+                BigInt(reserves.virtualSolReserves),
+                BigInt(reserves.virtualTokenReserves),
+                BigInt(amountIn * 10e9)
+            );
+
+            const amountOutUsd2 = Number(amountOut) / 10e6;
+            return amountOutUsd2 * (1 - fee);
+        } else {
+            const amountOut = getSolForSellTokens(
+                BigInt(reserves.virtualSolReserves),
+                BigInt(reserves.virtualTokenReserves),
+                BigInt(amountIn * 10e6)
+            );
+
+            const amountOutUsd2 = (Number(amountOut) / 10e9) * (1 - fee);
+
+            return amountOutUsd2 * (1 - fee);
+        }
+    }, [isBuyMode, reserves.virtualSolReserves, reserves.virtualTokenReserves, amountIn, fee]);
+
     useEffect(() => {
         setAmountIn(1);
     }, [isBuyMode]);
@@ -66,12 +78,15 @@ export const TokenTradeForm = ({
             return;
         }
         setIsLoading(true);
-        const decimals = isBuyMode ? 9 : tokenData.metadata.decimals;
-        const amountInAbs = BigInt(Math.round(amountIn * 10 ** decimals));
-        const amountOutAbs = BigInt(Math.round(amountOut * 10 ** decimals));
+        const inDecimals = isBuyMode ? 9 : tokenData.metadata.decimals;
+        const outDecimals = isBuyMode ? tokenData.metadata.decimals : 9;
+
+        const amountInAbs = BigInt(Math.round(amountIn * 10 ** inDecimals));
+        const amountOutAbs = BigInt(Math.round(amountOut * 10 ** outDecimals));
+
+        const slippage = 100 - maxSlippagePct;
         const minAmountOut =
-            amountOutAbs *
-            BigInt(Math.round(10000 - (maxSlippagePct * 100) / 10000));
+            (amountOutAbs * BigInt(Math.round(slippage * 100))) / 10000n;
 
         try {
             const pubKey = wallet.address;
@@ -79,7 +94,7 @@ export const TokenTradeForm = ({
                 userPublicKey: pubKey,
                 mint: tokenData.mint,
                 amount: amountInAbs.toString(),
-                minAmountOut: "0",
+                minAmountOut: minAmountOut.toString(),
                 direction: isBuyMode ? "buy" : "sell",
             });
 
@@ -229,42 +244,43 @@ export const TokenTradeForm = ({
             <input
                 type="number"
                 value={amountIn}
-                onChange={(e) => setAmountIn(Number(e.target.value))}
+                onChange={(e) =>
+                    setAmountIn(Math.max(0, Number(e.target.value)))
+                }
                 className="input input-neutral w-full bg-gray-100"
                 placeholder="Enter amount"
             />
-            <div className="flex gap-2">
-                <p>
-                    {isBuyMode ? tokenData.metadata.symbol : "SOL"}
+            <div className="relative pt-4 flex justify-between gap-2">
+                <p className="absolute top-0 left-0 text-xs opacity-50">
+                    Buying
                 </p>
-                <p>
-                    {amountOut.toFixed(2)}
-                </p>
+                <p>{isBuyMode ? tokenData.metadata.symbol : "SOL"}</p>
+                <p>{amountOut.toFixed(2)}</p>
             </div>
 
-            <div className="grid grid-cols-1 gap-2 items-center">
+            <div className="grid grid-cols-[1fr_auto] gap-2 items-center">
                 <button
                     onClick={handleExecute}
-                    disabled={isLoading || !wallet}
+                    disabled={isLoading || !wallet || amountIn === 0}
                     className="btn btn-primary"
                 >
                     {!wallet
                         ? "Login to trade"
                         : isLoading
                         ? "Processing..."
-                        : "Confirm"}
+                        : "Swap"}
                 </button>
-                {/* <button
+                <button
                     onClick={() => setShowSettings(!showSettings)}
-                    className="btn btn-ghost btn-sm"
+                    className="btn btn-outline btn-square h-full"
                 >
-                    <SettingsIcon className="w-4 h-4" />
-                </button> */}
+                    <SettingsIcon className="w-6 h-6 opacity-70" />
+                </button>
             </div>
             {showSettings && (
                 <div className="bg-gray-100 p-2 rounded-sm">
                     <label className="text-sm font-medium">
-                        <p>Max Slippage  ({maxSlippagePct}%)</p>
+                        <p>Max Slippage ({maxSlippagePct}%)</p>
                     </label>
                     <input
                         type="range"
@@ -272,10 +288,8 @@ export const TokenTradeForm = ({
                         max={50}
                         step={0.5}
                         value={maxSlippagePct}
-                            onChange={(e) =>
-                                handleChangeMaxSlippagePct(
-                                    Number(e.target.value)
-                                )
+                        onChange={(e) =>
+                            handleChangeMaxSlippagePct(Number(e.target.value))
                         }
                         className="range range-secondary"
                     />
@@ -300,4 +314,43 @@ const SettingsIcon = ({ className }: { className: string }) => {
             <path d="M413.967 276.8c1.06-6.235 1.06-13.518 1.06-20.8s-1.06-13.518-1.06-20.8l44.667-34.318c4.26-3.118 5.319-8.317 2.13-13.518L418.215 115.6c-2.129-4.164-8.507-6.235-12.767-4.164l-53.186 20.801c-10.638-8.318-23.394-15.601-36.16-20.801l-7.448-55.117c-1.06-4.154-5.319-8.318-10.638-8.318h-85.098c-5.318 0-9.577 4.164-10.637 8.318l-8.508 55.117c-12.767 5.2-24.464 12.482-36.171 20.801l-53.186-20.801c-5.319-2.071-10.638 0-12.767 4.164L49.1 187.365c-2.119 4.153-1.061 10.399 2.129 13.518L96.97 235.2c0 7.282-1.06 13.518-1.06 20.8s1.06 13.518 1.06 20.8l-44.668 34.318c-4.26 3.118-5.318 8.317-2.13 13.518L92.721 396.4c2.13 4.164 8.508 6.235 12.767 4.164l53.187-20.801c10.637 8.318 23.394 15.601 36.16 20.801l8.508 55.117c1.069 5.2 5.318 8.318 10.637 8.318h85.098c5.319 0 9.578-4.164 10.638-8.318l8.518-55.117c12.757-5.2 24.464-12.482 36.16-20.801l53.187 20.801c5.318 2.071 10.637 0 12.767-4.164l42.549-71.765c2.129-4.153 1.06-10.399-2.13-13.518l-46.8-34.317zm-158.499 52c-41.489 0-74.46-32.235-74.46-72.8s32.971-72.8 74.46-72.8 74.461 32.235 74.461 72.8-32.972 72.8-74.461 72.8z"></path>
         </svg>
     );
+};
+
+const getTokensForBuySol = (
+    virtualSolReserves: bigint,
+    virtualTokenReserves: bigint,
+    solAmount: bigint
+): bigint => {
+    if (solAmount === 0n) return 0n;
+
+    // Convert to common decimal basis (using 9 decimals as base)
+    const currentSol = virtualSolReserves;
+    const currentTokens = (virtualTokenReserves * 1_000_000_000n) / 1_000_000n; // Scale to 9 decimals
+
+    // Calculate new reserves using constant product formula
+    const newSol = currentSol + solAmount;
+    const newTokens = (currentSol * currentTokens) / newSol;
+    const tokensOut = currentTokens - newTokens;
+
+    // Convert back to 6 decimal places for tokens
+    return (tokensOut * 1_000_000n) / 1_000_000_000n;
+};
+
+const getSolForSellTokens = (
+    virtualSolReserves: bigint,
+    virtualTokenReserves: bigint,
+    tokenAmount: bigint
+): bigint => {
+    if (tokenAmount == 0n) return 0n;
+
+    // Convert to common decimal basis (using 9 decimals as base)
+    const currentSol = virtualSolReserves;
+    const currentTokens = (virtualTokenReserves * 1_000_000_000n) / 1_000_000n; // Scale to 9 decimals
+
+    // Calculate new reserves using constant product formula
+    const newTokens =
+        currentTokens + (tokenAmount * 1_000_000_000n) / 1_000_000n;
+    const newSol = (currentSol * currentTokens) / newTokens;
+
+    return currentSol - newSol;
 };

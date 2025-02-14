@@ -20,6 +20,7 @@ export const ServerProvider: React.FC<{ children: React.ReactNode }> = ({
             httpUrl,
             httpHeaders: async () => {
                 const accessToken = await getAccessToken();
+                console.log("accessToken", accessToken);
                 return {
                     // Don't need to manually set cookies - browser handles this
                     // Other headers can still be included as needed

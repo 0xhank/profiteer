@@ -18,11 +18,12 @@ export function Account() {
                 if (!tokens[token]) return acc;
                 acc.push({
                     name: tokens[token].metadata.name,
+                    symbol: tokens[token].metadata.symbol,
                     balance: balance as number,
                 });
                 return acc;
             },
-            [] as { name: string; balance: number }[]
+            [] as { name: string; symbol: string; balance: number }[]
         );
     }, [solBalance, tokenBalances, tokens]);
 
@@ -106,9 +107,9 @@ export function Account() {
                         {tokensWithBalance.length == 0 && (
                             <div>No coins in your portfolio</div>
                         )}
-                        {tokensWithBalance.map(({ name, balance }) => (
+                        {tokensWithBalance.map(({ name, symbol, balance }) => (
                             <div
-                                key={name}
+                                key={symbol}
                                 className="flex items-center justify-between px-2"
                             >
                                 <Link
@@ -119,7 +120,7 @@ export function Account() {
                                         onClick={() => setShowQR(false)}
                                         className="text-left"
                                     >
-                                        {name}
+                                        {symbol}
                                     </Modal.CloseButton>
                                 </Link>
                                 <span>{balance.toFixed(3)}</span>

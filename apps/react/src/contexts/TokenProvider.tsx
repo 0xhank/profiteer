@@ -1,8 +1,10 @@
+import { Mutex } from "async-mutex";
 import {
     createContext,
     ReactNode,
     useCallback,
     useEffect,
+    useRef,
     useState,
 } from "react";
 import { toast } from "react-toastify";
@@ -24,8 +26,10 @@ export const TokenListContext = createContext<TokenListContextType | undefined>(
 export function TokenProvider({ children }: { children: ReactNode }) {
     const [tokens, setTokens] = useState<Record<string, Token>>({});
     const [isReady, setIsReady] = useState(false);
-    const [isFetching, setIsFetching] = useState(false);
+    const mutex = useRef(new Mutex());
+    const latestTokens = useRef(tokens);
 
+    // initialize the tokens
     // initialize the tokens
     useEffect(() => {
         const fetchTopMintsByVolume = async () => {
@@ -38,23 +42,18 @@ export function TokenProvider({ children }: { children: ReactNode }) {
             if (error) throw new Error(error?.message);
             if (!data) throw new Error("No data");
 
-            await fetchTokens(data.map(({ mint }) => mint));
+            await refreshTokens(data.map(({ mint }) => mint));
             setIsReady(true);
         };
         fetchTopMintsByVolume();
     }, []);
 
-    // fetch tokens
-    const fetchTokens = useCallback(
+    const refreshTokens = useCallback(
         async (mints: string[]) => {
-            if (isFetching) {
-                console.log("Fetch already in progress, skipping...");
-                return;
-            }
-
             try {
-                setIsFetching(true);
-                const cachedTokens = Object.keys(tokens);
+                await mutex.current.waitForUnlock();
+                await mutex.current.acquire();
+                const cachedTokens = Object.keys(latestTokens.current);
                 const tokensToFetch = mints.filter(
                     (mint) => !cachedTokens.includes(mint)
                 );
@@ -77,7 +76,7 @@ export function TokenProvider({ children }: { children: ReactNode }) {
                 }, {} as Record<string, Token>);
 
                 const newTokens = {
-                    ...tokens,
+                    ...latestTokens.current,
                     ...formattedTokens,
                 };
 
@@ -95,6 +94,7 @@ export function TokenProvider({ children }: { children: ReactNode }) {
                         }),
                     ]);
                 const { data: priceData, error: priceError } = priceResponse;
+
                 if (priceError) throw new Error(priceError?.message);
 
                 const { data: volumeData } = volumeResponse;
@@ -122,15 +122,17 @@ export function TokenProvider({ children }: { children: ReactNode }) {
                     }
                 });
 
+                latestTokens.current = newTokens;
+                console.log({newTokens});
                 setTokens(newTokens);
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
+                mutex.current.release();
                 setIsReady(true);
-                setIsFetching(false);
             }
         },
-        [tokens, isFetching]
+        [tokens]
     );
 
     const getTokenByMint = useCallback(
@@ -175,7 +177,7 @@ export function TokenProvider({ children }: { children: ReactNode }) {
             value={{
                 tokens,
                 isReady,
-                refreshTokens: fetchTokens,
+                refreshTokens,
                 getTokenByMint,
             }}
         >
