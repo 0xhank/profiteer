@@ -3,7 +3,6 @@ import {
     createContext,
     ReactNode,
     useCallback,
-    useEffect,
     useRef,
     useState,
 } from "react";
@@ -14,8 +13,7 @@ import { formatToken } from "../utils/formatToken";
 
 interface TokenListContextType {
     tokens: Record<string, Token>;
-    isReady: boolean;
-    refreshTokens: (mints: string[]) => Promise<void>;
+    refreshTokens: (mints: string[], onlyMetadata?: boolean) => Promise<void>;
     getTokenByMint: (mint: string) => Promise<Token | null>;
 }
 
@@ -25,32 +23,16 @@ export const TokenListContext = createContext<TokenListContextType | undefined>(
 
 export function TokenProvider({ children }: { children: ReactNode }) {
     const [tokens, setTokens] = useState<Record<string, Token>>({});
-    const [isReady, setIsReady] = useState(false);
-    const mutex = useRef(new Mutex());
+    // this useRef is necessary to handle race conditions for the content of the tokens object when using a mutex
     const latestTokens = useRef(tokens);
 
-    // initialize the tokens
-    // initialize the tokens
-    useEffect(() => {
-        const fetchTopMintsByVolume = async () => {
-            const { data, error } = await supabase
-                .from("trade_volume_12h")
-                .select("mint, total_volume")
-                .order("total_volume", { ascending: false })
-                .limit(20);
+    const mutex = useRef(new Mutex());
 
-            if (error) throw new Error(error?.message);
-            if (!data) throw new Error("No data");
-
-            await refreshTokens(data.map(({ mint }) => mint));
-            setIsReady(true);
-        };
-        fetchTopMintsByVolume();
-    }, []);
-
+    
     const refreshTokens = useCallback(
-        async (mints: string[]) => {
+        async (mints: string[], onlyMetadata: boolean = false) => {
             try {
+                console.log("refreshing tokens", mints);
                 await mutex.current.waitForUnlock();
                 await mutex.current.acquire();
                 const cachedTokens = Object.keys(latestTokens.current);
@@ -80,6 +62,10 @@ export function TokenProvider({ children }: { children: ReactNode }) {
                     ...formattedTokens,
                 };
 
+                if (onlyMetadata) {
+                    setTokens(newTokens);
+                    return;
+                }
                 const [volumeResponse, priceResponse, priceHistoryResponse] =
                     await Promise.all([
                         supabase
@@ -123,13 +109,11 @@ export function TokenProvider({ children }: { children: ReactNode }) {
                 });
 
                 latestTokens.current = newTokens;
-                console.log({newTokens});
                 setTokens(newTokens);
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
                 mutex.current.release();
-                setIsReady(true);
             }
         },
         [tokens]
@@ -137,18 +121,6 @@ export function TokenProvider({ children }: { children: ReactNode }) {
 
     const getTokenByMint = useCallback(
         async (mint: string) => {
-            const waitUntilReady = async () => {
-                let attempt = 0;
-                while (!isReady) {
-                    await new Promise((resolve) => setTimeout(resolve, 100));
-                    attempt++;
-                    if (attempt > 20) {
-                        throw new Error("Failed to fetch newscoins");
-                    }
-                }
-            };
-
-            await waitUntilReady();
             const token = tokens[mint];
             if (token) return token;
 
@@ -169,14 +141,13 @@ export function TokenProvider({ children }: { children: ReactNode }) {
 
             return newToken;
         },
-        [tokens, isReady]
+        [tokens]
     );
 
     return (
         <TokenListContext.Provider
             value={{
                 tokens,
-                isReady,
                 refreshTokens,
                 getTokenByMint,
             }}

@@ -2,16 +2,28 @@ import { VersionedTransaction } from "@solana/web3.js";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { Token } from "shared/src/types/token";
+import { z } from "zod";
 import { useFee } from "../../hooks/useFee";
 import { usePortfolio } from "../../hooks/usePortfolio";
 import { useServer } from "../../hooks/useServer";
 import { useTokenBalance } from "../../hooks/useTokenBalance";
 import { cn } from "../../utils/cn";
 import { SolBalance, TokenBalance } from "./token-balance";
-// Add these utility functions at the top level
+
 const uint8ArrayToBase64 = (uint8Array: Uint8Array): string => {
     return btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
 };
+
+export const swapInputSchema = z.object({
+    userPublicKey: z.string(),
+    mint: z.string(),
+    amount: z.string(),
+    minAmountOut: z.string(),
+    direction: z.enum(["buy", "sell"]),
+    priorityFee: z.number(),
+});
+
+export type SwapInput = z.infer<typeof swapInputSchema>;
 
 export const TokenTradeForm = ({
     tokenData,
@@ -32,6 +44,10 @@ export const TokenTradeForm = ({
     const [maxSlippagePct, setMaxSlippagePct] = useState(() => {
         const stored = localStorage.getItem("maxSlippagePct");
         return stored ? Number(stored) : 20;
+    });
+    const [priorityFee, setPriorityFee] = useState(() => {
+        const stored = localStorage.getItem("priorityFee");
+        return stored ? Number(stored) : 0;
     });
     const { createSwapTx, sendSwapTx } = useServer();
     const { refreshPortfolio } = usePortfolio();
@@ -60,7 +76,13 @@ export const TokenTradeForm = ({
 
             return amountOutUsd2 * (1 - fee);
         }
-    }, [isBuyMode, reserves.virtualSolReserves, reserves.virtualTokenReserves, amountIn, fee]);
+    }, [
+        isBuyMode,
+        reserves.virtualSolReserves,
+        reserves.virtualTokenReserves,
+        amountIn,
+        fee,
+    ]);
 
     useEffect(() => {
         setAmountIn(1);
@@ -88,6 +110,12 @@ export const TokenTradeForm = ({
         const minAmountOut =
             (amountOutAbs * BigInt(Math.round(slippage * 100))) / 10000n;
 
+        // Calculate priority fee based on compute units and price
+        const COMPUTE_UNITS = 300_000; // 300k compute units
+        const computeUnitPriceMicroLamports = priorityFee * 1_000_000; // Convert SOL to microlamports
+        const priorityFeeLamports =
+            COMPUTE_UNITS * computeUnitPriceMicroLamports; // Final fee in lamports
+
         try {
             const pubKey = wallet.address;
             const { txId, txMessage } = await createSwapTx.query({
@@ -96,6 +124,7 @@ export const TokenTradeForm = ({
                 amount: amountInAbs.toString(),
                 minAmountOut: minAmountOut.toString(),
                 direction: isBuyMode ? "buy" : "sell",
+                computeUnitPriceMicroLamports: priorityFeeLamports,
             });
 
             const serializedTx = Buffer.from(txMessage, "base64");
@@ -122,6 +151,11 @@ export const TokenTradeForm = ({
     const handleChangeMaxSlippagePct = (pct: number) => {
         setMaxSlippagePct(pct);
         localStorage.setItem("maxSlippagePct", pct.toString());
+    };
+
+    const handleChangePriorityFee = (fee: number) => {
+        setPriorityFee(fee);
+        localStorage.setItem("priorityFee", fee.toString());
     };
 
     return (
@@ -278,21 +312,41 @@ export const TokenTradeForm = ({
                 </button>
             </div>
             {showSettings && (
-                <div className="bg-gray-100 p-2 rounded-sm">
-                    <label className="text-sm font-medium">
-                        <p>Max Slippage ({maxSlippagePct}%)</p>
-                    </label>
-                    <input
-                        type="range"
-                        min={0.5}
-                        max={50}
-                        step={0.5}
-                        value={maxSlippagePct}
-                        onChange={(e) =>
-                            handleChangeMaxSlippagePct(Number(e.target.value))
-                        }
-                        className="range range-secondary"
-                    />
+                <div className="bg-gray-100 p-2 rounded-sm flex flex-col gap-3">
+                    <div>
+                        <label className="text-sm font-medium">
+                            <p>Max Slippage ({maxSlippagePct}%)</p>
+                        </label>
+                        <input
+                            type="range"
+                            min={0.5}
+                            max={50}
+                            step={0.5}
+                            value={maxSlippagePct}
+                            onChange={(e) =>
+                                handleChangeMaxSlippagePct(
+                                    Number(e.target.value)
+                                )
+                            }
+                            className="range range-secondary"
+                        />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium">
+                            <p>Priority Fee ({priorityFee.toFixed(6)} SOL)</p>
+                        </label>
+                        <input
+                            type="range"
+                            min={0}
+                            max={0.0001}
+                            step={0.000001}
+                            value={priorityFee}
+                            onChange={(e) =>
+                                handleChangePriorityFee(Number(e.target.value))
+                            }
+                            className="range range-secondary"
+                        />
+                    </div>
                 </div>
             )}
         </div>

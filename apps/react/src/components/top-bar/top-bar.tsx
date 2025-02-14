@@ -1,17 +1,14 @@
 import { Link } from "react-router-dom";
 import { cn } from "../../utils/cn";
 import { SearchBar } from "../common/search-bar";
-import { TopStories } from "../home/top-stories";
+import { RecentTrades } from "../home/recent-trades";
 import { WalletBalance } from "./wallet-balance";
 
-export default function TopBar({ className }: { className?: string }) {
+export default function TopBar() {
     return (
-        <div
-            className={`contents  w-full m-0 p-0 ${className}`}
-        >
-            <TopStories />
-            <div className="sticky top-0 z-[999] bg-gray-700 w-full flex justify-center">
-                <div className="grid grid-cols-[1fr_auto_1fr] w-full  max-w-[1100px] items-center px-2 md:px-4 md:pr-6">
+        <div className="w-full flex flex-col justify-center items-center sticky top-0 z-[999]">
+            <div className="bg-gray-700  w-full flex justify-center">
+                <div className="grid grid-cols-[1fr_auto_1fr] w-full max-w-[1100px] items-center px-2 md:px-4 md:pr-6">
                     <div className="relative z-10">
                         <SearchBar secondary={true} />
                     </div>
@@ -39,6 +36,9 @@ export default function TopBar({ className }: { className?: string }) {
                     </Link>
                     <WalletBalance />
                 </div>
+            </div>
+            <div className="w-full max-w-[1100px] bg-gray-100 rounded-b-sm p-2 flex justify-center">
+                <RecentTrades />
             </div>
         </div>
     );

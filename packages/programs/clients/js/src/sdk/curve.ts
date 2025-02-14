@@ -2,7 +2,7 @@ import { Program, } from "@coral-xyz/anchor";
 import { Amm, AmmIdl, VaultIdl } from "@mercurial-finance/dynamic-amm-sdk";
 import VaultImpl, { getVaultPdas, VaultIdl as VaultIdlType } from "@mercurial-finance/vault-sdk";
 import { SEEDS } from "@mercurial-finance/vault-sdk/dist/cjs/src/vault/constants";
-import { findAssociatedTokenPda, setComputeUnitLimit, SPL_ASSOCIATED_TOKEN_PROGRAM_ID } from "@metaplex-foundation/mpl-toolbox";
+import { findAssociatedTokenPda, setComputeUnitLimit, setComputeUnitPrice, SPL_ASSOCIATED_TOKEN_PROGRAM_ID } from "@metaplex-foundation/mpl-toolbox";
 import { Keypair, Pda, PublicKey, RpcGetAccountOptions, Signer, TransactionBuilder, Umi } from "@metaplex-foundation/umi";
 import { fromWeb3JsPublicKey, toWeb3JsInstruction, toWeb3JsKeypair, toWeb3JsPublicKey } from "@metaplex-foundation/umi-web3js-adapters";
 import { publicKey as publicKeySerializer, string } from '@metaplex-foundation/umi/serializers';
@@ -72,10 +72,13 @@ export class CurveSDK {
     async swap(params: {
         direction: "buy" | "sell",
         user: PublicKey,
+        computeUnitPriceMicroLamports: number,
     } & Pick<SwapInstructionArgs, "exactInAmount" | "minOutAmount">) {
         const userTokenAccount = this.getUserTokenAccount(params.user);
+        console.log("computeUnitPriceMicroLamports:", params.computeUnitPriceMicroLamports);
         let txBuilder = new TransactionBuilder()
         .add(setComputeUnitLimit(this.umi, { units: 600_000 }))
+        .add(setComputeUnitPrice(this.umi, { microLamports: params.computeUnitPriceMicroLamports }))
         .add(swap(this.umi, {
             global: this.PumpScience.globalPda[0],
             user: params.user as unknown as Signer,

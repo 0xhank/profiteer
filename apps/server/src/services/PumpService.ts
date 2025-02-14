@@ -1,11 +1,10 @@
 import supabase from "@/sbClient";
 import { CreateBondingCurveInput, SwapInput } from "@/types";
 import { initProviders } from "@/util/initProviders";
-import { Keypair, Signer, TransactionBuilder } from "@metaplex-foundation/umi";
+import { Keypair, Signer } from "@metaplex-foundation/umi";
 import {
     fromWeb3JsKeypair,
     fromWeb3JsPublicKey,
-    toWeb3JsKeypair,
 } from "@metaplex-foundation/umi-web3js-adapters";
 import {
     getAssociatedTokenAddressSync,
@@ -14,12 +13,11 @@ import {
 import { v4 as uuidv4 } from "uuid";
 
 import {
-    MessageV0,
     PublicKey,
     VersionedTransaction,
     Keypair as Web3JsKeypair,
 } from "@solana/web3.js";
-import { getTxEventsFromTxBuilderResponse, processTransaction } from "programs";
+import { getTxEventsFromTxBuilderResponse } from "programs";
 
 export const createPumpService = () => {
     const { umi, sdk, connection, program, masterKp } = initProviders();
@@ -210,8 +208,12 @@ export const createPumpService = () => {
 
             const sig = await connection.sendTransaction(tx);
             createBondingCurveRegistry.delete(txId);
-            const {blockhash, lastValidBlockHeight} = await connection.getLatestBlockhash();
-            await connection.confirmTransaction({signature: sig, blockhash, lastValidBlockHeight}, "confirmed");
+            const { blockhash, lastValidBlockHeight } =
+                await connection.getLatestBlockhash();
+            await connection.confirmTransaction(
+                { signature: sig, blockhash, lastValidBlockHeight },
+                "confirmed"
+            );
 
             const events = await getTxEventsFromTxBuilderResponse(
                 connection,
@@ -304,15 +306,12 @@ export const createPumpService = () => {
         const curveSdk = sdk.getCurveSDK(fromWeb3JsPublicKey(mintKp));
         const userPublicKey = new PublicKey(input.userPublicKey);
 
-        const fakeSigner = {
-            publicKey: fromWeb3JsPublicKey(userPublicKey),
-        } as Signer;
-
         const tx = await curveSdk.swap({
             direction: input.direction,
             user: fromWeb3JsPublicKey(userPublicKey),
             exactInAmount: BigInt(input.amount),
             minOutAmount: BigInt(input.minAmountOut),
+            computeUnitPriceMicroLamports: input.computeUnitPriceMicroLamports,
         });
 
         const txMessageBase64 = Buffer.from(tx.serialize()).toString("base64");
@@ -345,10 +344,17 @@ export const createPumpService = () => {
             const txSerialized = Buffer.from(txInput, "base64");
             const tx = VersionedTransaction.deserialize(txSerialized);
 
+            const simulation = await connection.simulateTransaction(
+                tx,
+            );
             const sig = await connection.sendTransaction(tx);
-            const {blockhash, lastValidBlockHeight} = await connection.getLatestBlockhash();
+            const { blockhash, lastValidBlockHeight } =
+                await connection.getLatestBlockhash();
 
-            await connection.confirmTransaction({signature: sig, blockhash, lastValidBlockHeight}, "confirmed");
+            await connection.confirmTransaction(
+                { signature: sig, blockhash, lastValidBlockHeight },
+                "confirmed"
+            );
             swapRegistry.delete(txId);
 
             const events = await getTxEventsFromTxBuilderResponse(
@@ -364,22 +370,19 @@ export const createPumpService = () => {
             }
 
             const complete = !!events.CompleteEvent?.[0];
-            const { error: swapError } = await supabase
-                .from("swap")
-                .insert({
-                    mint: entry.mint,
-                    user_address: swapEvent.user.toBase58(),
-                    sol_amount: Number(swapEvent.solAmount),
-                    token_amount: Number(swapEvent.tokenAmount),
-                    is_buy: swapEvent.isBuy,
-                });
+            const { error: swapError } = await supabase.from("swap").insert({
+                mint: entry.mint,
+                user_address: swapEvent.user.toBase58(),
+                sol_amount: Number(swapEvent.solAmount),
+                token_amount: Number(swapEvent.tokenAmount),
+                is_buy: swapEvent.isBuy,
+            });
 
             if (swapError) {
                 throw new Error(
                     `Failed to insert swap data: ${swapError.message}`
                 );
             }
-
 
             const { error: curveError } = await supabase
                 .from("curve_data")

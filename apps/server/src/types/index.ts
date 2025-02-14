@@ -18,7 +18,9 @@ export const swapInputSchema = z.object({
     amount: z.string(),
     minAmountOut: z.string(),
     direction: z.enum(["buy", "sell"]),
+    computeUnitPriceMicroLamports: z.number(),
 });
+
 export type SwapInput = z.infer<typeof swapInputSchema>;
 
 export type TransactionRegistryData = {

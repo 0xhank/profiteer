@@ -23,7 +23,7 @@ export function Headline({
     };
 
     const [firstSentence, ...restContent] = article.content.split(
-        /(?<=[^A-Z][.!?])\s+(?=[A-Z])/
+        /(?<=[^A-Z][.!?])\s+(?=[A-Z\[])/
     );
 
     return (
@@ -40,7 +40,7 @@ export function Headline({
                         "https://placehold.co/600x400/gray/white?text=No+Image"
                     }
                     className={`object-cover ${
-                        isFeature ? "w-full h-48" : "w-auto h-24"
+                        isFeature ? "w-48 h-auto self-center" : "w-auto h-24"
                     }`}
                     alt={article.article_names?.[0] || "Article image"}
                     onError={(e) => {

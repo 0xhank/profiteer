@@ -73,6 +73,7 @@ export const PortfolioProvider = ({
         const allBalances = (
             await getAllTokenBalances.query({ address: wallet.address })
         );
+        console.log("allBalances:", allBalances);
         await refreshTokens(allBalances.map((balance) => balance.mint));
         const pertinentBalances = allBalances.filter(({mint}) => tokens[mint] != null);
         const balances = pertinentBalances.reduce((acc, balance) => {

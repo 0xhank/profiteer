@@ -10,6 +10,7 @@ interface TokenBalanceProps {
 
 export const TokenBalance = ({ token }: TokenBalanceProps) => {
     const { balance } = useTokenBalance(token.mint);
+    console.log("balance:", balance);
     const { token: tokenData } = useToken(token.mint);
     const mostRecentPrice = tokenData?.priceUsd;
 
