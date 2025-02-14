@@ -1,4 +1,4 @@
-import { MessageV0 } from "@solana/web3.js";
+import { MessageV0, PublicKey } from "@solana/web3.js";
 import { z } from "zod";
 
 export const createBondingCurveInputSchema = z.object({
@@ -19,23 +19,19 @@ export const swapInputSchema = z.object({
     minAmountOut: z.string(),
     direction: z.enum(["buy", "sell"]),
     computeUnitPriceMicroLamports: z.number(),
+    slippageBps: z.number().optional(),
 });
 
 export type SwapInput = z.infer<typeof swapInputSchema>;
 
-export type TransactionRegistryData = {
-    timestamp: number;
-    autoSlippage: boolean;
-    contextSlot: number;
-    buildAttempts: number;
+
+
+// Internal swap types
+export type JupiterSwapInput = SwapInput & {
+  tokenAccount: PublicKey;
+  solAccount: PublicKey;
+  userKey: PublicKey;
 };
-
-export type TransactionRegistryEntry = {
-    message: MessageV0;
-    lastValidBlockHeight: number;
-} & TransactionRegistryData;
-
-export type ResponseType = "success" | "fail" | "rebuild";
 
 export type SubmitSignedTransactionResponse = {
     responseType: ResponseType;

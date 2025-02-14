@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 import { LoadingPane } from "../components/common/loading";
 import { PageLayout } from "../components/common/page-layout";
 import { CreateToken } from "../components/topic/create-token";
-import { TokenContent } from "../components/topic/token-content";
 import { TopicView } from "../components/topic/topic-view";
 import { useToken } from "../hooks/useToken";
 import supabase from "../sbClient";
@@ -15,6 +14,8 @@ import {
     cleanWikiArticle,
 } from "../utils/cleanWikiArticle";
 import { linkToName } from "../utils/titleToLink";
+import { TokenContent } from "../components/topic/token-content";
+import { TokenChart } from "../components/topic/token-chart";
 export default function Topic() {
     const params = useParams();
     const [mint, setMint] = useState<string | null>(null);
@@ -203,12 +204,19 @@ function PageContent({
                     />
                 )}
                 {/* Wiki Article on the left */}
-                <div className="col-span-2 h-full">
-                    <TopicView
-                        articleName={articleName}
-                        articleContent={article}
-                    />
+                <div className="md:col-span-2 h-full">
+                    {mint && <TokenChart mint={mint} />}
+                    {/* <iframe
+                        src={`https://dexscreener.com/solana/${mint}?embed=1&theme=light&trades=0&info=0`}
+                        height="400px"
+                        width="100%"
+                /> */}
                 </div>
+                <TopicView
+                    className="col-span-1 md:col-span-3"
+                    articleName={articleName}
+                    articleContent={article}
+                />
             </div>
         </PageLayout>
     );

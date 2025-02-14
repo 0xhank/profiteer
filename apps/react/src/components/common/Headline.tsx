@@ -34,22 +34,32 @@ export function Headline({
             )}
         >
             {article.imageUrl && !showNoImage && (
-                <img
-                    src={
-                        article.imageUrl ||
-                        "https://placehold.co/600x400/gray/white?text=No+Image"
+                <Link
+                    to={
+                        article.content.match(/\[([^\]]+)\]\(([^)]+)\)/)?.[2] ||
+                        "#"
                     }
-                    className={`object-cover ${
-                        isFeature ? "w-48 h-auto self-center" : "w-auto h-24"
-                    }`}
-                    alt={article.article_names?.[0] || "Article image"}
-                    onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.onerror = null;
-                        target.src =
-                            "https://placehold.co/600x400/gray/white?text=No+Image";
-                    }}
-                />
+                    className="w-full flex justify-center items-center"
+                >
+                    <img
+                        src={
+                            article.imageUrl ||
+                            "https://placehold.co/600x400/gray/white?text=No+Image"
+                        }
+                        className={`object-cover ${
+                            isFeature
+                                ? "w-48 h-auto self-center"
+                                : "w-auto h-24"
+                        }`}
+                        alt={article.article_names?.[0] || "Article image"}
+                        onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.onerror = null;
+                            target.src =
+                                "https://placehold.co/600x400/gray/white?text=No+Image";
+                        }}
+                    />
+                </Link>
             )}
             <div>
                 <ReactMarkdown

@@ -5,10 +5,12 @@ import { PumpService } from "./services/PumpService";
 import { WikiService } from "./services/WikiService";
 import { createBondingCurveInputSchema, swapInputSchema } from "./types";
 import { Env } from "@bin/envSchema";
-import supabase from "./sbClient";
 import { PublicKey } from "@solana/web3.js";
 import { AuthService } from "./services/AuthService";
+import { JupiterService } from "./services/JupiterService";
+
 export type AppContext = {
+    jupiterService: JupiterService;
     pumpService: PumpService;
     jwtToken: string;
     authService: AuthService;
@@ -123,6 +125,19 @@ export function createAppRouter() {
             .input(z.object({ txId: z.string(), txMessage: z.string() }))
             .mutation(async ({ input, ctx }) => {
                 return ctx.pumpService.sendSwapTx(input);
+            }),
+
+
+        createJupiterSwap: t.procedure
+            .input(swapInputSchema)
+            .query(async ({ input, ctx }) => {
+                return ctx.jupiterService.fetchSwap(input);
+            }),
+
+        sendJupiterSwap: t.procedure
+            .input(z.object({ id: z.string(), signedTx: z.string() }))
+            .mutation(async ({ input, ctx }) => {
+                return ctx.jupiterService.sendSwapTx(input);
             }),
 
         migrate: t.procedure

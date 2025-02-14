@@ -3,15 +3,11 @@ import { TokenTradeForm } from "./token-trade-form";
 import { useEffect, useMemo, useState } from "react";
 import { useFee } from "../../hooks/useFee";
 import { useToken } from "../../hooks/useToken";
-import { useTokenPrices } from "../../hooks/useTokenPrices";
 import supabase from "../../sbClient";
-import { pricesToCandles } from "../../utils/pricesToCandles";
 import { LoadingPane } from "../common/loading";
-import { CandleChart } from "./candle-chart";
 
 export const TokenContent = ({ mint }: { mint: string }) => {
     const { token: tokenData } = useToken(mint);
-    const { tokenPrices } = useTokenPrices(mint);
 
     const [complete, setComplete] = useState<boolean | null>(null);
 
@@ -93,16 +89,14 @@ export const TokenContent = ({ mint }: { mint: string }) => {
         };
     }, [mint]);
 
-    const candles = useMemo(() => {
-        return pricesToCandles(tokenPrices, 15 * 60);
-    }, [tokenPrices]);
+
 
     if (!tokenData || !reserves) return <LoadingPane className="h-full" />;
 
     return (
         tokenData &&
         reserves && (
-            <div className="col-span-1 flex flex-col gap-4 items-center">
+            <div className="col-span-1 flex flex-col gap-4 w-full items-center">
                 {!complete ? (
                     <TokenTradeForm
                         tokenData={tokenData}
@@ -110,13 +104,9 @@ export const TokenContent = ({ mint }: { mint: string }) => {
                         reserves={reserves}
                     />
                 ) : (
-                    <p>This token has been migrated. </p>
+                    <p>This token is migrating... </p>
                 )}
-                <CandleChart
-                    data={candles}
-                    colors={{ lineColor: "red" }}
-                    className="w-full"
-                />
+
                 {fee > 0.01 && (
                     <div className="text-left w-full">
                         <details className="cursor-pointer">

@@ -11,6 +11,7 @@ import fastify from "fastify";
 import { IncomingHttpHeaders, IncomingMessage } from "http";
 import { AppRouter, createAppRouter } from "../src/createAppRouter";
 import { parseEnv } from "./env";
+import { JupiterService } from "@/services/JupiterService";
 
 // @see https://fastify.dev/docs/latest/
 export const server = fastify({
@@ -67,6 +68,7 @@ export const start = async () => {
         const pumpService = createPumpService();
         const wikiService = WikiService();
         const authService = new AuthService();
+        const jupiterService = new JupiterService();
         const router = createAppRouter();
 
         // Single TRPC registration that handles both HTTP and WebSocket
@@ -80,6 +82,7 @@ export const start = async () => {
                     wikiService,
                     env,
                     authService,
+                    jupiterService,
                 }),
             },
         });

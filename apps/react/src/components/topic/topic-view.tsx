@@ -5,14 +5,17 @@ import { getRelatedHeadlines } from "../../sbClient";
 import { LoadingPane } from "../common/loading";
 import { TopicNews } from "./topic-news";
 import { Node } from "domhandler";
+import { cn } from "../../utils/cn";
 type Tab = "news" | "wiki";
 
 export const TopicView = ({
     articleName,
     articleContent,
+    className,
 }: {
     articleName: string;
     articleContent: string | null;
+    className?: string;
 }) => {
     const [activeTab, setActiveTab] = useState<Tab>("wiki");
     const [articles, setArticles] = useState<Awaited<
@@ -48,7 +51,7 @@ export const TopicView = ({
     };
 
     return (
-        <div className="w-full">
+        <div className={cn("w-full", className)}>
             <div className="flex border-b border-black/30 bg-white rounded-sm w-full">
                 <button
                     className={`cursor-pointer px-4 py-2 ${

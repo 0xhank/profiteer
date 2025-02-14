@@ -27,5 +27,7 @@ export const commonSchema = z.object({
     PROD_PRIVY_APP_ID: z.string(),
     PROD_PRIVY_APP_SECRET: z.string(),
 
+    JUPITER_URL: z.string().url(),
+
     VITE_ENV: z.enum(["development", "production"]).default("development"),
 });

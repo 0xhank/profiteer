@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getHeadlineList } from "../../sbClient";
-import { LoadingPane } from "../common/loading";
 import { Headline } from "../common/Headline";
+import { LoadingPane } from "../common/loading";
 
 type Article = {
     article_names: string[] | null;
@@ -55,14 +56,23 @@ export function BreakingNews() {
                 )}
                 {featureImage && (
                     <div className="row-span-2 col-span-2 flex flex-col justify-center items-center bg-white rounded-md p-1">
-                        <img
-                            src={featureImage}
-                            alt={
-                                featureArticle.article_names?.[0] ||
-                                "Article image"
+                        <Link
+                            to={
+                                featureArticle.content.match(
+                                    /\[([^\]]+)\]\(([^)]+)\)/
+                                )?.[2] || "#"
                             }
-                            className="row-span-2 col-span-2 w-full h-auto object-cover"
-                        />
+                            className="w-full"
+                        >
+                            <img
+                                src={featureImage}
+                                alt={
+                                    featureArticle.article_names?.[0] ||
+                                    "Article image"
+                                }
+                                className="row-span-2 col-span-2 w-full h-auto object-cover"
+                            />
+                        </Link>
                         <Headline
                             article={featureArticle}
                             isFeature={true}
