@@ -10,6 +10,8 @@ const commonSchema = z.object({
   SB_SERVICE_KEY: z.string(),
 
   RPC_URL: z.string(),
+
+  JUPITER_URL: z.string(),
 });
 
 function parseEnv<TSchema extends ZodTypeAny | undefined = undefined>(

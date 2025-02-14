@@ -265,6 +265,35 @@ export type Database = {
         }
         Relationships: []
       }
+      token_migration: {
+        Row: {
+          complete: boolean | null
+          created_at: string
+          migrated: boolean | null
+          mint: string
+        }
+        Insert: {
+          complete?: boolean | null
+          created_at?: string
+          migrated?: boolean | null
+          mint: string
+        }
+        Update: {
+          complete?: boolean | null
+          created_at?: string
+          migrated?: boolean | null
+          mint?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_migration_mint_fkey"
+            columns: ["mint"]
+            isOneToOne: true
+            referencedRelation: "token_metadata"
+            referencedColumns: ["mint"]
+          },
+        ]
+      }
       token_price_usd: {
         Row: {
           created_at: string

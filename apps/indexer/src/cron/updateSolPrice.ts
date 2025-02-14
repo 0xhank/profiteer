@@ -1,3 +1,4 @@
+import { skipInsert } from "..";
 import supabase from "../sbClient";
 
 export const updateSolPrice = async () => {
@@ -7,6 +8,8 @@ export const updateSolPrice = async () => {
         );
         const data = await response.json();
         const solPrice = data.solana.usd;
+        if (skipInsert) return;
+
         await supabase.from("sol_price_usd").insert({
             price_usd: solPrice,
         });
