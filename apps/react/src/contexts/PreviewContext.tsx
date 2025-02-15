@@ -2,9 +2,8 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useToken } from "../hooks/useToken";
 import { getTokenDataFromTopic } from "../sbClient";
-import { cleanTopicURI } from "../utils/cleanWikiArticle";
 import { formatNumber, formatPrice, formatVolume } from "../utils/formatPrice";
-
+import { linkToName } from "../utils/titleToLink";
 type PreviewData = {
     href: string;
     rect: DOMRect;
@@ -78,10 +77,10 @@ const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
     const tokenData = useToken(tokenMetadata?.mint ?? "").token;
     const [loading, setLoading] = useState(true);
 
-    const sanitizedTopic = cleanTopicURI(topic);
+    const sanitizedTopic = linkToName(topic);
     useEffect(() => {
         const fetchArticleList = async () => {
-            const tokenData = await getTokenDataFromTopic(topic);
+            const tokenData = await getTokenDataFromTopic(sanitizedTopic);
             setTokenMetadata(tokenData);
         };
         fetchArticleList().then(() => setLoading(false));

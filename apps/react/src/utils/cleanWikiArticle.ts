@@ -47,11 +47,3 @@ export const checkValidWikiLink = (link: string) => {
     return true;
 };
 
-export const cleanTopicURI = (topic: string) => {
-    return decodeURIComponent(topic)
-        .split("_")
-        .map(
-            (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-        )
-        .join(" ");
-};
