@@ -16,6 +16,7 @@ import {
 import { linkToName } from "../utils/titleToLink";
 import { TokenContent } from "../components/topic/token-content";
 import { TokenChart } from "../components/topic/token-chart";
+import { cn } from "../utils/cn";
 export default function Topic() {
     const params = useParams();
     const [mint, setMint] = useState<string | null>(null);
@@ -204,16 +205,16 @@ function PageContent({
                     />
                 )}
                 {/* Wiki Article on the left */}
-                <div className="md:col-span-2 h-full">
-                    {mint && <TokenChart mint={mint} />}
+                {mint && <TokenChart mint={mint} className="col-span-1 md:col-span-2 w-full h-full" />}
                     {/* <iframe
                         src={`https://dexscreener.com/solana/${mint}?embed=1&theme=light&trades=0&info=0`}
                         height="400px"
                         width="100%"
                 /> */}
-                </div>
                 <TopicView
-                    className="col-span-1 md:col-span-3"
+                    className={cn("col-span-1", 
+                        mint ? "md:col-span-3" : "md:col-span-2",
+                    )}
                     articleName={articleName}
                     articleContent={article}
                 />
