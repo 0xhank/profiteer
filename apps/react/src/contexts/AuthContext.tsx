@@ -23,7 +23,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { requestAuth, isAuthorized } = useServer();
 
     const checkInviteStatus = async () => {
-        console.log("Checking invite status for id:", id);
         if (!id) return;
         try {
             const authorized = await isAuthorized.query({ id: id });

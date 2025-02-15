@@ -1,11 +1,9 @@
-import { usePrivy } from "@privy-io/react-auth";
 import { ScrollingPages } from "../components/common/scrolling-pages";
 import { useAuth } from "../contexts/AuthContext";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 
 export default function Login() {
-    const { login, logout, ready, authenticated, user } = usePrivy();
     const {
         hasAccess,
         attemptAuthorize,
@@ -13,26 +11,12 @@ export default function Login() {
         ready: authReady,
     } = useAuth();
 
-    useEffect(() => {
-        if (authenticated) {
-            refreshInviteStatus();
-        }
-    }, [authenticated, refreshInviteStatus, user?.id]);
-
     const [code, setCode] = useState("");
     const [loading, setLoading] = useState(false);
     let content = <img src="/logogif.webp" alt="Logo" className="w-48 h-48" />;
-    if (ready && authReady) {
-        if (authenticated && hasAccess) {
+    if (authReady) {
+        if (hasAccess) {
             content = <div>Redirecting...</div>;
-        } else if (!authenticated) {
-            content = (
-                <div className="flex flex-col gap-4 items-center">
-                    <button className="btn btn-accent btn-lg" onClick={login}>
-                        Login
-                    </button>
-                </div>
-            );
         } else {
             content = (
                 <div className="flex flex-col gap-4 items-center p-2 bg-gray-800 rounded-sm">
@@ -81,14 +65,6 @@ export default function Login() {
                     {content}
                 </div>
             </div>
-            {authenticated && (
-                <button
-                    className="absolute top-4 right-4 btn btn-primary"
-                    onClick={logout}
-                >
-                    Logout
-                </button>
-            )}
         </div>
     );
 }
