@@ -32,7 +32,6 @@ export function TokenProvider({ children }: { children: ReactNode }) {
     const refreshTokens = useCallback(
         async (mints: string[], onlyMetadata: boolean = false) => {
             try {
-                console.log("refreshing tokens", mints);
                 await mutex.current.waitForUnlock();
                 await mutex.current.acquire();
                 const cachedTokens = Object.keys(latestTokens.current);

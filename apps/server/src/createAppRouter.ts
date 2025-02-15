@@ -46,14 +46,16 @@ export function createAppRouter() {
                 return "mainnet";
             }
         }),
-        isAuthorized: t.procedure.query(async ({ ctx }) => {
-            return await ctx.authService.isAuthorized(ctx.jwtToken);
-        }),
+        isAuthorized: t.procedure
+            .input(z.object({ id: z.string() }))
+            .query(async ({ ctx, input }) => {
+                return await ctx.authService.isAuthorized(input.id);
+            }),
 
         requestAuth: t.procedure
-            .input(z.object({ code: z.string() }))
+            .input(z.object({ id: z.string(), code: z.string() }))
             .mutation(async ({ ctx, input }) => {
-                await ctx.authService.requestAuth(ctx.jwtToken, input.code);
+                await ctx.authService.requestAuth(input.id, input.code);
             }),
 
         getAirdrop: t.procedure

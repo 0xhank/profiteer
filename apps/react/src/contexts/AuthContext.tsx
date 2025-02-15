@@ -1,5 +1,4 @@
-import { usePrivy } from "@privy-io/react-auth";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useServer } from "../hooks/useServer";
 
 interface AuthContextType {
@@ -13,16 +12,21 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [hasAccess, setHasAccess] = useState<boolean | null>(null);
-    const { user, ready: privyReady } = usePrivy();
     const [ready, setReady] = useState(false);
+    const id = useMemo(() => {
+        const savedId = localStorage.getItem("user_session_id");
+        if (savedId) return savedId;
+        const newId = Math.random().toString(36).substring(2, 15);
+        localStorage.setItem("user_session_id", newId);
+        return newId;
+    }, []);
     const { requestAuth, isAuthorized } = useServer();
 
     const checkInviteStatus = async () => {
-        if (!privyReady) return;
+        console.log("Checking invite status for id:", id);
+        if (!id) return;
         try {
-            if (!user) return setHasAccess(false);
-
-            const authorized = await isAuthorized.query();
+            const authorized = await isAuthorized.query({ id: id });
             setHasAccess(authorized);
         } catch (err) {
             console.error("Failed to check invite status:", err);
@@ -37,12 +41,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const attemptAuthorize = async (code: string) => {
-        await requestAuth.mutate({ code });
+        await requestAuth.mutate({ code, id });
     };
 
     useEffect(() => {
         checkInviteStatus();
-    }, [user, privyReady]);
+    }, [id]);
 
     return (
         <AuthContext.Provider

@@ -61,8 +61,7 @@ export class AuthService {
         }
     }
 
-    async isAuthorized(jwtToken: string) {
-        const { userId } = await this.getUserContext(jwtToken);
+    async isAuthorized(userId: string) {
         const { data, error } = await supabase
             .from("invite_codes")
             .select("*")
@@ -70,10 +69,8 @@ export class AuthService {
             .limit(1)
         return !!data?.[0];
     }
-    async requestAuth(jwtToken: string, code: string) {
+    async requestAuth(userId : string, code: string) {
 
-        const { userId } = await this.getUserContext(jwtToken);
-        console.log({ userId, code });
         const { data, error } = await supabase
             .from("invite_codes")
             .select("*")

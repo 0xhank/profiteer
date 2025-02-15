@@ -54,13 +54,9 @@ function App() {
 
 function AppContent() {
     const { hasAccess, ready } = useAuth();
-    const skipLogin =
-        new URLSearchParams(window.location.search).get("skipLogin") === "true";
 
-    if (!ready && !import.meta.env.VITE_SKIP_INVITE && !skipLogin)
-        return <LoadingScreen />;
-    if (!hasAccess && !import.meta.env.VITE_SKIP_INVITE && !skipLogin)
-        return <Login />;
+    if (!ready) return <LoadingScreen />;
+    if (!hasAccess) return <Login />;
     return (
         <div className="flex flex-col items-center h-screen w-screen absolute overflow-y-auto top-0 left-0 right-0 z-50 bg-gray-100">
             <TopBar />
