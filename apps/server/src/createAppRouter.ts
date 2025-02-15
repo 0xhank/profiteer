@@ -144,10 +144,11 @@ export function createAppRouter() {
             .input(
                 z.object({
                     mint: z.string(),
+                    computeUnitPriceMicroLamports: z.number(),
                 })
             )
             .mutation(async ({ input, ctx }) => {
-                return ctx.pumpService.migrate(input.mint);
+                return ctx.pumpService.migrate(input.mint, input.computeUnitPriceMicroLamports);
             }),
     });
 }

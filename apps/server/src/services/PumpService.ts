@@ -18,6 +18,7 @@ import {
     Keypair as Web3JsKeypair,
 } from "@solana/web3.js";
 import { getTxEventsFromTxBuilderResponse } from "programs";
+import { simulateTransaction } from "@coral-xyz/anchor/dist/cjs/utils/rpc";
 
 export const createPumpService = () => {
     const { umi, sdk, connection, program, masterKp } = initProviders();
@@ -404,12 +405,24 @@ export const createPumpService = () => {
             }
 
             if (complete) {
-                const { error: priceError } = await supabase
+                const { error: completeMetadataError } = await supabase
                     .from("token_metadata")
                     .update({
                         complete: true,
                     })
                     .eq("mint", entry.mint);
+                const { error: completeCurveError } = await supabase
+                    .from("token_migration")
+                    .insert({
+                        mint: entry.mint,
+                        complete: true,
+                        migrated: false,
+                    });
+                if (completeCurveError) {
+                    throw new Error(
+                        `Failed to insert token migration: ${completeCurveError.message}`
+                    );
+                }
             }
 
             return txId;
@@ -419,13 +432,18 @@ export const createPumpService = () => {
         }
     };
 
-    const migrate = async (mint: string) => {
+    const migrate = async (mint: string, computeUnitPriceMicroLamports: number) => {
         const mintKp = new PublicKey(mint);
         const curveSdk = sdk.getCurveSDK(fromWeb3JsPublicKey(mintKp));
-        const txBuilder = await curveSdk.migrate(masterKp);
+        const txBuilder = await curveSdk.migrate(masterKp, computeUnitPriceMicroLamports);
 
         const { blockhash, lastValidBlockHeight } =
             await connection.getLatestBlockhash();
+        const res = await connection.simulateTransaction(txBuilder.tx)
+        const value = res.value.err
+        if (value) {
+            throw new Error(value.toString())
+        }
         const preMigrateSig = await connection.sendTransaction(
             txBuilder.preTx,
             { preflightCommitment: "confirmed" }
@@ -443,10 +461,13 @@ export const createPumpService = () => {
             { signature: migrateSig, blockhash, lastValidBlockHeight },
             "confirmed"
         );
-        const txData = await connection.getTransaction(migrateSig, {
-            maxSupportedTransactionVersion: 0,
-            commitment: "confirmed",
+
+        supabase.from("token_migration").update({
+            mint,
+            complete: true,
+            migrated: true
         });
+       
     };
 
     return {

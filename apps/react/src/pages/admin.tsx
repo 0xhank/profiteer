@@ -3,9 +3,12 @@ import { toast } from "react-toastify";
 import HeadlineForm from "../components/admin/create-headline";
 import { HeadlineEditor } from "../components/admin/edit-headline";
 import { PageLayout } from "../components/common/page-layout";
+import { Migrate } from "../components/admin/migrate";
 
 const AdminPage = () => {
-    const [activeTab, setActiveTab] = useState<"create" | "edit">("create");
+    const [activeTab, setActiveTab] = useState<
+        "create" | "edit" | "migrations"
+    >("create");
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
         // Initialize from localStorage if available
         return localStorage.getItem("isAdminAuthenticated") === "true";
@@ -67,9 +70,25 @@ const AdminPage = () => {
                 >
                     Edit Headlines
                 </button>
+                <button
+                    onClick={() => setActiveTab("migrations")}
+                    className={`px-4 py-2 rounded-lg ${
+                        activeTab === "migrations"
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-100 hover:bg-gray-200"
+                    }`}
+                >
+                    Migrations
+                </button>
             </div>
 
-            {activeTab === "create" ? <HeadlineForm /> : <HeadlineEditor />}
+            {activeTab === "create" ? (
+                <HeadlineForm />
+            ) : activeTab === "edit" ? (
+                <HeadlineEditor />
+            ) : (
+                <Migrate />
+            )}
         </PageLayout>
     );
 };

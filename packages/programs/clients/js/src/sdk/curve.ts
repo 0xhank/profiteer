@@ -8,7 +8,7 @@ import { fromWeb3JsPublicKey, toWeb3JsInstruction, toWeb3JsKeypair, toWeb3JsPubl
 import { publicKey as publicKeySerializer, string } from '@metaplex-foundation/umi/serializers';
 import { deriveLockEscrowPda, getOrCreateATAInstruction } from "@meteora-ag/stake-for-fee";
 import { ASSOCIATED_TOKEN_PROGRAM_ID, createInitializeMint2Instruction, getAssociatedTokenAddressSync, getMinimumBalanceForRentExemptMint, MINT_SIZE, NATIVE_MINT, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { AddressLookupTableProgram, SystemProgram, SYSVAR_CLOCK_PUBKEY, SYSVAR_RENT_PUBKEY, TransactionInstruction, TransactionMessage, VersionedTransaction, PublicKey as Web3PublicKey } from "@solana/web3.js";
+import { AddressLookupTableProgram, ComputeBudgetProgram, SystemProgram, SYSVAR_CLOCK_PUBKEY, SYSVAR_RENT_PUBKEY, TransactionInstruction, TransactionMessage, VersionedTransaction, PublicKey as Web3PublicKey } from "@solana/web3.js";
 
 import { deriveMintMetadata, derivePoolAddressWithConfig } from "@mercurial-finance/dynamic-amm-sdk/dist/cjs/src/amm/utils";
 import {
@@ -179,7 +179,7 @@ export class CurveSDK {
     }
 
 
-    async migrate(signer: Keypair) {
+    async migrate(signer: Keypair, computeUnitPriceMicroLamports: number) {
         // get the vault program
         const meteoraProgram = new Program<Amm>(AmmIdl, AMM_PROGRAM_ID, this.PumpScience.provider);
 
@@ -211,6 +211,9 @@ export class CurveSDK {
             vaultProgram.account.vault.fetchNullable(bVault),
         ]);
         const preInstructions: Array<TransactionInstruction> = [];
+        const computeUnitIx = ComputeBudgetProgram.setComputeUnitPrice({ microLamports: computeUnitPriceMicroLamports });
+        preInstructions.push(computeUnitIx);
+
         if (!aVaultAccount) {
             const createVaultAIx = await VaultImpl.createPermissionlessVaultInstruction(this.PumpScience.provider.connection, toWeb3JsPublicKey(signer.publicKey), tokenAMint);
             preInstructions.push(createVaultAIx);
@@ -290,9 +293,7 @@ export class CurveSDK {
 
         const createPoolIx = createPool(this.PumpScience.umi, params)
 
-        let txBuilder = new TransactionBuilder()
-            .add(setComputeUnitLimit(this.umi, { units: 6_000_000 }))
-            .add(createPoolIx)
+
 
         const [lockEscrowPK] = deriveLockEscrowPda(poolPubkey, toWeb3JsPublicKey(FEE_RECIPIENT), toWeb3JsPublicKey(AMM_PROGRAM_ID));
         const {ataPubKey: escrowAta } = await getOrCreateATAInstruction(this.PumpScience.provider.connection, lpMint, lockEscrowPK, toWeb3JsPublicKey(signer.publicKey), true);
@@ -321,8 +322,11 @@ export class CurveSDK {
             eventAuthority: this.PumpScience.evtAuthAccs.eventAuthority,
         }
         const lockPoolIx = lockPool(this.PumpScience.umi, lockParams)
-
-        txBuilder = txBuilder.append(lockPoolIx)
+        let txBuilder = new TransactionBuilder()
+            .add(setComputeUnitLimit(this.umi, { units: 6_000_000 }))
+            .add(setComputeUnitPrice(this.umi, { microLamports: computeUnitPriceMicroLamports }))
+            .add(createPoolIx)
+            .add(lockPoolIx)
  
         const preInstructionsMessage = new TransactionMessage({
             payerKey: toWeb3JsPublicKey(signer.publicKey),

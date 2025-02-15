@@ -49,7 +49,7 @@ export const CandleChart = (props: ChartProps) => {
                 textColor,
             },
             width: chartContainerRef.current.clientWidth,
-            height: 300,
+            height: 350,
             rightPriceScale: {
                 visible: true,
                 borderVisible: false,
