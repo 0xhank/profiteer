@@ -1,11 +1,5 @@
 import { Mutex } from "async-mutex";
-import {
-    createContext,
-    ReactNode,
-    useCallback,
-    useRef,
-    useState,
-} from "react";
+import { createContext, ReactNode, useCallback, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { Token } from "shared/src/types/token";
 import supabase from "../sbClient";
@@ -13,7 +7,10 @@ import { formatToken } from "../utils/formatToken";
 
 interface TokenListContextType {
     tokens: Record<string, Token>;
-    refreshTokens: (mints: string[], onlyMetadata?: boolean) => Promise<void>;
+    refreshTokens: (
+        mints: string[],
+        onlyMetadata?: boolean
+    ) => Promise<Record<string, Token> | null>;
     getTokenByMint: (mint: string) => Promise<Token | null>;
 }
 
@@ -28,9 +25,9 @@ export function TokenProvider({ children }: { children: ReactNode }) {
 
     const mutex = useRef(new Mutex());
 
-    
     const refreshTokens = useCallback(
         async (mints: string[], onlyMetadata: boolean = false) => {
+            let newTokens: Record<string, Token> = {};
             try {
                 await mutex.current.waitForUnlock();
                 await mutex.current.acquire();
@@ -56,14 +53,14 @@ export function TokenProvider({ children }: { children: ReactNode }) {
                     return acc;
                 }, {} as Record<string, Token>);
 
-                const newTokens = {
+                newTokens = {
                     ...latestTokens.current,
                     ...formattedTokens,
                 };
 
                 if (onlyMetadata) {
                     setTokens(newTokens);
-                    return;
+                    return newTokens;
                 }
                 const [volumeResponse, priceResponse, priceHistoryResponse] =
                     await Promise.all([
@@ -109,8 +106,10 @@ export function TokenProvider({ children }: { children: ReactNode }) {
 
                 latestTokens.current = newTokens;
                 setTokens(newTokens);
+                return newTokens;
             } catch (error) {
                 console.error("Error fetching data:", error);
+                return null
             } finally {
                 mutex.current.release();
             }

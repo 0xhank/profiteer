@@ -60,6 +60,7 @@ export function Account() {
                             {wallet?.address.slice(0, 6)}...
                             {wallet?.address.slice(-6)}
                         </h3>
+                        
                         <button
                             onClick={() => {
                                 navigator.clipboard.writeText(

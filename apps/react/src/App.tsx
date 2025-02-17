@@ -56,7 +56,7 @@ function AppContent() {
     const { hasAccess, ready } = useAuth();
 
     if (!ready) return <LoadingScreen />;
-    if (!hasAccess) return <Login />;
+    // if (!hasAccess) return <Login />;
     return (
         <div className="flex flex-col items-center h-screen w-screen absolute overflow-y-auto top-0 left-0 right-0 z-50 bg-gray-100">
             <TopBar />

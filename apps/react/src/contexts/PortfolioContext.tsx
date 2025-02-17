@@ -73,15 +73,14 @@ export const PortfolioProvider = ({
         const allBalances = (
             await getAllTokenBalances.query({ address: wallet.address })
         );
-        console.log("allBalances:", allBalances);
-        await refreshTokens(allBalances.map((balance) => balance.mint));
-        const pertinentBalances = allBalances.filter(({mint}) => tokens[mint] != null);
+        const refreshedTokens = await refreshTokens(allBalances.map((balance) => balance.mint));
+        const pertinentBalances = allBalances.filter(({mint}) => refreshedTokens?.[mint] != null);
         const balances = pertinentBalances.reduce((acc, balance) => {
             acc[balance.mint] = balance.balanceToken / 10 ** 6;
             return acc;
         }, {} as Record<string, number>);
         setTokenBalances(balances);
-    }, [wallet]);
+    }, [wallet, tokens]);
 
     const refreshPortfolio = useCallback(async () => {
         await Promise.all([fetchSolBalance(), fetchTokenBalances()]);
@@ -96,7 +95,7 @@ export const PortfolioProvider = ({
         } else {
             setIsLoading(false);
         }
-    }, [wallet]); // Only depend on ready state and wallet address
+    }, [wallet]); 
 
     useEffect(() => {
     }, [wallet, authenticated]);

@@ -35,6 +35,7 @@ export default function TopBar() {
                             />
                         </div>
                     </Link>
+
                     <div className="flex items-center justify-end gap-2">
                         <Modal>
                             <Modal.Button className="btn btn-ghost btn-sm hidden md:block">
@@ -46,9 +47,22 @@ export default function TopBar() {
                                         How it works
                                     </h3>
                                     <p>Profiteer is a newscoin launchpad.</p>
-                                    <p>Headlines contain links to trending newscoins that are tradeable on a bonding curve.</p>
-                                    <p>Anyone can create a newscoin, but there is only one possible newscoin per topic. This ensures that there cannot be multiple newscoins for the same topic.</p>
-                                    <p>After a newscoin is created, there is a short-term Early Bird Fee which protects the community from scams.</p>
+                                    <p>
+                                        Headlines contain links to trending
+                                        newscoins that are tradeable on a
+                                        bonding curve.
+                                    </p>
+                                    <p>
+                                        Anyone can create a newscoin, but there
+                                        is only one possible newscoin per topic.
+                                        This ensures that there cannot be
+                                        multiple newscoins for the same topic.
+                                    </p>
+                                    <p>
+                                        After a newscoin is created, there is a
+                                        short-term Early Bird Fee which protects
+                                        the community from scams.
+                                    </p>
                                 </div>
                             </Modal.Content>
                         </Modal>
