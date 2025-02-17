@@ -17,6 +17,8 @@ import { linkToName } from "../utils/titleToLink";
 import { TokenContent } from "../components/topic/token-content";
 import { TokenChart } from "../components/topic/token-chart";
 import { cn } from "../utils/cn";
+import { formatNumber } from "../utils/formatPrice";
+import { formatVolume } from "../utils/formatPrice";
 export default function Topic() {
     const params = useParams();
     const [mint, setMint] = useState<string | null>(null);
@@ -193,6 +195,33 @@ function PageContent({
                         <p></p>
                     )}
                 </div>
+                <div className="flex flex-col items-center gap-2">
+                    <p className="text-sm font-mono">
+                        {formatVolume(
+                            tokenData?.volume12h ?? 0,
+                            tokenData?.priceUsd ?? 0
+                        )}{" "}
+                        <span className="text-gray-500 text-xs">
+                            VOLUME[12HR]
+                        </span>
+                    </p>
+                    <p className="text-sm font-mono">
+                        $
+                        {formatNumber(
+                            (tokenData?.metadata?.supply ?? 0) *
+                                (tokenData?.priceUsd ?? 0),
+                            {
+                                short: true,
+                                showZero: true,
+                                decimals: 9,
+                                fractionDigits: 2,
+                            }
+                        )}{" "}
+                        <span className="text-gray-500 text-xs">
+                            MARKET CAP
+                        </span>
+                    </p>
+                </div>
             </div>
             <div className="max-w-[1100px] h-full grid grid-cols-1 md:grid-cols-3 md:gap-8 items-start w-full py-2">
                 {/* Rest of the content */}
@@ -205,15 +234,21 @@ function PageContent({
                     />
                 )}
                 {/* Wiki Article on the left */}
-                {mint && <TokenChart mint={mint} className="col-span-1 md:col-span-2 w-full h-full" />}
-                    {/* <iframe
+                {mint && (
+                    <TokenChart
+                        mint={mint}
+                        className="col-span-1 md:col-span-2 w-full h-full"
+                    />
+                )}
+                {/* <iframe
                         src={`https://dexscreener.com/solana/${mint}?embed=1&theme=light&trades=0&info=0`}
                         height="400px"
                         width="100%"
                 /> */}
                 <TopicView
-                    className={cn("col-span-1", 
-                        mint ? "md:col-span-3" : "md:col-span-2",
+                    className={cn(
+                        "col-span-1",
+                        mint ? "md:col-span-3" : "md:col-span-2"
                     )}
                     articleName={articleName}
                     articleContent={article}

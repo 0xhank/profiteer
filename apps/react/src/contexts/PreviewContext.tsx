@@ -78,6 +78,7 @@ const PreviewOverlay = ({ rect, topic }: { rect: DOMRect; topic: string }) => {
     const [loading, setLoading] = useState(true);
 
     const sanitizedTopic = linkToName(topic);
+
     useEffect(() => {
         const fetchArticleList = async () => {
             const tokenData = await getTokenDataFromTopic(sanitizedTopic);
